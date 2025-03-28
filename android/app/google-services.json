@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "700439356887",
+    "project_id": "eutarapp",
+    "storage_bucket": "eutarapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700439356887:android:41aa75cc6217f0f4315792",
+        "android_client_info": {
+          "package_name": "com.example.eutar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFypjIoOsX14UfyrccbHxNMH7Yqi2ABe4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
