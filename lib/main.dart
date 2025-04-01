@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'authentication/screen/login_screen.dart';
-import 'home_screen.dart';
+import 'home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

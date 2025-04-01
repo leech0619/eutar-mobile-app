@@ -1,6 +1,6 @@
 //import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:eutar/home_screen.dart';
+import 'package:eutar/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../../utils/auth.dart';
 
