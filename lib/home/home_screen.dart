@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-
+import '../resource_sharing/screen/resource_screen.dart';
 import '../authentication/screen/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     const HomeScreen(),
-    const ResourcePage(),
+    const ResourceScreen(),
     const AdvisorPage(),
     const BusPage(),
     const ProfileScreen(),
