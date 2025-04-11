@@ -49,7 +49,7 @@ class ResourceController {
     try {
       // Upload file to Firebase Storage
       final fileName = file.path.split('/').last;
-      final storageRef = _storage.ref().child('assignments/$fileName');
+      final storageRef = _storage.ref("gs://focus-album-455510-h8.firebasestorage.app").child('assignments/$fileName');
       final uploadTask = storageRef.putFile(file);
       final snapshot = await uploadTask.whenComplete(() => null);
       final fileUrl = await snapshot.ref.getDownloadURL();
