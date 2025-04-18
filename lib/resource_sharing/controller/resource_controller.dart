@@ -12,7 +12,8 @@ class ResourceController {
 
   // Get current user ID
   String get currentUserId => _auth.currentUser?.uid ?? '';
-
+  String get currentUserName => _auth.currentUser?.displayName ?? '';
+  
   // Get all assignments
   Stream<List<Resource>> getResources() {
     return _firestore
@@ -71,6 +72,30 @@ class ResourceController {
     } catch (e) {
       print('Error uploading assignment: $e');
       return false;
+    }
+  }
+    Future<Resource?> getResourceDetails(String resourceId) async {
+    if (resourceId.isEmpty) {
+      print("Error: resourceId cannot be empty.");
+      return null;
+    }
+    try {
+      final docSnapshot = await _firestore
+          .collection('assignments') // Ensure this matches your collection name
+          .doc(resourceId)
+          .get();
+
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        // Assuming Resource.fromMap exists and handles data conversion
+        // It needs the data Map and the document ID
+        return Resource.fromMap(docSnapshot.data()!, docSnapshot.id);
+      } else {
+        print("Resource with ID $resourceId not found.");
+        return null; // Document doesn't exist
+      }
+    } catch (e) {
+      print("Error fetching resource details for ID $resourceId: $e");
+      return null; // Return null on error
     }
   }
 

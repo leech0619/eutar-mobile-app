@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import '../model/resource_model.dart';
 import '../controller/resource_controller.dart';
-
+import 'resource_detail_screen.dart'; // Assuming this is the correct import for ResourceDetailsScreen
 class ResourceScreen extends StatefulWidget {
   const ResourceScreen({Key? key}) : super(key: key);
 
@@ -101,7 +101,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
           ),
           bottom: const TabBar(
             labelColor: Colors.white, // Color for the selected tab text
-            
+
             tabs: [
               Tab(text: 'Browse Resources', icon: Icon(Icons.search)),
               Tab(text: 'Share Resource', icon: Icon(Icons.upload_file)),
@@ -169,53 +169,58 @@ class _ResourceScreenState extends State<ResourceScreen> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(8),
       itemCount: assignments.length,
       itemBuilder: (context, index) {
         final assignment = assignments[index];
         return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          elevation: 4,
           child: ListTile(
             title: Text(
               assignment.title,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            subtitle: assignment.description.isNotEmpty
+                ? Text(
+                    assignment.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  )
+                : const Text('No description available'), // Provide a default subtitle
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 4),
-                Text(assignment.description),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 6,
-                  children:
-                      assignment.tags
-                          .map(
-                            (tag) => Chip(
-                              label: Text(tag),
-                              backgroundColor: Colors.blue.shade100,
-                            ),
-                          )
-                          .toList(),
+                IconButton(
+                  icon: const Icon(
+                    Icons.info_outline,
+                    color: Colors.blueGrey,
+                  ),
+                  tooltip: 'View Details',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ResourceDetailScreen(
+                          resource: assignment,
+                        ),
+                      ),
+                    );
+                  },
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'Uploaded on: ${_formatDate(assignment.uploadDate)}',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                IconButton(
+                  icon: const Icon(Icons.download, color: Colors.blue),
+                  tooltip: 'Download',
+                  onPressed: () => _controller.downloadFile(assignment),
                 ),
               ],
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.download, color: Colors.blue),
-              onPressed: () => _controller.downloadFile(assignment),
-            ),
-            isThreeLine: true,
+            isThreeLine: true, // Ensure subtitle is not null
           ),
         );
       },
     );
   }
-
+  
   Widget _buildShareTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
