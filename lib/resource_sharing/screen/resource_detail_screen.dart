@@ -69,7 +69,7 @@ class ResourceDetailScreen extends StatelessWidget {
             // --- Metadata ---
             Divider(height: 20, thickness: 1),
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.person_outline, 'Uploaded by:', resource.uploadedBy.isNotEmpty ? resource.uploadedBy : 'Unknown'), // Display uploaderId. Ideally fetch user name.
+            _buildInfoRow(Icons.person_outline, 'Uploaded by:', resource.uploadedByName.isNotEmpty ? resource.uploadedByName : 'Unknown'), // Display uploaderId. Ideally fetch user name.
             const SizedBox(height: 10),
             _buildInfoRow(Icons.calendar_today_outlined, 'Uploaded on:', _formatDate(resource.uploadDate)),
              const SizedBox(height: 10),

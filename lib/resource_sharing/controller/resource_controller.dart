@@ -12,31 +12,57 @@ class ResourceController {
 
   // Get current user ID
   String get currentUserId => _auth.currentUser?.uid ?? '';
-  String get currentUserName => _auth.currentUser?.displayName ?? '';
-  
+  // Get current username
+  Future<String> get currentUserName async {
+    try {
+      final DocumentSnapshot userDoc =
+          await _firestore
+              .collection('users') // Replace 'users' with your collection name
+              .doc(currentUserId)
+              .get();
+
+      if (userDoc.exists) {
+
+        return userDoc['fullName'] as String? ??
+            ''; // Return username, or empty string if missing.  Crucially, use the as keyword.
+      } else {
+        print('User document not found');
+        return ''; // Return empty string if document not found
+      }
+    } catch (e) {
+      print('Error getting username: $e');
+      return ''; // Return empty string if an error occurred
+    }
+  }
+
   // Get all assignments
   Stream<List<Resource>> getResources() {
     return _firestore
         .collection('assignments')
         .orderBy('uploadDate', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Resource.fromMap(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs
+                  .map((doc) => Resource.fromMap(doc.data(), doc.id))
+                  .toList(),
+        );
   }
 
   // Search assignments by query
   Future<List<Resource>> searchResources(String query) async {
     query = query.toLowerCase();
-    
+
     final snapshot = await _firestore.collection('assignments').get();
-    
+
     return snapshot.docs
         .map((doc) => Resource.fromMap(doc.data(), doc.id))
-        .where((assignment) =>
-            assignment.title.toLowerCase().contains(query) ||
-            assignment.description.toLowerCase().contains(query) ||
-            assignment.tags.any((tag) => tag.toLowerCase().contains(query)))
+        .where(
+          (assignment) =>
+              assignment.title.toLowerCase().contains(query) ||
+              assignment.description.toLowerCase().contains(query) ||
+              assignment.tags.any((tag) => tag.toLowerCase().contains(query)),
+        )
         .toList();
   }
 
@@ -50,11 +76,11 @@ class ResourceController {
     try {
       // Upload file to Firebase Storage
       final fileName = file.path.split('/').last;
-      final storageRef = _storage.ref("gs://focus-album-455510-h8.firebasestorage.app").child('assignments/$fileName');
+      final storageRef = _storage.ref().child('assignments/$fileName');
       final uploadTask = storageRef.putFile(file);
       final snapshot = await uploadTask.whenComplete(() => null);
       final fileUrl = await snapshot.ref.getDownloadURL();
-
+      String uploadedByName = await currentUserName;
       // Create assignment in Firestore
       final assignment = Resource(
         id: '',
@@ -62,6 +88,7 @@ class ResourceController {
         description: description,
         fileUrl: fileUrl,
         fileName: fileName,
+        uploadedByName: uploadedByName,
         uploadedBy: currentUserId,
         uploadDate: DateTime.now(),
         tags: tags,
@@ -74,16 +101,20 @@ class ResourceController {
       return false;
     }
   }
-    Future<Resource?> getResourceDetails(String resourceId) async {
+
+  Future<Resource?> getResourceDetails(String resourceId) async {
     if (resourceId.isEmpty) {
       print("Error: resourceId cannot be empty.");
       return null;
     }
     try {
-      final docSnapshot = await _firestore
-          .collection('assignments') // Ensure this matches your collection name
-          .doc(resourceId)
-          .get();
+      final docSnapshot =
+          await _firestore
+              .collection(
+                'assignments',
+              ) // Ensure this matches your collection name
+              .doc(resourceId)
+              .get();
 
       if (docSnapshot.exists && docSnapshot.data() != null) {
         // Assuming Resource.fromMap exists and handles data conversion
