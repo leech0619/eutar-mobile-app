@@ -147,4 +147,87 @@ class ResourceController {
     // For web, you might open in a new tab
     // This is a placeholder for the actual implementation
   }
+  // **DELETE RESOURCE**
+  Future<bool> deleteResource(String resourceId, String fileUrl) async {
+    try {
+      // 1. Delete the document from Firestore
+      await _firestore.collection('assignments').doc(resourceId).delete();
+
+      // 2. Delete the file from Firebase Storage
+      final storageRef = FirebaseStorage.instance.refFromURL(fileUrl);  // Create a reference from the URL
+      await storageRef.delete();
+
+      return true;
+    } catch (e) {
+      print('Error deleting resource: $e');
+      return false;
+    }
+  }
+
+  // **UPDATE RESOURCE**
+  Future<bool> updateResource({
+    required String resourceId,
+    required String title,
+    required String description,
+    required List<String> tags,
+    File? newFile, // New optional file. If provided, we'll replace the old one
+    required String oldFileUrl, // To delete old file
+  }) async {
+    try {
+      String fileUrl = oldFileUrl; // Assume we're not changing the file URL
+
+      if (newFile != null) {
+        // Delete the old file if a new file is being uploaded
+        await FirebaseStorage.instance.refFromURL(oldFileUrl).delete();
+
+        // Upload the new file
+        final fileName = newFile.path.split('/').last;
+        final storageRef = _storage.ref().child('assignments/$fileName');
+        final uploadTask = storageRef.putFile(newFile);
+        final snapshot = await uploadTask.whenComplete(() => null);
+        fileUrl = await snapshot.ref.getDownloadURL();
+      }
+
+      // Update the document in Firestore
+      await _firestore.collection('assignments').doc(resourceId).update({
+        'title': title,
+        'description': description,
+        'tags': tags,
+        'fileUrl': fileUrl,
+      });
+
+      return true;
+    } catch (e) {
+      print('Error updating resource: $e');
+      return false;
+    }
+  }
+
+  Future<bool> isCurrentUserUploader(String resourceId) async {
+      try {
+          final docSnapshot = await _firestore
+              .collection('assignments')
+              .doc(resourceId)
+              .get();
+
+          if (docSnapshot.exists) {
+              final data = docSnapshot.data();
+              if (data != null && data.containsKey('uploadedBy')) {
+                  String uploadedBy = data['uploadedBy'] as String;
+                  return uploadedBy == currentUserId;
+              } else {
+                  print("uploadedBy field not found in document");
+                  return false;
+              }
+          } else {
+              print("Document with ID $resourceId not found.");
+              return false;
+          }
+      } catch (e) {
+          print("Error checking uploader: $e");
+          return false;
+      }
+  }
+
 }
+
