@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class BusStationScreen extends StatefulWidget {
   const BusStationScreen({super.key});
@@ -71,15 +72,72 @@ class _BusStationScreenState extends State<BusStationScreen> {
       appBar: AppBar(
         title: const Text('Bus Station Map'),
       ),
-      body: GoogleMap(
-        onMapCreated: (GoogleMapController controller) {
-          mapController = controller;
-        },
-        initialCameraPosition: const CameraPosition(
-          target: utarBusStation,
-          zoom: 14.0,
+      body: SlidingUpPanel(
+        panel: _buildSlidingPanel(),
+        collapsed: _buildCollapsedPanel(),
+        body: GoogleMap(
+          onMapCreated: (GoogleMapController controller) {
+            mapController = controller;
+          },
+          initialCameraPosition: const CameraPosition(
+            target: utarBusStation,
+            zoom: 14.0,
+          ),
+          markers: _markers,
         ),
-        markers: _markers,
+      ),
+    );
+  }
+
+  Widget _buildSlidingPanel() {
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Container(
+          height: 5,
+          width: 50,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Bus Schedule',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const Divider(),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 10, // Replace with actual schedule length
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: const Icon(Icons.directions_bus),
+                title: Text('Bus $index'),
+                subtitle: const Text('Departure: 10:00 AM'),
+                trailing: const Text('Arrival: 10:30 AM'),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCollapsedPanel() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blueAccent,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Center(
+        child: Text(
+          'Swipe up for Bus Schedule',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
