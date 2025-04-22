@@ -20,8 +20,13 @@ class _BusStationScreenState extends State<BusStationScreen> {
   final Set<Polyline> _polylines = {};
   String filter = "All"; // Filter for routes (e.g., "Depart from UTAR")
   LatLng? currentLocation;
-Map<String, dynamic>? busScheduleData; // To store the entire bus schedule JSON data
-List<dynamic> filteredRoutes = []; // To store the filtered list of routes
+  Map<String, dynamic>? busScheduleData; // To store the entire bus schedule JSON data
+  List<dynamic> filteredRoutes = []; // To store the filtered list of routes
+  final TextEditingController _searchController = TextEditingController();
+  Set<String> favoriteStops = {};
+  final PanelController _panelController = PanelController();
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +60,9 @@ List<dynamic> filteredRoutes = []; // To store the filtered list of routes
   Future<Map<String, dynamic>> loadBusSchedule() async {
     try {
       final String response = await rootBundle.loadString('assets/json/bus_schedule.json');
-      return json.decode(response);
+      final data = json.decode(response);
+      print('Loaded bus schedule: ${data['routes'].length} routes found');
+      return data;
     } catch (e) {
       print('Error loading JSON file: $e');
       return {};
@@ -63,48 +70,102 @@ List<dynamic> filteredRoutes = []; // To store the filtered list of routes
   }
 
   void _loadAndDisplayBusSchedule() async {
-    final data = await loadBusSchedule();
-    final routes = data['routes'];
-    _markers.clear();
-    _polylines.clear();
-setState(() {
-    busScheduleData = data;
-    filteredRoutes = data['routes']; // Initialize with all routes
+  setState(() {
+    isLoading = true;
   });
-    for (var route in routes) {
-      // Add markers for each stop
-      for (var stop in route['stops']) {
-        _markers.add(
-          Marker(
-            markerId: MarkerId(stop['name']),
-            position: LatLng(stop['lat'], stop['lng']),
-            infoWindow: InfoWindow(
-              title: stop['name'],
-              snippet: 'Click for details',
-              onTap: () {
-                _showStopDetails(stop, route['trips']);
-              },
-            ),
-          ),
-        );
-      }
-
-      // Add polylines for each route
-      final List<LatLng> routeCoordinates = route['stops']
-          .map<LatLng>((stop) => LatLng(stop['lat'], stop['lng']))
-          .toList();
-
-      _polylines.add(
-        Polyline(
-          polylineId: PolylineId(route['id']),
-          points: routeCoordinates,
-          color: Colors.blue,
-          width: 5,
-        ),
-      );
-    }
-    setState(() {});
+  
+  final data = await loadBusSchedule();
+  
+  // Check if data is valid and has routes
+  if (data.isEmpty || !data.containsKey('routes')) {
+    print('Error: Invalid or empty bus schedule data');
+    setState(() {
+      isLoading = false;
+    });
+    return;
   }
+  
+  // Print the structure of the first route for debugging
+  if (data['routes'].isNotEmpty) {
+    print('First route structure: ${data['routes'][0]}');
+    if (data['routes'][0].containsKey('stops') && data['routes'][0]['stops'].isNotEmpty) {
+      print('First stop structure: ${data['routes'][0]['stops'][0]}');
+    }
+  }
+  
+  try {
+    setState(() {
+      busScheduleData = data;
+      filteredRoutes = List.from(data['routes']); // Create a copy for filtering
+      
+      _markers.clear();
+      _polylines.clear();
+      
+      // Add markers for default view (all stops)
+      for (var route in data['routes']) {
+        // Ensure stops is a list
+        List<dynamic> stops = route['stops'] is List ? route['stops'] : [];
+        
+        for (var stop in stops) {
+          // Safely access properties with null checks
+          if (stop != null && stop['name'] != null && stop['lat'] != null && stop['lng'] != null) {
+            _markers.add(
+              Marker(
+                markerId: MarkerId(stop['name'].toString()),
+                position: LatLng(
+                  double.tryParse(stop['lat'].toString()) ?? 0.0,
+                  double.tryParse(stop['lng'].toString()) ?? 0.0
+                ),
+                infoWindow: InfoWindow(
+                  title: stop['name'].toString(),
+                  snippet: 'Click for details',
+                  onTap: () {
+                    _showStopDetails(stop, route['trips'] ?? []);
+                  },
+                ),
+              ),
+            );
+          }
+        }
+      }
+      
+      // Add all route polylines for initial view
+      for (var route in data['routes']) {
+        List<dynamic> stops = route['stops'] is List ? route['stops'] : [];
+        
+        final List<LatLng> routeCoordinates = [];
+        for (var stop in stops) {
+          if (stop != null && stop['lat'] != null && stop['lng'] != null) {
+            routeCoordinates.add(
+              LatLng(
+                double.tryParse(stop['lat'].toString()) ?? 0.0,
+                double.tryParse(stop['lng'].toString()) ?? 0.0
+              )
+            );
+          }
+        }
+
+        if (routeCoordinates.isNotEmpty) {
+          _polylines.add(
+            Polyline(
+              polylineId: PolylineId(route['id']?.toString() ?? "route_${data['routes'].indexOf(route)}"),
+              points: routeCoordinates,
+              color: Colors.blue,
+              width: 5,
+            ),
+          );
+        }
+      }
+      
+      isLoading = false;
+    });
+  } catch (e) {
+    print('Error processing bus schedule data: $e');
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
 
   void _resetMap() {
     setState(() {
@@ -116,8 +177,43 @@ setState(() {
             markerId: const MarkerId('currentLocation'),
             position: currentLocation!,
             infoWindow: const InfoWindow(title: 'You are here'),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
           ),
         );
+      }
+      
+      // Reload all bus stops and routes
+      if (busScheduleData != null) {
+        for (var route in busScheduleData!['routes']) {
+          for (var stop in route['stops']) {
+            _markers.add(
+              Marker(
+                markerId: MarkerId(stop['name']),
+                position: LatLng(stop['lat'], stop['lng']),
+                infoWindow: InfoWindow(
+                  title: stop['name'],
+                  snippet: 'Click for details',
+                  onTap: () {
+                    _showStopDetails(stop, route['trips']);
+                  },
+                ),
+              ),
+            );
+          }
+          
+          final List<LatLng> routeCoordinates = route['stops']
+              .map<LatLng>((stop) => LatLng(stop['lat'], stop['lng']))
+              .toList();
+
+          _polylines.add(
+            Polyline(
+              polylineId: PolylineId(route['id']),
+              points: routeCoordinates,
+              color: Colors.blue,
+              width: 5,
+            ),
+          );
+        }
       }
     });
   }
@@ -129,6 +225,9 @@ setState(() {
     Marker? nearestMarker;
 
     for (var marker in _markers) {
+      // Skip current location marker
+      if (marker.markerId.value == 'currentLocation') continue;
+      
       final distance = _calculateDistance(
         currentLocation!.latitude,
         currentLocation!.longitude,
@@ -143,7 +242,7 @@ setState(() {
 
     if (nearestMarker != null) {
       mapController.animateCamera(
-        CameraUpdate.newLatLng(nearestMarker.position),
+        CameraUpdate.newLatLngZoom(nearestMarker.position, 15),
       );
 
       // Show a modal bottom sheet for the nearest bus stop
@@ -161,12 +260,28 @@ setState(() {
                 ),
                 const SizedBox(height: 10),
                 Text('Bus Stop: ${nearestMarker?.infoWindow.title}'),
+                Text('Distance: ${minDistance.toStringAsFixed(2)} km'),
                 const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Close'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: Icon(Icons.favorite),
+                      label: Text('Add to Favorites'),
+                      onPressed: () {
+                        if (nearestMarker != null) {
+                          _toggleFavorite(nearestMarker.infoWindow.title!);
+                        }
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Close'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -192,7 +307,7 @@ setState(() {
     return degrees * pi / 180;
   }
 
-    void _showStopDetails(Map<String, dynamic> stop, List<dynamic> trips) {
+  void _showStopDetails(Map<String, dynamic> stop, List<dynamic> trips) {
     showDialog(
       context: context,
       builder: (context) {
@@ -200,7 +315,7 @@ setState(() {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(stop['name']),
+              Expanded(child: Text(stop['name'], overflow: TextOverflow.ellipsis)),
               IconButton(
                 icon: Icon(
                   favoriteStops.contains(stop['name'])
@@ -218,20 +333,41 @@ setState(() {
               ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('All Departures:'),
-              ...trips.map((trip) {
-                final departure = trip['departures'].firstWhere(
-                  (d) => d['stop'] == stop['name'],
-                  orElse: () => null,
-                );
-                return departure != null
-                    ? Text('Trip ${trip['tripNumber']}: ${departure['time']}')
-                    : const SizedBox.shrink();
-              }).toList(),
-            ],
+          content: Container(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('All Departures:', style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: trips.length,
+                    itemBuilder: (context, index) {
+                      final trip = trips[index];
+                      final departure = trip['departures'].firstWhere(
+                        (d) => d['stop'] == stop['name'],
+                        orElse: () => null,
+                      );
+                      
+                      if (departure != null) {
+                        return Card(
+                          child: ListTile(
+                            leading: Icon(Icons.directions_bus),
+                            title: Text('Trip ${trip['tripNumber']}'),
+                            subtitle: Text('Departure: ${departure['time']}'),
+                          ),
+                        );
+                      } else {
+                        return SizedBox.shrink();
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -243,33 +379,154 @@ setState(() {
       },
     );
   }
-Set<String> favoriteStops = {};
-void _toggleFavorite(String stopName) {
-  setState(() {
-    if (favoriteStops.contains(stopName)) {
-      favoriteStops.remove(stopName);
-    } else {
-      favoriteStops.add(stopName);
-    }
-  });
-}
-final TextEditingController _searchController = TextEditingController();
-void _searchRoutes(String query) {
-  setState(() {
-    if (query.isEmpty) {
-      filteredRoutes = busScheduleData!['routes']; // Reset to all routes
-    } else {
-      filteredRoutes = busScheduleData!['routes']
-          .where((route) => route['name']
-              .toLowerCase()
-              .contains(query.toLowerCase()) ||
-              route['stops'].any((stop) => stop['name']
-                  .toLowerCase()
-                  .contains(query.toLowerCase())))
+
+  void _toggleFavorite(String stopName) {
+    setState(() {
+      if (favoriteStops.contains(stopName)) {
+        favoriteStops.remove(stopName);
+      } else {
+        favoriteStops.add(stopName);
+      }
+    });
+  }
+
+  void _searchRoutes(String query) {
+    if (busScheduleData == null) return;
+    
+    setState(() {
+      if (query.isEmpty) {
+        filteredRoutes = List.from(busScheduleData!['routes']); // Reset to all routes
+        _resetMap(); // Show all routes on map
+      } else {
+        filteredRoutes = busScheduleData!['routes']
+            .where((route) => 
+                route['name'].toString().toLowerCase().contains(query.toLowerCase()) ||
+                (route['stops'] as List).any((stop) => 
+                    stop['name'].toString().toLowerCase().contains(query.toLowerCase())))
+            .toList();
+        
+        // If we have filtered routes, show the first one on the map
+        if (filteredRoutes.isNotEmpty) {
+          final firstRoute = filteredRoutes[0];
+          if (firstRoute['trips'] != null && firstRoute['trips'].isNotEmpty) {
+            _showTripOnMap(firstRoute, firstRoute['trips'][0]);
+          }
+        }
+      }
+    });
+  }
+
+  void _showTripOnMap(Map<String, dynamic> route, Map<String, dynamic> trip) {
+    // Clear existing markers and polylines
+    setState(() {
+      _markers.clear();
+      _polylines.clear();
+      
+      // Add current location marker if available
+      if (currentLocation != null) {
+        _markers.add(
+          Marker(
+            markerId: const MarkerId('currentLocation'),
+            position: currentLocation!,
+            infoWindow: const InfoWindow(title: 'You are here'),
+            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          ),
+        );
+      }
+      
+      // Add markers for each stop in the selected route
+      for (var stop in route['stops']) {
+        final departure = trip['departures'].firstWhere(
+          (d) => d['stop'] == stop['name'], 
+          orElse: () => null
+        );
+        
+        _markers.add(
+          Marker(
+            markerId: MarkerId(stop['name']),
+            position: LatLng(stop['lat'], stop['lng']),
+            infoWindow: InfoWindow(
+              title: stop['name'],
+              snippet: 'Next Trip: ${departure != null ? departure['time'] : 'N/A'}',
+              onTap: () {
+                _showStopDetails(stop, [trip]);
+              },
+            ),
+            icon: favoriteStops.contains(stop['name']) 
+                ? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose)
+                : BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+          ),
+        );
+      }
+
+      // Add polyline for the selected route
+      final List<LatLng> routeCoordinates = route['stops']
+          .map<LatLng>((stop) => LatLng(stop['lat'], stop['lng']))
           .toList();
+
+      _polylines.add(
+        Polyline(
+          polylineId: PolylineId(route['id']),
+          points: routeCoordinates,
+          color: Colors.red,
+          width: 5,
+        ),
+      );
+    });
+    
+    // Focus the map on the route
+    if (route['stops'].isNotEmpty) {
+      LatLngBounds bounds = _getBoundsForRoute(route);
+      mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     }
-  });
-}
+    
+    // Partially collapse the panel to show more of the map
+    _panelController.animatePanelToPosition(0.4);
+  }
+
+  // Helper method to get bounds for a route
+  LatLngBounds _getBoundsForRoute(Map<String, dynamic> route) {
+    double minLat = 90.0, maxLat = -90.0, minLng = 180.0, maxLng = -180.0;
+    
+    for (var stop in route['stops']) {
+      double lat = stop['lat'];
+      double lng = stop['lng'];
+      
+      minLat = min(minLat, lat);
+      maxLat = max(maxLat, lat);
+      minLng = min(minLng, lng);
+      maxLng = max(maxLng, lng);
+    }
+    
+    return LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+  }
+
+  // Helper method to zoom the map to fit all routes
+  void _zoomToFitAllRoutes(List<dynamic> routes) {
+    double minLat = 90.0, maxLat = -90.0, minLng = 180.0, maxLng = -180.0;
+    
+    for (var route in routes) {
+      for (var stop in route['stops']) {
+        double lat = stop['lat'];
+        double lng = stop['lng'];
+        
+        minLat = min(minLat, lat);
+        maxLat = max(maxLat, lat);
+        minLng = min(minLng, lng);
+        maxLng = max(maxLng, lng);
+      }
+    }
+    
+    LatLngBounds bounds = LatLngBounds(
+      southwest: LatLng(minLat, minLng),
+      northeast: LatLng(maxLat, maxLng),
+    );
+    
+    mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -285,32 +542,174 @@ void _searchRoutes(String query) {
             icon: const Icon(Icons.near_me),
             onPressed: _suggestNearestBusStation,
           ),
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () {
+              _showFavoriteStops();
+            },
+          ),
         ],
       ),
-      body: SlidingUpPanel(
-        panel: _buildSlidingPanel(),
-        collapsed: _buildCollapsedPanel(),
-        body: GoogleMap(
-          onMapCreated: (GoogleMapController controller) {
-            mapController = controller;
-          },
-          initialCameraPosition: CameraPosition(
-            target: currentLocation ?? utarBusStation,
-            zoom: 14.0,
-          ),
-          markers: _markers,
-          polylines: _polylines,
-          myLocationEnabled: true,
-        ),
-      ),
+      body: isLoading 
+          ? Center(child: CircularProgressIndicator())
+          : SlidingUpPanel(
+              controller: _panelController,
+              panel: _buildSlidingPanel(),
+              collapsed: _buildCollapsedPanel(),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(24.0),
+                topRight: Radius.circular(24.0),
+              ),
+              minHeight: 60,
+              body: GoogleMap(
+                onMapCreated: (GoogleMapController controller) {
+                  mapController = controller;
+                },
+                initialCameraPosition: CameraPosition(
+                  target: currentLocation ?? utarBusStation,
+                  zoom: 14.0,
+                ),
+                markers: _markers,
+                polylines: _polylines,
+                myLocationEnabled: true,
+                mapToolbarEnabled: true,
+                zoomControlsEnabled: true,
+              ),
+            ),
     );
   }
 
-    Widget _buildSlidingPanel() {
+  void _showFavoriteStops() {
+    if (favoriteStops.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No favorite stops added yet')),
+      );
+      return;
+    }
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Favorite Bus Stops'),
+          content: Container(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: favoriteStops.length,
+              itemBuilder: (context, index) {
+                final stopName = favoriteStops.elementAt(index);
+                return ListTile(
+                  leading: Icon(Icons.favorite, color: Colors.red),
+                  title: Text(stopName),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete),
+                    onPressed: () {
+                      _toggleFavorite(stopName);
+                      Navigator.of(context).pop();
+                      _showFavoriteStops();
+                    },
+                  ),
+                  onTap: () {
+                    // Find the stop and show it on map
+                    _focusOnStop(stopName);
+                    Navigator.of(context).pop();
+                  },
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  
+  void _focusOnStop(String stopName) {
+    if (busScheduleData == null) return;
+    
+    for (var route in busScheduleData!['routes']) {
+      for (var stop in route['stops']) {
+        if (stop['name'] == stopName) {
+          mapController.animateCamera(
+            CameraUpdate.newLatLngZoom(LatLng(stop['lat'], stop['lng']), 16),
+          );
+          
+          // Highlight this stop
+          setState(() {
+            _markers.clear();
+            _polylines.clear();
+            
+            // Add current location marker if available
+            if (currentLocation != null) {
+              _markers.add(
+                Marker(
+                  markerId: const MarkerId('currentLocation'),
+                  position: currentLocation!,
+                  infoWindow: const InfoWindow(title: 'You are here'),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                ),
+              );
+            }
+            
+            // Add the favorite stop marker
+            _markers.add(
+              Marker(
+                markerId: MarkerId(stopName),
+                position: LatLng(stop['lat'], stop['lng']),
+                infoWindow: InfoWindow(
+                  title: stopName,
+                  snippet: 'Favorite Stop',
+                  onTap: () {
+                    _showStopDetails(stop, route['trips']);
+                  },
+                ),
+                icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+              ),
+            );
+            
+            // Add route polyline
+            final List<LatLng> routeCoordinates = route['stops']
+                .map<LatLng>((s) => LatLng(s['lat'], s['lng']))
+                .toList();
+
+            _polylines.add(
+              Polyline(
+                polylineId: PolylineId(route['id']),
+                points: routeCoordinates,
+                color: Colors.purple,
+                width: 5,
+              ),
+            );
+          });
+          
+          return;
+        }
+      }
+    }
+  }
+
+  Widget _buildSlidingPanel() {
     return Column(
       children: [
+        // Handle to drag the panel
+        Container(
+          height: 5,
+          width: 40,
+          margin: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
@@ -323,90 +722,82 @@ void _searchRoutes(String query) {
                   _searchRoutes('');
                 },
               ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
             onChanged: _searchRoutes,
           ),
         ),
+        
         Expanded(
-          child: FutureBuilder<Map<String, dynamic>>(
-            future: loadBusSchedule(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              final routes = filteredRoutes;
-              return ListView.builder(
-                itemCount: routes.length,
-                itemBuilder: (context, index) {
-                  final route = routes[index];
-                  return ExpansionTile(
-                    title: Text(route['name']),
-                    children: route['trips'].map<Widget>((trip) {
-                      return ListTile(
-                        title: Text('Trip ${trip['tripNumber']}'),
-                        subtitle: Text('Departure: ${trip['departures'][0]['time']}'),
-                        onTap: () {
-                          _showTripOnMap(route, trip);
-                        },
-                      );
-                    }).toList(),
-                  );
-                },
-              );
-            },
-          ),
+          child: busScheduleData == null 
+              ? const Center(child: CircularProgressIndicator())
+              : filteredRoutes.isEmpty
+                  ? Center(child: Text('No routes found. Try a different search.'))
+                  : ListView.builder(
+                      itemCount: filteredRoutes.length,
+                      itemBuilder: (context, index) {
+                        final route = filteredRoutes[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          child: ExpansionTile(
+                            title: Text(
+                              route['name'],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text('${route['stops'].length} stops'),
+                            children: route['trips'].map<Widget>((trip) {
+                              return ListTile(
+                                title: Text('Trip ${trip['tripNumber']}'),
+                                subtitle: Text(
+                                  'Departure: ${trip['departures'][0]['time']}',
+                                ),
+                                trailing: Icon(Icons.directions_bus),
+                                onTap: () {
+                                  _showTripOnMap(route, trip);
+                                },
+                              );
+                            }).toList(),
+                          ),
+                        );
+                      },
+                    ),
         ),
       ],
     );
   }
+  
   Widget _buildCollapsedPanel() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.blueAccent,
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
       ),
       child: Center(
-        child: Text(
-          'Swipe up for Bus Schedule',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 5,
+              width: 40,
+              margin: const EdgeInsets.only(top: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Swipe up for Bus Schedule',
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  void _showTripOnMap(Map<String, dynamic> route, Map<String, dynamic> trip) {
-    _markers.clear();
-    _polylines.clear();
-
-    for (var stop in route['stops']) {
-      _markers.add(
-        Marker(
-          markerId: MarkerId(stop['name']),
-          position: LatLng(stop['lat'], stop['lng']),
-          infoWindow: InfoWindow(
-            title: stop['name'],
-            snippet: 'Next Trip: ${trip['departures'].firstWhere((d) => d['stop'] == stop['name'], orElse: () => null)?['time'] ?? 'N/A'}',
-          ),
-        ),
-      );
-    }
-
-    final List<LatLng> routeCoordinates = route['stops']
-        .map<LatLng>((stop) => LatLng(stop['lat'], stop['lng']))
-        .toList();
-
-    _polylines.add(
-      Polyline(
-        polylineId: PolylineId(route['id']),
-        points: routeCoordinates,
-        color: Colors.red,
-        width: 5,
-      ),
-    );
-
-    setState(() {});
   }
 }
