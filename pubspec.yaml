@@ -45,6 +45,7 @@ dependencies:
   file_picker: ^9.2.3
   google_maps_flutter: ^2.1.1
   sliding_up_panel: ^2.0.0
+  location: ^5.0.0
   
 dev_dependencies:
   flutter_test:
@@ -67,6 +68,7 @@ flutter:
     - assets/images/
     - assets/icon/
     - .env
+    - assets/json/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
