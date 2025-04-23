@@ -12,218 +12,336 @@
       "For the verification/report of buses punctuality, you may immediately contact Department of General Services at 05-4688888 (ext 2214)."
     ],
     "routes": [
-      {
-        "id": "route1",
-        "name": "Stanford, V2 Optical Shop, and Taman Mahsuri Impian",
-        "notes": ["Trip 6 is not available on every Friday."],
-        "stops": ["UTAR", "Stanford Bus Stop", "V2 Optical Shop", "Taman Mahsuri Impian", "UTAR"],
-        "trips": [
-          {
-            "tripNumber": 1,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "07:15"},
-              {"stop": "Stanford Bus Stop", "time": "07:25"},
-              {"stop": "V2 Optical Shop", "time": "07:30"},
-              {"stop": "Taman Mahsuri Impian", "time": "07:35"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "07:50"}
-          },
-          {
-            "tripNumber": 2,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "08:15"},
-              {"stop": "Stanford Bus Stop", "time": "08:30"},
-              {"stop": "V2 Optical Shop", "time": "08:35"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "08:50"}
-          },
-          {
-            "tripNumber": 3,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "09:15"},
-              {"stop": "V2 Optical Shop", "time": "09:30"},
-              {"stop": "Taman Mahsuri Impian", "time": "09:35"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "09:50"}
-          },
-          {
-            "tripNumber": 4,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "10:30"},
-              {"stop": "V2 Optical Shop", "time": "10:45"},
-              {"stop": "Taman Mahsuri Impian", "time": "10:50"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "11:05"}
-          },
-          {
-            "tripNumber": 5,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "11:30"},
-              {"stop": "Stanford Bus Stop", "time": "11:45"},
-              {"stop": "V2 Optical Shop", "time": "11:50"},
-              {"stop": "Taman Mahsuri Impian", "time": "11:55"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "12:10"}
-          },
-          {
-            "tripNumber": 6,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "13:30"},
-              {"stop": "V2 Optical Shop", "time": "13:45"},
-              {"stop": "Taman Mahsuri Impian", "time": "13:50"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "14:05"},
-            "specialNote": "Not available on every Friday"
-          },
-          {
-            "tripNumber": 7,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "15:10"},
-              {"stop": "Stanford Bus Stop", "time": "15:25"},
-              {"stop": "V2 Optical Shop", "time": "15:30"},
-              {"stop": "Taman Mahsuri Impian", "time": "15:35"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "15:50"}
-          },
-          {
-            "tripNumber": 8,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "16:30"},
-              {"stop": "V2 Optical Shop", "time": "16:45"},
-              {"stop": "Taman Mahsuri Impian", "time": "16:50"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "17:05"}
-          },
-          {
-            "tripNumber": 9,
-            "blocks": "D-G-N and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "18:10"},
-              {"stop": "Stanford Bus Stop", "time": "18:25"},
-              {"stop": "V2 Optical Shop", "time": "18:30"},
-              {"stop": "Taman Mahsuri Impian", "time": "18:35"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "18:50"}
-          }
-        ]
-      },
-      {
+        {
+      "id": "route1",
+      "name": "Stanford, V2 Optical Shop, and Taman Mahsuri Impian",
+      "notes": ["Trip 6 is not available on every Friday."],
+      "stops": ["UTAR Block D", "UTAR Block G", "UTAR Block N", "Stanford Bus Stop", "V2 Optical Shop", "Taman Mahsuri Impian"],
+      "trips": [
+        {
+          "tripNumber": 1,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "07:15"},
+            {"stop": "Stanford Bus Stop", "time": "07:25"},
+            {"stop": "V2 Optical Shop", "time": "07:30"},
+            {"stop": "Taman Mahsuri Impian", "time": "07:35"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "07:50"},
+            {"stop": "UTAR Block G", "time": "07:55"},
+            {"stop": "UTAR Block D", "time": "08:00"}
+          ]
+        },
+        {
+          "tripNumber": 2,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "08:15"},
+            {"stop": "UTAR Block G", "time": "08:20"},
+            {"stop": "UTAR Block N", "time": "08:25"},
+            {"stop": "Stanford Bus Stop", "time": "08:30"},
+            {"stop": "V2 Optical Shop", "time": "08:35"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "08:50"},
+            {"stop": "UTAR Block G", "time": "08:55"},
+            {"stop": "UTAR Block D", "time": "09:00"}
+          ]
+        },
+        {
+          "tripNumber": 3,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "09:15"},
+            {"stop": "UTAR Block G", "time": "09:20"},
+            {"stop": "UTAR Block N", "time": "09:25"},
+            {"stop": "V2 Optical Shop", "time": "09:30"},
+            {"stop": "Taman Mahsuri Impian", "time": "09:35"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "09:50"},
+            {"stop": "UTAR Block G", "time": "09:55"},
+            {"stop": "UTAR Block D", "time": "10:00"}
+          ]
+        },
+        {
+          "tripNumber": 4,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "10:30"},
+            {"stop": "UTAR Block G", "time": "10:35"},
+            {"stop": "UTAR Block N", "time": "10:40"},
+            {"stop": "V2 Optical Shop", "time": "10:45"},
+            {"stop": "Taman Mahsuri Impian", "time": "10:50"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "11:05"},
+            {"stop": "UTAR Block G", "time": "11:10"},
+            {"stop": "UTAR Block D", "time": "11:15"}
+          ]
+        },
+        {
+          "tripNumber": 5,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "11:30"},
+            {"stop": "UTAR Block G", "time": "11:35"},
+            {"stop": "UTAR Block N", "time": "11:40"},
+            {"stop": "Stanford Bus Stop", "time": "11:45"},
+            {"stop": "V2 Optical Shop", "time": "11:50"},
+            {"stop": "Taman Mahsuri Impian", "time": "11:55"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "12:10"},
+            {"stop": "UTAR Block G", "time": "12:15"},
+            {"stop": "UTAR Block D", "time": "12:20"}
+          ]
+        },
+        {
+          "tripNumber": 6,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "13:30"},
+            {"stop": "UTAR Block G", "time": "13:35"},
+            {"stop": "UTAR Block N", "time": "13:40"},
+            {"stop": "V2 Optical Shop", "time": "13:45"},
+            {"stop": "Taman Mahsuri Impian", "time": "13:50"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "14:05"},
+            {"stop": "UTAR Block G", "time": "14:10"},
+            {"stop": "UTAR Block D", "time": "14:15"}
+          ],
+          "specialNote": "Not available on every Friday"
+        },
+        {
+          "tripNumber": 7,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "15:10"},
+            {"stop": "UTAR Block G", "time": "15:15"},
+            {"stop": "UTAR Block N", "time": "15:20"},
+            {"stop": "Stanford Bus Stop", "time": "15:25"},
+            {"stop": "V2 Optical Shop", "time": "15:30"},
+            {"stop": "Taman Mahsuri Impian", "time": "15:35"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "15:50"},
+            {"stop": "UTAR Block G", "time": "15:55"},
+            {"stop": "UTAR Block D", "time": "16:00"}
+          ]
+        },
+        {
+          "tripNumber": 8,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "16:30"},
+            {"stop": "UTAR Block G", "time": "16:35"},
+            {"stop": "UTAR Block N", "time": "16:40"},
+            {"stop": "V2 Optical Shop", "time": "16:45"},
+            {"stop": "Taman Mahsuri Impian", "time": "16:50"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "17:05"},
+            {"stop": "UTAR Block G", "time": "17:10"},
+            {"stop": "UTAR Block D", "time": "17:15"}
+          ]
+        },
+        {
+          "tripNumber": 9,
+          "blocks": "D-G-N and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "18:10"},
+            {"stop": "UTAR Block G", "time": "18:15"},
+            {"stop": "UTAR Block N", "time": "18:20"},
+            {"stop": "Stanford Bus Stop", "time": "18:25"},
+            {"stop": "V2 Optical Shop", "time": "18:30"},
+            {"stop": "Taman Mahsuri Impian", "time": "18:35"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "18:50"},
+            {"stop": "UTAR Block G", "time": "18:55"},
+            {"stop": "UTAR Block D", "time": "19:00"}
+          ]
+        }
+      ]
+    },
+    {
         "id": "route2",
         "name": "Taman Mahsuri Impian, Champs Elysees, The Trails, nearby Meadow Park",
         "notes": [
           "Trip 6 is not available on every Friday.",
           "Students who residing at Meadow Park may walk to the bus stop at The Trails of Kampar to take the bus."
         ],
-        "stops": ["UTAR", "Taman Mahsuri Impian", "Champs Elysees/The Trails/nearby Meadow Park", "UTAR"],
+        "stops": ["UTAR Block D", "UTAR Block G", "UTAR Block N", "Taman Mahsuri Impian", "Champs Elysees/The Trails/nearby Meadow Park"],
         "trips": [
           {
             "tripNumber": 1,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "07:15"},
+              {"stop": "UTAR Block D", "time": "07:15"},
+              {"stop": "UTAR Block G", "time": "07:20"},
+              {"stop": "UTAR Block N", "time": "07:25"},
               {"stop": "Champs Elysees/The Trails/nearby Meadow Park", "time": "07:30"}
             ],
-            "arrival": {"stop": "UTAR", "time": "07:50"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "07:50"},
+              {"stop": "UTAR Block G", "time": "07:55"},
+              {"stop": "UTAR Block D", "time": "08:00"}
+            ]
           },
           {
             "tripNumber": 2,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "08:10"},
+              {"stop": "UTAR Block D", "time": "08:10"},
+              {"stop": "UTAR Block G", "time": "08:15"},
+              {"stop": "UTAR Block N", "time": "08:20"},
               {"stop": "Taman Mahsuri Impian", "time": "08:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "08:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "08:40"},
+              {"stop": "UTAR Block G", "time": "08:45"},
+              {"stop": "UTAR Block D", "time": "08:50"}
+            ]
           },
           {
             "tripNumber": 3,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "09:10"},
+              {"stop": "UTAR Block D", "time": "09:10"},
+              {"stop": "UTAR Block G", "time": "09:15"},
+              {"stop": "UTAR Block N", "time": "09:20"},
               {"stop": "Champs Elysees/The Trails/nearby Meadow Park", "time": "09:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "09:45"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "09:45"},
+              {"stop": "UTAR Block G", "time": "09:50"},
+              {"stop": "UTAR Block D", "time": "09:55"}
+            ]
           },
           {
             "tripNumber": 4,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "10:10"},
+              {"stop": "UTAR Block D", "time": "10:10"},
+              {"stop": "UTAR Block G", "time": "10:15"},
+              {"stop": "UTAR Block N", "time": "10:20"},
               {"stop": "Taman Mahsuri Impian", "time": "10:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "10:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "10:40"},
+              {"stop": "UTAR Block G", "time": "10:45"},
+              {"stop": "UTAR Block D", "time": "10:50"}
+            ]
           },
           {
             "tripNumber": 5,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "11:10"},
+              {"stop": "UTAR Block D", "time": "11:10"},
+              {"stop": "UTAR Block G", "time": "11:15"},
+              {"stop": "UTAR Block N", "time": "11:20"},
               {"stop": "Taman Mahsuri Impian", "time": "11:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "11:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "11:40"},
+              {"stop": "UTAR Block G", "time": "11:45"},
+              {"stop": "UTAR Block D", "time": "11:50"}
+            ]
           },
           {
             "tripNumber": 6,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "13:10"},
+              {"stop": "UTAR Block D", "time": "13:10"},
+              {"stop": "UTAR Block G", "time": "13:15"},
+              {"stop": "UTAR Block N", "time": "13:20"},
               {"stop": "Champs Elysees/The Trails/nearby Meadow Park", "time": "13:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "13:45"},
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "13:45"},
+              {"stop": "UTAR Block G", "time": "13:50"},
+              {"stop": "UTAR Block D", "time": "13:55"}
+            ],
             "specialNote": "Not available on every Friday"
           },
           {
             "tripNumber": 7,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "14:20"},
+              {"stop": "UTAR Block D", "time": "14:20"},
+              {"stop": "UTAR Block G", "time": "14:25"},
+              {"stop": "UTAR Block N", "time": "14:30"},
               {"stop": "Taman Mahsuri Impian", "time": "14:35"}
             ],
-            "arrival": {"stop": "UTAR", "time": "14:50"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "14:50"},
+              {"stop": "UTAR Block G", "time": "14:55"},
+              {"stop": "UTAR Block D", "time": "15:00"}
+            ]
           },
           {
             "tripNumber": 8,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "16:10"},
+              {"stop": "UTAR Block D", "time": "16:10"},
+              {"stop": "UTAR Block G", "time": "16:15"},
+              {"stop": "UTAR Block N", "time": "16:20"},
               {"stop": "Champs Elysees/The Trails/nearby Meadow Park", "time": "16:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "16:45"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "16:45"},
+              {"stop": "UTAR Block G", "time": "16:50"},
+              {"stop": "UTAR Block D", "time": "16:55"}
+            ]
           },
           {
             "tripNumber": 9,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "17:15"},
+              {"stop": "UTAR Block D", "time": "17:15"},
+              {"stop": "UTAR Block G", "time": "17:20"},
+              {"stop": "UTAR Block N", "time": "17:25"},
               {"stop": "Taman Mahsuri Impian", "time": "17:30"}
             ],
-            "arrival": {"stop": "UTAR", "time": "17:45"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "17:45"},
+              {"stop": "UTAR Block G", "time": "17:50"},
+              {"stop": "UTAR Block D", "time": "17:55"}
+            ]
           },
           {
             "tripNumber": 10,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "18:15"},
+              {"stop": "UTAR Block D", "time": "18:15"},
+              {"stop": "UTAR Block G", "time": "18:20"},
+              {"stop": "UTAR Block N", "time": "18:25"},
               {"stop": "Champs Elysees/The Trails/nearby Meadow Park", "time": "18:30"}
             ],
-            "arrival": {"stop": "UTAR", "time": "18:45"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "18:45"},
+              {"stop": "UTAR Block G", "time": "18:50"},
+              {"stop": "UTAR Block D", "time": "18:55"}
+            ]
           },
           {
             "tripNumber": 11,
             "blocks": "D-G-N and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "20:15"},
+              {"stop": "UTAR Block D", "time": "20:15"},
+              {"stop": "UTAR Block G", "time": "20:20"},
+              {"stop": "UTAR Block N", "time": "20:25"},
               {"stop": "Taman Mahsuri Impian", "time": "20:30"},
               {"stop": "Champs Elysees/The Trails/nearby Meadow Park", "time": "20:45"}
             ],
-            "arrival": {"stop": "UTAR", "time": "21:00"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "21:00"},
+              {"stop": "UTAR Block G", "time": "21:05"},
+              {"stop": "UTAR Block D", "time": "21:10"}
+            ]
           }
         ]
       },
@@ -231,116 +349,182 @@
         "id": "route3",
         "name": "Harvard & Cambridge",
         "notes": ["Trip 7 is not available on every Friday."],
-        "stops": ["UTAR", "Harvard & Cambridge", "UTAR"],
+        "stops": ["UTAR Block D", "UTAR Block G", "UTAR Block N", "Harvard & Cambridge"],
         "trips": [
           {
             "tripNumber": 1,
             "blocks": "D only and D only",
             "departures": [
-              {"stop": "UTAR", "time": "07:00"},
+              {"stop": "UTAR Block D", "time": "07:00"},
               {"stop": "Harvard & Cambridge", "time": "07:10"}
             ],
-            "arrival": {"stop": "UTAR", "time": "07:25"}
+            "arrival": [
+              {"stop": "UTAR Block D", "time": "07:25"}
+            ]
           },
           {
             "tripNumber": 2,
             "blocks": "D only and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "07:35"},
+              {"stop": "UTAR Block D", "time": "07:35"},
               {"stop": "Harvard & Cambridge", "time": "07:45"}
             ],
-            "arrival": {"stop": "UTAR", "time": "08:00"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "08:00"},
+              {"stop": "UTAR Block G", "time": "08:05"},
+              {"stop": "UTAR Block D", "time": "08:10"}
+            ]
           },
           {
             "tripNumber": 3,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "08:10"},
+              {"stop": "UTAR Block D", "time": "08:10"},
+              {"stop": "UTAR Block G", "time": "08:15"},
+              {"stop": "UTAR Block N", "time": "08:20"},
               {"stop": "Harvard & Cambridge", "time": "08:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "08:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "08:35"},
+              {"stop": "UTAR Block G", "time": "08:40"},
+              {"stop": "UTAR Block D", "time": "08:45"}
+            ]
           },
           {
             "tripNumber": 4,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "09:10"},
+              {"stop": "UTAR Block D", "time": "09:10"},
+              {"stop": "UTAR Block G", "time": "09:15"},
+              {"stop": "UTAR Block N", "time": "09:20"},
               {"stop": "Harvard & Cambridge", "time": "09:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "09:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "09:35"},
+              {"stop": "UTAR Block G", "time": "09:40"},
+              {"stop": "UTAR Block D", "time": "09:45"}
+            ]
           },
           {
             "tripNumber": 5,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "10:10"},
+              {"stop": "UTAR Block D", "time": "10:10"},
+              {"stop": "UTAR Block G", "time": "10:15"},
+              {"stop": "UTAR Block N", "time": "10:20"},
               {"stop": "Harvard & Cambridge", "time": "10:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "10:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "10:35"},
+              {"stop": "UTAR Block G", "time": "10:40"},
+              {"stop": "UTAR Block D", "time": "10:45"}
+            ]
           },
           {
             "tripNumber": 6,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "11:10"},
+              {"stop": "UTAR Block D", "time": "11:10"},
+              {"stop": "UTAR Block G", "time": "11:15"},
+              {"stop": "UTAR Block N", "time": "11:20"},
               {"stop": "Harvard & Cambridge", "time": "11:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "11:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "11:35"},
+              {"stop": "UTAR Block G", "time": "11:40"},
+              {"stop": "UTAR Block D", "time": "11:45"}
+            ]
           },
           {
             "tripNumber": 7,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "13:10"},
+              {"stop": "UTAR Block D", "time": "13:10"},
+              {"stop": "UTAR Block G", "time": "13:15"},
+              {"stop": "UTAR Block N", "time": "13:20"},
               {"stop": "Harvard & Cambridge", "time": "13:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "13:40"},
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "13:35"},
+              {"stop": "UTAR Block G", "time": "13:40"},
+              {"stop": "UTAR Block D", "time": "13:45"}
+            ],
             "specialNote": "Not available on every Friday"
           },
           {
             "tripNumber": 8,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "14:20"},
+              {"stop": "UTAR Block D", "time": "14:20"},
+              {"stop": "UTAR Block G", "time": "14:25"},
+              {"stop": "UTAR Block N", "time": "14:30"},
               {"stop": "Harvard & Cambridge", "time": "14:35"}
             ],
-            "arrival": {"stop": "UTAR", "time": "14:50"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "14:45"},
+              {"stop": "UTAR Block G", "time": "14:50"},
+              {"stop": "UTAR Block D", "time": "14:55"}
+            ]
           },
           {
             "tripNumber": 9,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "15:10"},
+              {"stop": "UTAR Block D", "time": "15:10"},
+              {"stop": "UTAR Block G", "time": "15:15"},
+              {"stop": "UTAR Block N", "time": "15:20"},
               {"stop": "Harvard & Cambridge", "time": "15:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "15:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "15:35"},
+              {"stop": "UTAR Block G", "time": "15:40"},
+              {"stop": "UTAR Block D", "time": "15:45"}
+            ]
           },
           {
             "tripNumber": 10,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "16:10"},
+              {"stop": "UTAR Block D", "time": "16:10"},
+              {"stop": "UTAR Block G", "time": "16:15"},
+              {"stop": "UTAR Block N", "time": "16:20"},
               {"stop": "Harvard & Cambridge", "time": "16:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "16:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "16:35"},
+              {"stop": "UTAR Block G", "time": "16:40"},
+              {"stop": "UTAR Block D", "time": "16:45"}
+            ]
           },
           {
             "tripNumber": 11,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "17:10"},
+              {"stop": "UTAR Block D", "time": "17:10"},
+              {"stop": "UTAR Block G", "time": "17:15"},
+              {"stop": "UTAR Block N", "time": "17:20"},
               {"stop": "Harvard & Cambridge", "time": "17:25"}
             ],
-            "arrival": {"stop": "UTAR", "time": "17:40"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "17:35"},
+              {"stop": "UTAR Block G", "time": "17:40"},
+              {"stop": "UTAR Block D", "time": "17:45"}
+            ]
           },
           {
             "tripNumber": 12,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "18:15"},
+              {"stop": "UTAR Block D", "time": "18:15"},
+              {"stop": "UTAR Block G", "time": "18:20"},
+              {"stop": "UTAR Block N", "time": "18:25"},
               {"stop": "Harvard & Cambridge", "time": "18:30"}
             ],
-            "arrival": {"stop": "UTAR", "time": "18:45"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "18:40"},
+              {"stop": "UTAR Block G", "time": "18:45"},
+              {"stop": "UTAR Block D", "time": "18:50"}
+            ]
           }
         ]
       },
@@ -348,128 +532,224 @@
         "id": "route4",
         "name": "Harvard & Cambridge and Westlake Homes",
         "notes": ["Trip 6 is not available on every Friday."],
-        "stops": ["UTAR", "Harvard & Cambridge", "Westlake Homes", "UTAR"],
+        "stops": ["UTAR Block D", "UTAR Block G", "UTAR Block N", "Harvard & Cambridge", "Westlake 1", "Westlake 2", "Westlake 3"],
         "trips": [
           {
             "tripNumber": 1,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "07:10"},
-              {"stop": "Harvard & Cambridge", "time": "07:20"},
-              {"stop": "Westlake Homes", "time": "07:25"}
+              {"stop": "UTAR Block D", "time": "07:10"},
+              {"stop": "UTAR Block G", "time": "07:15"},
+              {"stop": "UTAR Block N", "time": "07:20"},
+              {"stop": "Harvard & Cambridge", "time": "07:25"},
+              {"stop": "Westlake 1", "time": "07:28"},
+              {"stop": "Westlake 2", "time": "07:31"},
+              {"stop": "Westlake 3", "time": "07:34"}
             ],
-            "arrival": {"stop": "UTAR", "time": "07:45"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "07:40"},
+              {"stop": "UTAR Block G", "time": "07:43"},
+              {"stop": "UTAR Block D", "time": "07:45"}
+            ]
           },
           {
             "tripNumber": 2,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "08:40"},
+              {"stop": "UTAR Block D", "time": "08:40"},
+              {"stop": "UTAR Block G", "time": "08:45"},
+              {"stop": "UTAR Block N", "time": "08:50"},
               {"stop": "Harvard & Cambridge", "time": "08:55"},
-              {"stop": "Westlake Homes", "time": "09:00"}
+              {"stop": "Westlake 1", "time": "08:58"},
+              {"stop": "Westlake 2", "time": "09:01"},
+              {"stop": "Westlake 3", "time": "09:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "09:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "09:15"},
+              {"stop": "UTAR Block G", "time": "09:18"},
+              {"stop": "UTAR Block D", "time": "09:20"}
+            ]
           },
           {
             "tripNumber": 3,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "09:40"},
+              {"stop": "UTAR Block D", "time": "09:40"},
+              {"stop": "UTAR Block G", "time": "09:45"},
+              {"stop": "UTAR Block N", "time": "09:50"},
               {"stop": "Harvard & Cambridge", "time": "09:55"},
-              {"stop": "Westlake Homes", "time": "10:00"}
+              {"stop": "Westlake 1", "time": "09:58"},
+              {"stop": "Westlake 2", "time": "10:01"},
+              {"stop": "Westlake 3", "time": "10:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "10:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "10:15"},
+              {"stop": "UTAR Block G", "time": "10:18"},
+              {"stop": "UTAR Block D", "time": "10:20"}
+            ]
           },
           {
             "tripNumber": 4,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "10:40"},
+              {"stop": "UTAR Block D", "time": "10:40"},
+              {"stop": "UTAR Block G", "time": "10:45"},
+              {"stop": "UTAR Block N", "time": "10:50"},
               {"stop": "Harvard & Cambridge", "time": "10:55"},
-              {"stop": "Westlake Homes", "time": "11:00"}
+              {"stop": "Westlake 1", "time": "10:58"},
+              {"stop": "Westlake 2", "time": "11:01"},
+              {"stop": "Westlake 3", "time": "11:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "11:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "11:15"},
+              {"stop": "UTAR Block G", "time": "11:18"},
+              {"stop": "UTAR Block D", "time": "11:20"}
+            ]
           },
           {
             "tripNumber": 5,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "11:40"},
+              {"stop": "UTAR Block D", "time": "11:40"},
+              {"stop": "UTAR Block G", "time": "11:45"},
+              {"stop": "UTAR Block N", "time": "11:50"},
               {"stop": "Harvard & Cambridge", "time": "11:55"},
-              {"stop": "Westlake Homes", "time": "12:00"}
+              {"stop": "Westlake 1", "time": "11:58"},
+              {"stop": "Westlake 2", "time": "12:01"},
+              {"stop": "Westlake 3", "time": "12:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "12:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "12:15"},
+              {"stop": "UTAR Block G", "time": "12:18"},
+              {"stop": "UTAR Block D", "time": "12:20"}
+            ]
           },
           {
             "tripNumber": 6,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "13:40"},
+              {"stop": "UTAR Block D", "time": "13:40"},
+              {"stop": "UTAR Block G", "time": "13:45"},
+              {"stop": "UTAR Block N", "time": "13:50"},
               {"stop": "Harvard & Cambridge", "time": "13:55"},
-              {"stop": "Westlake Homes", "time": "14:00"}
+              {"stop": "Westlake 1", "time": "13:58"},
+              {"stop": "Westlake 2", "time": "14:01"},
+              {"stop": "Westlake 3", "time": "14:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "14:20"},
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "14:15"},
+              {"stop": "UTAR Block G", "time": "14:18"},
+              {"stop": "UTAR Block D", "time": "14:20"}
+            ],
             "specialNote": "Not available on every Friday"
           },
           {
             "tripNumber": 7,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "14:40"},
+              {"stop": "UTAR Block D", "time": "14:40"},
+              {"stop": "UTAR Block G", "time": "14:45"},
+              {"stop": "UTAR Block N", "time": "14:50"},
               {"stop": "Harvard & Cambridge", "time": "14:55"},
-              {"stop": "Westlake Homes", "time": "15:00"}
+              {"stop": "Westlake 1", "time": "14:58"},
+              {"stop": "Westlake 2", "time": "15:01"},
+              {"stop": "Westlake 3", "time": "15:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "15:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "15:15"},
+              {"stop": "UTAR Block G", "time": "15:18"},
+              {"stop": "UTAR Block D", "time": "15:20"}
+            ]
           },
           {
             "tripNumber": 8,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "15:40"},
+              {"stop": "UTAR Block D", "time": "15:40"},
+              {"stop": "UTAR Block G", "time": "15:45"},
+              {"stop": "UTAR Block N", "time": "15:50"},
               {"stop": "Harvard & Cambridge", "time": "15:55"},
-              {"stop": "Westlake Homes", "time": "16:00"}
+              {"stop": "Westlake 1", "time": "15:58"},
+              {"stop": "Westlake 2", "time": "16:01"},
+              {"stop": "Westlake 3", "time": "16:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "16:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "16:15"},
+              {"stop": "UTAR Block G", "time": "16:18"},
+              {"stop": "UTAR Block D", "time": "16:20"}
+            ]
           },
           {
             "tripNumber": 9,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "16:40"},
+              {"stop": "UTAR Block D", "time": "16:40"},
+              {"stop": "UTAR Block G", "time": "16:45"},
+              {"stop": "UTAR Block N", "time": "16:50"},
               {"stop": "Harvard & Cambridge", "time": "16:55"},
-              {"stop": "Westlake Homes", "time": "17:00"}
+              {"stop": "Westlake 1", "time": "16:58"},
+              {"stop": "Westlake 2", "time": "17:01"},
+              {"stop": "Westlake 3", "time": "17:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "17:20"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "17:15"},
+              {"stop": "UTAR Block G", "time": "17:18"},
+              {"stop": "UTAR Block D", "time": "17:20"}
+            ]
           },
           {
             "tripNumber": 10,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "18:40"},
+              {"stop": "UTAR Block D", "time": "18:40"},
+              {"stop": "UTAR Block G", "time": "18:45"},
+              {"stop": "UTAR Block N", "time": "18:50"},
               {"stop": "Harvard & Cambridge", "time": "18:55"},
-              {"stop": "Westlake Homes", "time": "19:00"}
+              {"stop": "Westlake 1", "time": "18:58"},
+              {"stop": "Westlake 2", "time": "19:01"},
+              {"stop": "Westlake 3", "time": "19:04"}
             ],
-            "arrival": {"stop": "UTAR", "time": "19:15"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "19:10"},
+              {"stop": "UTAR Block G", "time": "19:13"},
+              {"stop": "UTAR Block D", "time": "19:15"}
+            ]
           },
           {
             "tripNumber": 11,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "20:15"},
+              {"stop": "UTAR Block D", "time": "20:15"},
+              {"stop": "UTAR Block G", "time": "20:20"},
+              {"stop": "UTAR Block N", "time": "20:25"},
               {"stop": "Harvard & Cambridge", "time": "20:30"},
-              {"stop": "Westlake Homes", "time": "20:35"}
+              {"stop": "Westlake 1", "time": "20:33"},
+              {"stop": "Westlake 2", "time": "20:36"},
+              {"stop": "Westlake 3", "time": "20:39"}
             ],
-            "arrival": {"stop": "UTAR", "time": "20:50"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "20:45"},
+              {"stop": "UTAR Block G", "time": "20:48"},
+              {"stop": "UTAR Block D", "time": "20:50"}
+            ]
           },
           {
             "tripNumber": 12,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "21:00"},
+              {"stop": "UTAR Block D", "time": "21:00"},
+              {"stop": "UTAR Block G", "time": "21:05"},
+              {"stop": "UTAR Block N", "time": "21:10"},
               {"stop": "Harvard & Cambridge", "time": "21:15"},
-              {"stop": "Westlake Homes", "time": "21:20"}
+              {"stop": "Westlake 1", "time": "21:18"},
+              {"stop": "Westlake 2", "time": "21:21"},
+              {"stop": "Westlake 3", "time": "21:24"}
             ],
-            "arrival": {"stop": "UTAR", "time": "21:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "21:30"},
+              {"stop": "UTAR Block G", "time": "21:33"},
+              {"stop": "UTAR Block D", "time": "21:35"}
+            ]
           }
         ]
       },
@@ -477,195 +757,404 @@
         "id": "route5",
         "name": "Westlake Homes I",
         "notes": ["Trip 7 is not available on every Friday."],
-        "stops": ["UTAR", "Westlake Homes", "UTAR"],
+        "stops": ["UTAR Block D", "UTAR Block G", "UTAR Block N", "Westlake 1", "Westlake 2", "Westlake 3"],
         "trips": [
           {
             "tripNumber": 1,
             "blocks": "D only and D only",
             "departures": [
-              {"stop": "UTAR", "time": "07:00"},
-              {"stop": "Westlake Homes", "time": "07:10"}
+              {"stop": "UTAR Block D", "time": "07:00"},
+              {"stop": "Westlake 1", "time": "07:08"},
+              {"stop": "Westlake 2", "time": "07:11"},
+              {"stop": "Westlake 3", "time": "07:14"}
             ],
-            "arrival": {"stop": "UTAR", "time": "07:30"}
+            "arrival": [
+              {"stop": "UTAR Block D", "time": "07:30"}
+            ]
           },
           {
             "tripNumber": 2,
             "blocks": "D only and G-N-D",
             "departures": [
-              {"stop": "UTAR", "time": "07:40"},
-              {"stop": "Westlake Homes", "time": "07:50"}
+              {"stop": "UTAR Block D", "time": "07:40"},
+              {"stop": "Westlake 1", "time": "07:48"},
+              {"stop": "Westlake 2", "time": "07:51"},
+              {"stop": "Westlake 3", "time": "07:54"}
             ],
-            "arrival": {"stop": "UTAR", "time": "08:10"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "08:05"},
+              {"stop": "UTAR Block G", "time": "08:08"},
+              {"stop": "UTAR Block D", "time": "08:10"}
+            ]
           },
           {
             "tripNumber": 3,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "09:00"},
-              {"stop": "Westlake Homes", "time": "09:15"}
+              {"stop": "UTAR Block D", "time": "09:00"},
+              {"stop": "UTAR Block G", "time": "09:05"},
+              {"stop": "UTAR Block N", "time": "09:10"},
+              {"stop": "Westlake 1", "time": "09:13"},
+              {"stop": "Westlake 2", "time": "09:16"},
+              {"stop": "Westlake 3", "time": "09:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "09:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "09:30"},
+              {"stop": "UTAR Block G", "time": "09:33"},
+              {"stop": "UTAR Block D", "time": "09:35"}
+            ]
           },
           {
             "tripNumber": 4,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "10:00"},
-              {"stop": "Westlake Homes", "time": "10:15"}
+              {"stop": "UTAR Block D", "time": "10:00"},
+              {"stop": "UTAR Block G", "time": "10:05"},
+              {"stop": "UTAR Block N", "time": "10:10"},
+              {"stop": "Westlake 1", "time": "10:13"},
+              {"stop": "Westlake 2", "time": "10:16"},
+              {"stop": "Westlake 3", "time": "10:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "10:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "10:30"},
+              {"stop": "UTAR Block G", "time": "10:33"},
+              {"stop": "UTAR Block D", "time": "10:35"}
+            ]
           },
           {
             "tripNumber": 5,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "11:00"},
-              {"stop": "Westlake Homes", "time": "11:15"}
+              {"stop": "UTAR Block D", "time": "11:00"},
+              {"stop": "UTAR Block G", "time": "11:05"},
+              {"stop": "UTAR Block N", "time": "11:10"},
+              {"stop": "Westlake 1", "time": "11:13"},
+              {"stop": "Westlake 2", "time": "11:16"},
+              {"stop": "Westlake 3", "time": "11:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "11:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "11:30"},
+              {"stop": "UTAR Block G", "time": "11:33"},
+              {"stop": "UTAR Block D", "time": "11:35"}
+            ]
           },
           {
             "tripNumber": 6,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "12:00"},
-              {"stop": "Westlake Homes", "time": "12:15"}
+              {"stop": "UTAR Block D", "time": "12:00"},
+              {"stop": "UTAR Block G", "time": "12:05"},
+              {"stop": "UTAR Block N", "time": "12:10"},
+              {"stop": "Westlake 1", "time": "12:13"},
+              {"stop": "Westlake 2", "time": "12:16"},
+              {"stop": "Westlake 3", "time": "12:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "12:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "12:30"},
+              {"stop": "UTAR Block G", "time": "12:33"},
+              {"stop": "UTAR Block D", "time": "12:35"}
+            ]
           },
           {
             "tripNumber": 7,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "14:00"},
-              {"stop": "Westlake Homes", "time": "14:15"}
+              {"stop": "UTAR Block D", "time": "14:00"},
+              {"stop": "UTAR Block G", "time": "14:05"},
+              {"stop": "UTAR Block N", "time": "14:10"},
+              {"stop": "Westlake 1", "time": "14:13"},
+              {"stop": "Westlake 2", "time": "14:16"},
+              {"stop": "Westlake 3", "time": "14:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "14:35"},
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "14:30"},
+              {"stop": "UTAR Block G", "time": "14:33"},
+              {"stop": "UTAR Block D", "time": "14:35"}
+            ],
             "specialNote": "Not available on every Friday"
           },
           {
             "tripNumber": 8,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "15:00"},
-              {"stop": "Westlake Homes", "time": "15:15"}
+              {"stop": "UTAR Block D", "time": "15:00"},
+              {"stop": "UTAR Block G", "time": "15:05"},
+              {"stop": "UTAR Block N", "time": "15:10"},
+              {"stop": "Westlake 1", "time": "15:13"},
+              {"stop": "Westlake 2", "time": "15:16"},
+              {"stop": "Westlake 3", "time": "15:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "15:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "15:30"},
+              {"stop": "UTAR Block G", "time": "15:33"},
+              {"stop": "UTAR Block D", "time": "15:35"}
+            ]
           },
           {
             "tripNumber": 9,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "16:00"},
-              {"stop": "Westlake Homes", "time": "16:15"}
+              {"stop": "UTAR Block D", "time": "16:00"},
+              {"stop": "UTAR Block G", "time": "16:05"},
+              {"stop": "UTAR Block N", "time": "16:10"},
+              {"stop": "Westlake 1", "time": "16:13"},
+              {"stop": "Westlake 2", "time": "16:16"},
+              {"stop": "Westlake 3", "time": "16:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "16:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "16:30"},
+              {"stop": "UTAR Block G", "time": "16:33"},
+              {"stop": "UTAR Block D", "time": "16:35"}
+            ]
           },
           {
             "tripNumber": 10,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "17:00"},
-              {"stop": "Westlake Homes", "time": "17:15"}
+              {"stop": "UTAR Block D", "time": "17:00"},
+              {"stop": "UTAR Block G", "time": "17:05"},
+              {"stop": "UTAR Block N", "time": "17:10"},
+              {"stop": "Westlake 1", "time": "17:13"},
+              {"stop": "Westlake 2", "time": "17:16"},
+              {"stop": "Westlake 3", "time": "17:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "17:35"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "17:25"},
+              {"stop": "UTAR Block G", "time": "17:28"},
+              {"stop": "UTAR Block D", "time": "17:30"}
+            ]
           },
           {
             "tripNumber": 11,
             "blocks": "D-G-N and N-G-D",
             "departures": [
-              {"stop": "UTAR", "time": "18:00"},
-              {"stop": "Westlake Homes", "time": "18:15"}
+              {"stop": "UTAR Block D", "time": "18:00"},
+              {"stop": "UTAR Block G", "time": "18:05"},
+              {"stop": "UTAR Block N", "time": "18:10"},
+              {"stop": "Westlake 1", "time": "18:13"},
+              {"stop": "Westlake 2", "time": "18:16"},
+              {"stop": "Westlake 3", "time": "18:19"}
             ],
-            "arrival": {"stop": "UTAR", "time": "18:30"}
+            "arrival": [
+              {"stop": "UTAR Block N", "time": "18:25"},
+              {"stop": "UTAR Block G", "time": "18:28"},
+              {"stop": "UTAR Block D", "time": "18:30"}
+            ]
           }
         ]
       },
-      {
-        "id": "route6",
-        "name": "Westlake Homes II",
-        "notes": [
-          "Trip 7 is not available on every Friday.",
-          "Trip 8 is available on Friday only."
-        ],
-        "stops": ["UTAR", "Westlake Homes", "UTAR"],
-        "trips": [
-          {
-            "tripNumber": 1,
-            "blocks": "D only and G-N-D",
-            "departures": [
-              {"stop": "UTAR", "time": "07:00"},
-              {"stop": "Westlake Homes", "time": "07:10"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "07:30"}
-          },
-          {
-            "tripNumber": 2,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "08:00"},
-              {"stop": "Westlake Homes", "time": "08:15"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "08:35"}
-          },
-          {
-            "tripNumber": 3,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "09:15"},
-              {"stop": "Westlake Homes", "time": "09:30"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "09:50"}
-          },
-          {
-            "tripNumber": 4,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "10:15"},
-              {"stop": "Westlake Homes", "time": "10:30"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "10:50"}
-          },
-          {
-            "tripNumber": 5,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "11:15"},
-              {"stop": "Westlake Homes", "time": "11:30"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "11:50"}
-          },
-          {
-            "tripNumber": 6,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "12:15"},
-              {"stop": "Westlake Homes", "time": "12:30"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "12:50"}
-          },
-          {
-            "tripNumber": 7,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "13:15"},
-              {"stop": "Westlake Homes", "time": "13:30"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "13:50"},
-            "specialNote": "Not available on every Friday"
-          },
-          {
-            "tripNumber": 8,
-            "blocks": "D-G-N and N-G-D",
-            "departures": [
-              {"stop": "UTAR", "time": "14:15"},
-              {"stop": "Westlake Homes", "time": "14:30"}
-            ],
-            "arrival": {"stop": "UTAR", "time": "14:50"},
-            "specialNote": "Available on Friday only"
-          }
-        ]
-      }
+      
+         {
+      "id": "route6",
+      "name": "Westlake Homes II",
+      "notes": [
+        "Trip 7 is not available on every Friday.",
+        "Trip 8 is available on Friday only."
+      ],
+      "stops": ["UTAR Block D", "UTAR Block G", "UTAR Block N", "Westlake 1", "Westlake 2", "Westlake 3"],
+      "trips": [
+        {
+          "tripNumber": 1,
+          "blocks": "D only and D only",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "07:00"},
+            {"stop": "Westlake 1", "time": "07:08"},
+            {"stop": "Westlake 2", "time": "07:11"},
+            {"stop": "Westlake 3", "time": "07:14"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block D", "time": "07:30"}
+          ]
+        },
+        {
+          "tripNumber": 2,
+          "blocks": "D only and G-N-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "07:40"},
+            {"stop": "Westlake 1", "time": "07:48"},
+            {"stop": "Westlake 2", "time": "07:51"},
+            {"stop": "Westlake 3", "time": "07:54"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "08:05"},
+            {"stop": "UTAR Block G", "time": "08:08"},
+            {"stop": "UTAR Block D", "time": "08:10"}
+          ]
+        },
+        {
+          "tripNumber": 3,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "09:00"},
+            {"stop": "UTAR Block G", "time": "09:05"},
+            {"stop": "UTAR Block N", "time": "09:10"},
+            {"stop": "Westlake 1", "time": "09:13"},
+            {"stop": "Westlake 2", "time": "09:16"},
+            {"stop": "Westlake 3", "time": "09:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "09:30"},
+            {"stop": "UTAR Block G", "time": "09:33"},
+            {"stop": "UTAR Block D", "time": "09:35"}
+          ]
+        },
+        {
+          "tripNumber": 4,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "10:00"},
+            {"stop": "UTAR Block G", "time": "10:05"},
+            {"stop": "UTAR Block N", "time": "10:10"},
+            {"stop": "Westlake 1", "time": "10:13"},
+            {"stop": "Westlake 2", "time": "10:16"},
+            {"stop": "Westlake 3", "time": "10:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "10:30"},
+            {"stop": "UTAR Block G", "time": "10:33"},
+            {"stop": "UTAR Block D", "time": "10:35"}
+          ]
+        },
+        {
+          "tripNumber": 5,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "11:00"},
+            {"stop": "UTAR Block G", "time": "11:05"},
+            {"stop": "UTAR Block N", "time": "11:10"},
+            {"stop": "Westlake 1", "time": "11:13"},
+            {"stop": "Westlake 2", "time": "11:16"},
+            {"stop": "Westlake 3", "time": "11:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "11:30"},
+            {"stop": "UTAR Block G", "time": "11:33"},
+            {"stop": "UTAR Block D", "time": "11:35"}
+          ]
+        },
+        {
+          "tripNumber": 6,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "12:00"},
+            {"stop": "UTAR Block G", "time": "12:05"},
+            {"stop": "UTAR Block N", "time": "12:10"},
+            {"stop": "Westlake 1", "time": "12:13"},
+            {"stop": "Westlake 2", "time": "12:16"},
+            {"stop": "Westlake 3", "time": "12:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "12:30"},
+            {"stop": "UTAR Block G", "time": "12:33"},
+            {"stop": "UTAR Block D", "time": "12:35"}
+          ]
+        },
+        {
+          "tripNumber": 7,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "14:00"},
+            {"stop": "UTAR Block G", "time": "14:05"},
+            {"stop": "UTAR Block N", "time": "14:10"},
+            {"stop": "Westlake 1", "time": "14:13"},
+            {"stop": "Westlake 2", "time": "14:16"},
+            {"stop": "Westlake 3", "time": "14:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "14:30"},
+            {"stop": "UTAR Block G", "time": "14:33"},
+            {"stop": "UTAR Block D", "time": "14:35"}
+          ],
+          "specialNote": "Not available on every Friday"
+        },
+        {
+          "tripNumber": 8,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "15:00"},
+            {"stop": "UTAR Block G", "time": "15:05"},
+            {"stop": "UTAR Block N", "time": "15:10"},
+            {"stop": "Westlake 1", "time": "15:13"},
+            {"stop": "Westlake 2", "time": "15:16"},
+            {"stop": "Westlake 3", "time": "15:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "15:30"},
+            {"stop": "UTAR Block G", "time": "15:33"},
+            {"stop": "UTAR Block D", "time": "15:35"}
+          ],
+          "specialNote": "Available on Friday only"
+        },
+        {
+          "tripNumber": 9,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "16:00"},
+            {"stop": "UTAR Block G", "time": "16:05"},
+            {"stop": "UTAR Block N", "time": "16:10"},
+            {"stop": "Westlake 1", "time": "16:13"},
+            {"stop": "Westlake 2", "time": "16:16"},
+            {"stop": "Westlake 3", "time": "16:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "16:30"},
+            {"stop": "UTAR Block G", "time": "16:33"},
+            {"stop": "UTAR Block D", "time": "16:35"}
+          ]
+        },
+        {
+          "tripNumber": 10,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "17:00"},
+            {"stop": "UTAR Block G", "time": "17:05"},
+            {"stop": "UTAR Block N", "time": "17:10"},
+            {"stop": "Westlake 1", "time": "17:13"},
+            {"stop": "Westlake 2", "time": "17:16"},
+            {"stop": "Westlake 3", "time": "17:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "17:30"},
+            {"stop": "UTAR Block G", "time": "17:33"},
+            {"stop": "UTAR Block D", "time": "17:35"}
+          ]
+        },
+        {
+          "tripNumber": 11,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "18:00"},
+            {"stop": "UTAR Block G", "time": "18:05"},
+            {"stop": "UTAR Block N", "time": "18:10"},
+            {"stop": "Westlake 1", "time": "18:13"},
+            {"stop": "Westlake 2", "time": "18:16"},
+            {"stop": "Westlake 3", "time": "18:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "18:30"},
+            {"stop": "UTAR Block G", "time": "18:33"},
+            {"stop": "UTAR Block D", "time": "18:35"}
+          ]
+        },
+        {
+          "tripNumber": 12,
+          "blocks": "D-G-N and N-G-D",
+          "departures": [
+            {"stop": "UTAR Block D", "time": "19:00"},
+            {"stop": "UTAR Block G", "time": "19:05"},
+            {"stop": "UTAR Block N", "time": "19:10"},
+            {"stop": "Westlake 1", "time": "19:13"},
+            {"stop": "Westlake 2", "time": "19:16"},
+            {"stop": "Westlake 3", "time": "19:19"}
+          ],
+          "arrival": [
+            {"stop": "UTAR Block N", "time": "19:30"},
+            {"stop": "UTAR Block G", "time": "19:33"},
+            {"stop": "UTAR Block D", "time": "19:35"}
+          ]
+        }
+      ]
+    }
     ]
 }
     
