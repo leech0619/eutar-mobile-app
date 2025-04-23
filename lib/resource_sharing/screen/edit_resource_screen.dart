@@ -164,7 +164,7 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
                           strokeWidth: 3,
                         ),
                       )
-                    : const Icon(Icons.save),
+                    : const Icon(Icons.save, color:Colors.white),
                 label: Text(_isUpdating ? 'Updating...' : 'Save Changes'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

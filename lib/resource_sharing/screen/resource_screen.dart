@@ -4,6 +4,7 @@ import '../model/resource_model.dart';
 import '../controller/resource_controller.dart';
 import 'resource_detail_screen.dart';
 import 'edit_resource_screen.dart';
+
 class ResourceScreen extends StatefulWidget {
   const ResourceScreen({Key? key}) : super(key: key);
 
@@ -17,7 +18,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
-  
+
   List<Resource>? _searchResults;
   File? _selectedFile;
   bool _isUploading = false;
@@ -33,21 +34,34 @@ class _ResourceScreenState extends State<ResourceScreen> {
     super.dispose();
   }
 
-  Future<void> _handleSearch() async {
+  Future<void> _handleSearch({String? currentUserId}) async {
     final query = _searchController.text.trim();
-    
+
     if (query.isEmpty) {
       if (mounted) setState(() => _searchResults = null);
       return;
     }
-    
+
     try {
+      // Perform the search
       final results = await _controller.searchResources(query);
-      if (mounted) setState(() => _searchResults = results);
+
+      // If currentUserId is provided, filter the results
+      final filteredResults =
+          currentUserId != null
+              ? results
+                  .where((resource) => resource.uploadedBy == currentUserId)
+                  .toList()
+              : results;
+
+      if (mounted) setState(() => _searchResults = filteredResults);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Search error: $e'), backgroundColor: Colors.red)
+          SnackBar(
+            content: Text('Search error: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -66,7 +80,10 @@ class _ResourceScreenState extends State<ResourceScreen> {
       if (mounted) {
         setState(() => _uploadError = 'File selection failed: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('File selection error: $e'), backgroundColor: Colors.red)
+          SnackBar(
+            content: Text('File selection error: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
@@ -86,11 +103,12 @@ class _ResourceScreenState extends State<ResourceScreen> {
     });
 
     try {
-      final tags = _tagsController.text
-          .split(',')
-          .map((tag) => tag.trim())
-          .where((tag) => tag.isNotEmpty)
-          .toList();
+      final tags =
+          _tagsController.text
+              .split(',')
+              .map((tag) => tag.trim())
+              .where((tag) => tag.isNotEmpty)
+              .toList();
 
       final success = await _controller.uploadResource(
         title: _titleController.text.trim(),
@@ -101,7 +119,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
 
       if (mounted) {
         setState(() => _isUploading = false);
-        
+
         if (success) {
           setState(() {
             _selectedFile = null;
@@ -109,7 +127,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
             _descriptionController.clear();
             _tagsController.clear();
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Resource uploaded successfully'),
@@ -169,7 +187,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
           children: [
             _buildBrowseTab(),
             _buildShareTab(),
-            _buildYourResourcesTab()
+            _buildYourResourcesTab(),
           ],
         ),
       ),
@@ -201,225 +219,308 @@ class _ResourceScreenState extends State<ResourceScreen> {
           ),
         ),
         Expanded(
-          child: _searchResults != null
-              ? _buildResourcesList(_searchResults!)
-              : StreamBuilder<List<Resource>>(
-                  stream: _controller.getResources(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error loading resources: ${snapshot.error}',
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () => setState(() {}),
-                              child: const Text('Retry'),
-                            )
-                          ],
-                        ),
-                      );
-                    }
-                    
-                    final resources = snapshot.data ?? [];
-                    return _buildResourcesList(resources);
-                  },
-                ),
+          child:
+              _searchResults != null
+                  ? _buildResourcesList(_searchResults!)
+                  : StreamBuilder<List<Resource>>(
+                    stream: _controller.getResources(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Error loading resources: ${snapshot.error}',
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => setState(() {}),
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+
+                      final resources = snapshot.data ?? [];
+                      return _buildResourcesList(resources);
+                    },
+                  ),
         ),
       ],
     );
   }
+
   Widget _buildYourResourcesTab() {
-    return StreamBuilder<List<Resource>>(
-      stream: _controller.getResources(), // Assuming this gets the user's resources
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        
-        if (snapshot.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, color: Colors.red, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading your resources: ${snapshot.error}',
-                  textAlign: TextAlign.center,
+  
+    List<Resource> filteredResources = [];
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Column(
+          children: [
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search your resources',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchController.clear();
+                      setState(() => filteredResources = []);
+                    },
+                  ),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => setState(() {}),
-                  child: const Text('Retry'),
-                )
-              ],
+                onChanged: (_) => _handleSearch(currentUserId: _controller.currentUserId),
+              ),
             ),
-          );
-        }
-        
-        final resources = snapshot.data ?? [];
-        return _buildYourResourcesTabList(resources);
+            // Resources List
+            Expanded(
+              child: StreamBuilder<List<Resource>>(
+                stream: _controller.getResources(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                            size: 48,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Error loading your resources: ${snapshot.error}',
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () => setState(() {}),
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  final resources =
+                      filteredResources.isNotEmpty
+                          ? filteredResources
+                          : snapshot.data ?? [];
+                  return _buildYourResourcesTabList(resources);
+                },
+              ),
+            ),
+          ],
+        );
       },
     );
   }
-  Widget _buildYourResourcesTabList(List<Resource> resources) {
-  // Filter resources to show only those uploaded by the current user
-  final userResources = resources.where((resource) => resource.uploadedBy == _controller.currentUserId).toList();
 
-  if (userResources.isEmpty) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.folder_open, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          const Text(
-            'No resources found',
-            style: TextStyle(fontSize: 18, color: Colors.grey),
+  Widget _buildYourResourcesTabList(List<Resource> resources) {
+    // Filter resources to show only those uploaded by the current user
+    final userResources =
+        resources
+            .where(
+              (resource) => resource.uploadedBy == _controller.currentUserId,
+            )
+            .toList();
+
+    if (userResources.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.folder_open, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            const Text(
+              'No resources found',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: 16),
+      itemCount: userResources.length,
+      itemBuilder: (context, index) {
+        final resource = userResources[index];
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
-        ],
-      ),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _getFileIcon(resource.fileName),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            resource.title,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            resource.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Edit Button
+                    TextButton.icon(
+                      onPressed: () {
+                        // Navigate to an edit screen or show a dialog
+                        _editResource(resource);
+                      },
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      label: const Text(
+                        'Edit',
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                    // Delete Button
+                    TextButton.icon(
+                      onPressed: () async {
+                        final confirm = await _showDeleteConfirmationDialog(
+                          context,
+                        );
+                        if (confirm) {
+                          await _deleteResource(resource);
+                        }
+                      },
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      label: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  return ListView.builder(
-    padding: const EdgeInsets.only(bottom: 16),
-    itemCount: userResources.length,
-    itemBuilder: (context, index) {
-      final resource = userResources[index];
-
-      return Card(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _getFileIcon(resource.fileName),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          resource.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          resource.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+  // Helper method to show a delete confirmation dialog
+  Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Delete Resource'),
+                content: const Text(
+                  'Are you sure you want to delete this resource?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text(
+                      'Delete',
+                      style: TextStyle(color: Colors.red),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Edit Button
-                  TextButton.icon(
-                    onPressed: () {
-                      // Navigate to an edit screen or show a dialog
-                      _editResource(resource);
-                    },
-                    icon: const Icon(Icons.edit, color: Colors.blue),
-                    label: const Text('Edit', style: TextStyle(color: Colors.blue)),
-                  ),
-                  // Delete Button
-                  TextButton.icon(
-                    onPressed: () async {
-                      final confirm = await _showDeleteConfirmationDialog(context);
-                      if (confirm) {
-                        await _deleteResource(resource);
-                      }
-                    },
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    label: const Text('Delete', style: TextStyle(color: Colors.red)),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        ) ??
+        false;
+  }
+
+  // Helper method to delete a resource
+  Future<void> _deleteResource(Resource resource) async {
+    try {
+      await _controller.deleteResource(
+        resource.id,
+      ); // Assuming the second argument is 'context'
+      setState(() {}); // Refresh the UI
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Resource deleted successfully'),
+          backgroundColor: Colors.green,
         ),
       );
-    },
-  );
-}
-
-// Helper method to show a delete confirmation dialog
-Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
-  return await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Delete Resource'),
-          content: const Text('Are you sure you want to delete this resource?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-          ],
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete resource: $e'),
+          backgroundColor: Colors.red,
         ),
-      ) ??
-      false;
-}
+      );
+    }
+  }
 
-// Helper method to delete a resource
-Future<void> _deleteResource(Resource resource) async {
-  try {
-    await _controller.deleteResource(resource.id); // Assuming the second argument is 'context'
-    setState(() {}); // Refresh the UI
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Resource deleted successfully'), backgroundColor: Colors.green),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to delete resource: $e'), backgroundColor: Colors.red),
+  // Helper method to edit a resource
+  void _editResource(Resource resource) {
+    // Navigate to an edit screen or show a dialog to edit the resource
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) => EditResourceScreen(
+              resource: resource,
+            ), // Assuming `EditResourceScreen` exists
+      ),
     );
   }
-}
 
-// Helper method to edit a resource
-void _editResource(Resource resource) {
-  // Navigate to an edit screen or show a dialog to edit the resource
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => EditResourceScreen(resource: resource), // Assuming `EditResourceScreen` exists
-    ),
-  );
-}
   Widget _buildResourcesList(List<Resource> resources) {
     if (resources.isEmpty) {
       return Center(
@@ -441,8 +542,8 @@ void _editResource(Resource resource) {
                   _searchController.clear();
                   setState(() => _searchResults = null);
                 },
-              )
-            ]
+              ),
+            ],
           ],
         ),
       );
@@ -453,18 +554,21 @@ void _editResource(Resource resource) {
       itemCount: resources.length,
       itemBuilder: (context, index) {
         final resource = resources[index];
-        
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: InkWell(
             borderRadius: BorderRadius.circular(12),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => ResourceDetailScreen(resource: resource),
+                  builder:
+                      (context) => ResourceDetailScreen(resource: resource),
                 ),
               );
             },
@@ -515,32 +619,56 @@ void _editResource(Resource resource) {
                               Wrap(
                                 spacing: 6,
                                 runSpacing: 6,
-                                children: resource.tags.map((tag) => Chip(
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  label: Text(tag),
-                                  labelStyle: const TextStyle(fontSize: 12),
-                                  padding: EdgeInsets.zero,
-                                  visualDensity: VisualDensity.compact,
-                                )).toList(),
+                                children:
+                                    resource.tags
+                                        .map(
+                                          (tag) => Chip(
+                                            materialTapTargetSize:
+                                                MaterialTapTargetSize
+                                                    .shrinkWrap,
+                                            label: Text(tag),
+                                            labelStyle: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                            padding: EdgeInsets.zero,
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                          ),
+                                        )
+                                        .toList(),
                               ),
                               const SizedBox(height: 8),
                             ],
                             Row(
                               children: [
-                                const Icon(Icons.person_outline, size: 14, color: Colors.grey),
+                                const Icon(
+                                  Icons.person_outline,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   resource.uploadedByName.isNotEmpty
                                       ? resource.uploadedByName
                                       : 'Anonymous',
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
-                                const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
+                                const Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: Colors.grey,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   _formatDate(resource.uploadDate),
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               ],
                             ),
@@ -553,10 +681,14 @@ void _editResource(Resource resource) {
                         tooltip: 'Download',
                         onPressed: () async {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Downloading ${resource.fileName}...')),
+                            SnackBar(
+                              content: Text(
+                                'Downloading ${resource.fileName}...',
+                              ),
+                            ),
                           );
                           try {
-                            await _controller.downloadFile(resource,context);
+                            await _controller.downloadFile(resource, context);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -578,7 +710,6 @@ void _editResource(Resource resource) {
     );
   }
 
-
   Widget _buildShareTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
@@ -589,18 +720,17 @@ void _editResource(Resource resource) {
           children: [
             const Text(
               'Share a Resource',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
-            
+
             // Upload File Card
             Card(
               elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -614,7 +744,7 @@ void _editResource(Resource resource) {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     if (_selectedFile == null) ...[
                       DottedBorder(
                         child: InkWell(
@@ -633,18 +763,27 @@ void _editResource(Resource resource) {
                                 const SizedBox(height: 16),
                                 Text(
                                   'Select a file to upload',
-                                  style: TextStyle(color: Theme.of(context).primaryColor),
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 const Text(
                                   'PDF, DOC, DOCX, PPT, PPTX, etc.',
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                                if (_uploadError != null && _uploadError!.contains('file')) ...[
+                                if (_uploadError != null &&
+                                    _uploadError!.contains('file')) ...[
                                   const SizedBox(height: 12),
                                   Text(
                                     _uploadError!,
-                                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ],
                               ],
@@ -662,7 +801,10 @@ void _editResource(Resource resource) {
                         ),
                         child: Row(
                           children: [
-                            _getFileIcon(_selectedFile!.path.split('/').last, size: 32),
+                            _getFileIcon(
+                              _selectedFile!.path.split('/').last,
+                              size: 32,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -670,7 +812,9 @@ void _editResource(Resource resource) {
                                 children: [
                                   Text(
                                     _selectedFile!.path.split('/').last,
-                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
@@ -686,7 +830,11 @@ void _editResource(Resource resource) {
                             IconButton(
                               icon: const Icon(Icons.close),
                               color: Colors.red,
-                              onPressed: _isUploading ? null : () => setState(() => _selectedFile = null),
+                              onPressed:
+                                  _isUploading
+                                      ? null
+                                      : () =>
+                                          setState(() => _selectedFile = null),
                             ),
                           ],
                         ),
@@ -696,13 +844,15 @@ void _editResource(Resource resource) {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Resource Details
             Card(
               elevation: 1,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -716,7 +866,7 @@ void _editResource(Resource resource) {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     TextFormField(
                       controller: _titleController,
                       decoration: const InputDecoration(
@@ -734,7 +884,7 @@ void _editResource(Resource resource) {
                       enabled: !_isUploading,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     TextFormField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
@@ -753,7 +903,7 @@ void _editResource(Resource resource) {
                       enabled: !_isUploading,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     TextFormField(
                       controller: _tagsController,
                       decoration: const InputDecoration(
@@ -769,23 +919,24 @@ void _editResource(Resource resource) {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Upload button
             ElevatedButton.icon(
               onPressed: _isUploading ? null : _uploadResource,
-              icon: _isUploading
-                  ? Container(
-                      width: 24,
-                      height: 24,
-                      padding: const EdgeInsets.all(2.0),
-                      child: const CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 3,
-                      ),
-                    )
-                  : const Icon(Icons.cloud_upload),
+              icon:
+                  _isUploading
+                      ? Container(
+                        width: 24,
+                        height: 24,
+                        padding: const EdgeInsets.all(2.0),
+                        child: const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                        ),
+                      )
+                      : const Icon(Icons.cloud_upload, color: Colors.white),
               label: Text(_isUploading ? 'Uploading...' : 'Upload Resource'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -797,7 +948,7 @@ void _editResource(Resource resource) {
                 ),
               ),
             ),
-            
+
             if (_isUploading) ...[
               const SizedBox(height: 16),
               const LinearProgressIndicator(),
@@ -818,9 +969,9 @@ void _editResource(Resource resource) {
   Widget _getFileIcon(String fileName, {double size = 36}) {
     IconData iconData;
     Color iconColor;
-    
+
     final extension = fileName.split('.').last.toLowerCase();
-    
+
     switch (extension) {
       case 'pdf':
         iconData = Icons.picture_as_pdf;
@@ -857,7 +1008,7 @@ void _editResource(Resource resource) {
         iconData = Icons.insert_drive_file;
         iconColor = Colors.grey;
     }
-    
+
     return Container(
       width: size,
       height: size,
@@ -865,24 +1016,21 @@ void _editResource(Resource resource) {
         color: iconColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(
-        iconData,
-        size: size * 0.6,
-        color: iconColor,
-      ),
+      child: Icon(iconData, size: size * 0.6, color: iconColor),
     );
   }
-  
+
   // Helper method to format date
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-  
+
   // Helper method to format file size
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }
@@ -890,9 +1038,9 @@ void _editResource(Resource resource) {
 // A custom widget to create a dotted border around child widgets
 class DottedBorder extends StatelessWidget {
   final Widget child;
-  
+
   const DottedBorder({Key? key, required this.child}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(

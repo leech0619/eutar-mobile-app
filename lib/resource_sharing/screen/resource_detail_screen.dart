@@ -79,7 +79,7 @@ class ResourceDetailScreen extends StatelessWidget {
             // --- Download Button ---
             Center( // Center the download button
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.download),
+                icon: const Icon(Icons.download, color: Colors.white,),
                 label: const Text('Download File'),
                 onPressed: () {
                   // Add a confirmation or direct download
@@ -89,7 +89,7 @@ class ResourceDetailScreen extends StatelessWidget {
                   _controller.downloadFile(resource,context); // Call controller method
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green, // Use a distinct color for download
+                  backgroundColor: Colors.blue, // Use a distinct color for download
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
