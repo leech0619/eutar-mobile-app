@@ -43,10 +43,17 @@ dependencies:
   shared_preferences: ^2.5.2
   firebase_storage: ^12.4.4
   file_picker: ^9.2.3
+
   google_maps_flutter: ^2.1.1
   sliding_up_panel: ^2.0.0
   location: ^5.0.0
   
+
+  path_provider: ^2.0.14
+  dio: ^5.1.2
+  open_filex: ^4.7.0
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
