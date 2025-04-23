@@ -20,7 +20,7 @@
       "trips": [
         {
           "tripNumber": 1,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "07:15"},
             {"stop": "Stanford Bus Stop", "time": "07:25"},
@@ -35,7 +35,7 @@
         },
         {
           "tripNumber": 2,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "08:15"},
             {"stop": "UTAR Block G", "time": "08:20"},
@@ -51,7 +51,7 @@
         },
         {
           "tripNumber": 3,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "09:15"},
             {"stop": "UTAR Block G", "time": "09:20"},
@@ -67,7 +67,7 @@
         },
         {
           "tripNumber": 4,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "10:30"},
             {"stop": "UTAR Block G", "time": "10:35"},
@@ -83,7 +83,7 @@
         },
         {
           "tripNumber": 5,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "11:30"},
             {"stop": "UTAR Block G", "time": "11:35"},
@@ -100,7 +100,7 @@
         },
         {
           "tripNumber": 6,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "13:30"},
             {"stop": "UTAR Block G", "time": "13:35"},
@@ -117,7 +117,7 @@
         },
         {
           "tripNumber": 7,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "15:10"},
             {"stop": "UTAR Block G", "time": "15:15"},
@@ -134,7 +134,7 @@
         },
         {
           "tripNumber": 8,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "16:30"},
             {"stop": "UTAR Block G", "time": "16:35"},
@@ -150,7 +150,7 @@
         },
         {
           "tripNumber": 9,
-          "blocks": "D-G-N and G-N-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "18:10"},
             {"stop": "UTAR Block G", "time": "18:15"},
@@ -178,7 +178,7 @@
         "trips": [
           {
             "tripNumber": 1,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "07:15"},
               {"stop": "UTAR Block G", "time": "07:20"},
@@ -193,7 +193,7 @@
           },
           {
             "tripNumber": 2,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "08:10"},
               {"stop": "UTAR Block G", "time": "08:15"},
@@ -208,7 +208,7 @@
           },
           {
             "tripNumber": 3,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "09:10"},
               {"stop": "UTAR Block G", "time": "09:15"},
@@ -223,7 +223,7 @@
           },
           {
             "tripNumber": 4,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "10:10"},
               {"stop": "UTAR Block G", "time": "10:15"},
@@ -238,7 +238,7 @@
           },
           {
             "tripNumber": 5,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "11:10"},
               {"stop": "UTAR Block G", "time": "11:15"},
@@ -253,7 +253,7 @@
           },
           {
             "tripNumber": 6,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "13:10"},
               {"stop": "UTAR Block G", "time": "13:15"},
@@ -269,7 +269,7 @@
           },
           {
             "tripNumber": 7,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "14:20"},
               {"stop": "UTAR Block G", "time": "14:25"},
@@ -284,7 +284,7 @@
           },
           {
             "tripNumber": 8,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "16:10"},
               {"stop": "UTAR Block G", "time": "16:15"},
@@ -299,7 +299,7 @@
           },
           {
             "tripNumber": 9,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "17:15"},
               {"stop": "UTAR Block G", "time": "17:20"},
@@ -314,7 +314,7 @@
           },
           {
             "tripNumber": 10,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "18:15"},
               {"stop": "UTAR Block G", "time": "18:20"},
@@ -329,7 +329,7 @@
           },
           {
             "tripNumber": 11,
-            "blocks": "D-G-N and G-N-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "20:15"},
               {"stop": "UTAR Block G", "time": "20:20"},
@@ -364,7 +364,7 @@
           },
           {
             "tripNumber": 2,
-            "blocks": "D only and G-N-D",
+            "blocks": "D only",
             "departures": [
               {"stop": "UTAR Block D", "time": "07:35"},
               {"stop": "Harvard & Cambridge", "time": "07:45"}
@@ -377,7 +377,7 @@
           },
           {
             "tripNumber": 3,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "08:10"},
               {"stop": "UTAR Block G", "time": "08:15"},
@@ -392,7 +392,7 @@
           },
           {
             "tripNumber": 4,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "09:10"},
               {"stop": "UTAR Block G", "time": "09:15"},
@@ -407,7 +407,7 @@
           },
           {
             "tripNumber": 5,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "10:10"},
               {"stop": "UTAR Block G", "time": "10:15"},
@@ -422,7 +422,7 @@
           },
           {
             "tripNumber": 6,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "11:10"},
               {"stop": "UTAR Block G", "time": "11:15"},
@@ -437,7 +437,7 @@
           },
           {
             "tripNumber": 7,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "13:10"},
               {"stop": "UTAR Block G", "time": "13:15"},
@@ -453,7 +453,7 @@
           },
           {
             "tripNumber": 8,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "14:20"},
               {"stop": "UTAR Block G", "time": "14:25"},
@@ -468,7 +468,7 @@
           },
           {
             "tripNumber": 9,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "15:10"},
               {"stop": "UTAR Block G", "time": "15:15"},
@@ -483,7 +483,7 @@
           },
           {
             "tripNumber": 10,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "16:10"},
               {"stop": "UTAR Block G", "time": "16:15"},
@@ -498,7 +498,7 @@
           },
           {
             "tripNumber": 11,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "17:10"},
               {"stop": "UTAR Block G", "time": "17:15"},
@@ -513,7 +513,7 @@
           },
           {
             "tripNumber": 12,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "18:15"},
               {"stop": "UTAR Block G", "time": "18:20"},
@@ -536,7 +536,7 @@
         "trips": [
           {
             "tripNumber": 1,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "07:10"},
               {"stop": "UTAR Block G", "time": "07:15"},
@@ -554,7 +554,7 @@
           },
           {
             "tripNumber": 2,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "08:40"},
               {"stop": "UTAR Block G", "time": "08:45"},
@@ -572,7 +572,7 @@
           },
           {
             "tripNumber": 3,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "09:40"},
               {"stop": "UTAR Block G", "time": "09:45"},
@@ -590,7 +590,7 @@
           },
           {
             "tripNumber": 4,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "10:40"},
               {"stop": "UTAR Block G", "time": "10:45"},
@@ -608,7 +608,7 @@
           },
           {
             "tripNumber": 5,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "11:40"},
               {"stop": "UTAR Block G", "time": "11:45"},
@@ -626,7 +626,7 @@
           },
           {
             "tripNumber": 6,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "13:40"},
               {"stop": "UTAR Block G", "time": "13:45"},
@@ -645,7 +645,7 @@
           },
           {
             "tripNumber": 7,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "14:40"},
               {"stop": "UTAR Block G", "time": "14:45"},
@@ -663,7 +663,7 @@
           },
           {
             "tripNumber": 8,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "15:40"},
               {"stop": "UTAR Block G", "time": "15:45"},
@@ -681,7 +681,7 @@
           },
           {
             "tripNumber": 9,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "16:40"},
               {"stop": "UTAR Block G", "time": "16:45"},
@@ -699,7 +699,7 @@
           },
           {
             "tripNumber": 10,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "18:40"},
               {"stop": "UTAR Block G", "time": "18:45"},
@@ -717,7 +717,7 @@
           },
           {
             "tripNumber": 11,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "20:15"},
               {"stop": "UTAR Block G", "time": "20:20"},
@@ -735,7 +735,7 @@
           },
           {
             "tripNumber": 12,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "21:00"},
               {"stop": "UTAR Block G", "time": "21:05"},
@@ -761,7 +761,7 @@
         "trips": [
           {
             "tripNumber": 1,
-            "blocks": "D only and D only",
+            "blocks": "D only",
             "departures": [
               {"stop": "UTAR Block D", "time": "07:00"},
               {"stop": "Westlake 1", "time": "07:08"},
@@ -774,7 +774,7 @@
           },
           {
             "tripNumber": 2,
-            "blocks": "D only and G-N-D",
+            "blocks": "D only",
             "departures": [
               {"stop": "UTAR Block D", "time": "07:40"},
               {"stop": "Westlake 1", "time": "07:48"},
@@ -789,7 +789,7 @@
           },
           {
             "tripNumber": 3,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "09:00"},
               {"stop": "UTAR Block G", "time": "09:05"},
@@ -806,7 +806,7 @@
           },
           {
             "tripNumber": 4,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "10:00"},
               {"stop": "UTAR Block G", "time": "10:05"},
@@ -823,7 +823,7 @@
           },
           {
             "tripNumber": 5,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "11:00"},
               {"stop": "UTAR Block G", "time": "11:05"},
@@ -840,7 +840,7 @@
           },
           {
             "tripNumber": 6,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "12:00"},
               {"stop": "UTAR Block G", "time": "12:05"},
@@ -857,7 +857,7 @@
           },
           {
             "tripNumber": 7,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "14:00"},
               {"stop": "UTAR Block G", "time": "14:05"},
@@ -875,7 +875,7 @@
           },
           {
             "tripNumber": 8,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "15:00"},
               {"stop": "UTAR Block G", "time": "15:05"},
@@ -892,7 +892,7 @@
           },
           {
             "tripNumber": 9,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "16:00"},
               {"stop": "UTAR Block G", "time": "16:05"},
@@ -909,7 +909,7 @@
           },
           {
             "tripNumber": 10,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "17:00"},
               {"stop": "UTAR Block G", "time": "17:05"},
@@ -926,7 +926,7 @@
           },
           {
             "tripNumber": 11,
-            "blocks": "D-G-N and N-G-D",
+            "blocks": "D-G-N",
             "departures": [
               {"stop": "UTAR Block D", "time": "18:00"},
               {"stop": "UTAR Block G", "time": "18:05"},
@@ -955,7 +955,7 @@
       "trips": [
         {
           "tripNumber": 1,
-          "blocks": "D only and D only",
+          "blocks": "D only",
           "departures": [
             {"stop": "UTAR Block D", "time": "07:00"},
             {"stop": "Westlake 1", "time": "07:08"},
@@ -968,7 +968,7 @@
         },
         {
           "tripNumber": 2,
-          "blocks": "D only and G-N-D",
+          "blocks": "D only",
           "departures": [
             {"stop": "UTAR Block D", "time": "07:40"},
             {"stop": "Westlake 1", "time": "07:48"},
@@ -983,7 +983,7 @@
         },
         {
           "tripNumber": 3,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "09:00"},
             {"stop": "UTAR Block G", "time": "09:05"},
@@ -1000,7 +1000,7 @@
         },
         {
           "tripNumber": 4,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "10:00"},
             {"stop": "UTAR Block G", "time": "10:05"},
@@ -1017,7 +1017,7 @@
         },
         {
           "tripNumber": 5,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "11:00"},
             {"stop": "UTAR Block G", "time": "11:05"},
@@ -1034,7 +1034,7 @@
         },
         {
           "tripNumber": 6,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "12:00"},
             {"stop": "UTAR Block G", "time": "12:05"},
@@ -1051,7 +1051,7 @@
         },
         {
           "tripNumber": 7,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "14:00"},
             {"stop": "UTAR Block G", "time": "14:05"},
@@ -1069,7 +1069,7 @@
         },
         {
           "tripNumber": 8,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "15:00"},
             {"stop": "UTAR Block G", "time": "15:05"},
@@ -1087,7 +1087,7 @@
         },
         {
           "tripNumber": 9,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "16:00"},
             {"stop": "UTAR Block G", "time": "16:05"},
@@ -1104,7 +1104,7 @@
         },
         {
           "tripNumber": 10,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "17:00"},
             {"stop": "UTAR Block G", "time": "17:05"},
@@ -1121,7 +1121,7 @@
         },
         {
           "tripNumber": 11,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "18:00"},
             {"stop": "UTAR Block G", "time": "18:05"},
@@ -1138,7 +1138,7 @@
         },
         {
           "tripNumber": 12,
-          "blocks": "D-G-N and N-G-D",
+          "blocks": "D-G-N",
           "departures": [
             {"stop": "UTAR Block D", "time": "19:00"},
             {"stop": "UTAR Block G", "time": "19:05"},
