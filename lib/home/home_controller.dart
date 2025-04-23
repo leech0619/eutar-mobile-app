@@ -1,3 +1,5 @@
+import 'package:eutar/busstation/bus_map_overview_screen.dart';
+import 'package:eutar/busstation/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import '../authentication/screen/profile_screen.dart';
@@ -9,7 +11,7 @@ class HomeController extends ChangeNotifier {
     const HomeScreen(),
     const ResourcePage(),
     const AdvisorPage(),
-    const BusPage(),
+    const BusScheduleListScreen(),
     const ProfileScreen(),
   ];
 
