@@ -86,7 +86,7 @@ class ResourceDetailScreen extends StatelessWidget {
                   ScaffoldMessenger.of(context).showSnackBar(
                      SnackBar(content: Text('Initiating download for ${resource.fileName}...'))
                   );
-                  _controller.downloadFile(resource); // Call controller method
+                  _controller.downloadFile(resource,context); // Call controller method
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green, // Use a distinct color for download

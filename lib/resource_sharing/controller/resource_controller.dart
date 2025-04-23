@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../model/resource_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:dio/dio.dart';
 
 class ResourceController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -22,7 +25,6 @@ class ResourceController {
               .get();
 
       if (userDoc.exists) {
-
         return userDoc['fullName'] as String? ??
             ''; // Return username, or empty string if missing.  Crucially, use the as keyword.
       } else {
@@ -140,21 +142,69 @@ class ResourceController {
   }
 
   // Download assignment file
-  Future<void> downloadFile(Resource assignment) async {
-    // Implementation would depend on platform (web vs mobile)
-    // This is a simplified version
-    // For mobile, you might save to local storage
-    // For web, you might open in a new tab
-    // This is a placeholder for the actual implementation
+Future<void> downloadFile(Resource resource, context) async {
+  try {
+    // Get the directory to save the file
+    final directory = await getApplicationDocumentsDirectory();
+    final filePath = '${directory.path}/${resource.fileName}';
+
+    // Use Dio to download the file
+    final dio = Dio();
+    final response = await dio.download(resource.fileUrl, filePath);
+
+    if (response.statusCode == 200) {
+      print('File downloaded successfully to $filePath');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('File downloaded to $filePath'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      print('Failed to download file. Status code: ${response.statusCode}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to download file'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } catch (e) {
+    print('Error downloading file: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error downloading file: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
   // **DELETE RESOURCE**
-  Future<bool> deleteResource(String resourceId, String fileUrl) async {
+  Future<bool> deleteResource(String resourceId) async {
     try {
+      final docSnapshot =
+          await _firestore.collection('assignments').doc(resourceId).get();
+
+      if (!docSnapshot.exists) {
+        print('Resource with ID $resourceId not found.');
+        return false;
+      }
+
+      // 2. Extract the fileUrl from the document
+      final data = docSnapshot.data();
+      if (data == null || !data.containsKey('fileUrl')) {
+        print('fileUrl not found in the document.');
+        return false;
+      }
+      final fileUrl = data['fileUrl'] as String;
       // 1. Delete the document from Firestore
       await _firestore.collection('assignments').doc(resourceId).delete();
 
       // 2. Delete the file from Firebase Storage
-      final storageRef = FirebaseStorage.instance.refFromURL(fileUrl);  // Create a reference from the URL
+      final storageRef = FirebaseStorage.instance.refFromURL(
+        fileUrl,
+      ); // Create a reference from the URL
       await storageRef.delete();
 
       return true;
@@ -204,30 +254,26 @@ class ResourceController {
   }
 
   Future<bool> isCurrentUserUploader(String resourceId) async {
-      try {
-          final docSnapshot = await _firestore
-              .collection('assignments')
-              .doc(resourceId)
-              .get();
+    try {
+      final docSnapshot =
+          await _firestore.collection('assignments').doc(resourceId).get();
 
-          if (docSnapshot.exists) {
-              final data = docSnapshot.data();
-              if (data != null && data.containsKey('uploadedBy')) {
-                  String uploadedBy = data['uploadedBy'] as String;
-                  return uploadedBy == currentUserId;
-              } else {
-                  print("uploadedBy field not found in document");
-                  return false;
-              }
-          } else {
-              print("Document with ID $resourceId not found.");
-              return false;
-          }
-      } catch (e) {
-          print("Error checking uploader: $e");
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        if (data != null && data.containsKey('uploadedBy')) {
+          String uploadedBy = data['uploadedBy'] as String;
+          return uploadedBy == currentUserId;
+        } else {
+          print("uploadedBy field not found in document");
           return false;
+        }
+      } else {
+        print("Document with ID $resourceId not found.");
+        return false;
       }
+    } catch (e) {
+      print("Error checking uploader: $e");
+      return false;
+    }
   }
-
 }
-

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../model/resource_model.dart';
 import '../controller/resource_controller.dart';
 import 'resource_detail_screen.dart';
-
+import 'edit_resource_screen.dart';
 class ResourceScreen extends StatefulWidget {
   const ResourceScreen({Key? key}) : super(key: key);
 
@@ -274,162 +274,152 @@ class _ResourceScreenState extends State<ResourceScreen> {
     );
   }
   Widget _buildYourResourcesTabList(List<Resource> resources) {
-    if (resources.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.folder_open, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text(
-              'No resources found',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            if (_searchResults != null) ...[
-              const SizedBox(height: 16),
-              TextButton.icon(
-                icon: const Icon(Icons.clear),
-                label: const Text('Clear search'),
-                onPressed: () {
-                  _searchController.clear();
-                  setState(() => _searchResults = null);
-                },
-              )
-            ]
-          ],
-        ),
-      );
-    }
+  // Filter resources to show only those uploaded by the current user
+  final userResources = resources.where((resource) => resource.uploadedBy == _controller.currentUserId).toList();
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 16),
-      itemCount: resources.length,
-      itemBuilder: (context, index) {
-        final resource = resources[index];
-        
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ResourceDetailScreen(resource: resource),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
+  if (userResources.isEmpty) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.folder_open, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text(
+            'No resources found',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  return ListView.builder(
+    padding: const EdgeInsets.only(bottom: 16),
+    itemCount: userResources.length,
+    itemBuilder: (context, index) {
+      final resource = userResources[index];
+
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _getFileIcon(resource.fileName),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              resource.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              resource.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.grey[700],
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
+                  _getFileIcon(resource.fileName),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          resource.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (resource.tags.isNotEmpty) ...[
-                              Wrap(
-                                spacing: 6,
-                                runSpacing: 6,
-                                children: resource.tags.map((tag) => Chip(
-                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                  label: Text(tag),
-                                  labelStyle: const TextStyle(fontSize: 12),
-                                  padding: EdgeInsets.zero,
-                                  visualDensity: VisualDensity.compact,
-                                )).toList(),
-                              ),
-                              const SizedBox(height: 8),
-                            ],
-                            Row(
-                              children: [
-                                const Icon(Icons.person_outline, size: 14, color: Colors.grey),
-                                const SizedBox(width: 4),
-                                Text(
-                                  resource.uploadedByName.isNotEmpty
-                                      ? resource.uploadedByName
-                                      : 'Anonymous',
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                                const SizedBox(width: 16),
-                                const Icon(Icons.calendar_today, size: 14, color: Colors.grey),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _formatDate(resource.uploadDate),
-                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                          ],
+                        const SizedBox(height: 4),
+                        Text(
+                          resource.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.download_rounded),
-                        color: Theme.of(context).primaryColor,
-                        tooltip: 'Download',
-                        onPressed: () async {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Downloading ${resource.fileName}...')),
-                          );
-                          try {
-                            await _controller.downloadFile(resource);
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Download failed: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Edit Button
+                  TextButton.icon(
+                    onPressed: () {
+                      // Navigate to an edit screen or show a dialog
+                      _editResource(resource);
+                    },
+                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    label: const Text('Edit', style: TextStyle(color: Colors.blue)),
+                  ),
+                  // Delete Button
+                  TextButton.icon(
+                    onPressed: () async {
+                      final confirm = await _showDeleteConfirmationDialog(context);
+                      if (confirm) {
+                        await _deleteResource(resource);
+                      }
+                    },
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    label: const Text('Delete', style: TextStyle(color: Colors.red)),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      );
+    },
+  );
+}
+
+// Helper method to show a delete confirmation dialog
+Future<bool> _showDeleteConfirmationDialog(BuildContext context) async {
+  return await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Resource'),
+          content: const Text('Are you sure you want to delete this resource?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        ),
+      ) ??
+      false;
+}
+
+// Helper method to delete a resource
+Future<void> _deleteResource(Resource resource) async {
+  try {
+    await _controller.deleteResource(resource.id); // Assuming the second argument is 'context'
+    setState(() {}); // Refresh the UI
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Resource deleted successfully'), backgroundColor: Colors.green),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to delete resource: $e'), backgroundColor: Colors.red),
     );
   }
+}
+
+// Helper method to edit a resource
+void _editResource(Resource resource) {
+  // Navigate to an edit screen or show a dialog to edit the resource
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => EditResourceScreen(resource: resource), // Assuming `EditResourceScreen` exists
+    ),
+  );
+}
   Widget _buildResourcesList(List<Resource> resources) {
     if (resources.isEmpty) {
       return Center(
@@ -566,7 +556,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
                             SnackBar(content: Text('Downloading ${resource.fileName}...')),
                           );
                           try {
-                            await _controller.downloadFile(resource);
+                            await _controller.downloadFile(resource,context);
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
