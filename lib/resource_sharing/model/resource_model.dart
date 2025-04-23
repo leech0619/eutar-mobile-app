@@ -7,6 +7,7 @@ class Resource {
   final String fileUrl;
   final String fileName;
   final String uploadedBy;
+  final String uploadedByName;
   final DateTime uploadDate;
   final List<String> tags;
 
@@ -16,6 +17,7 @@ class Resource {
     required this.description,
     required this.fileUrl,
     required this.fileName,
+    required this.uploadedByName,
     required this.uploadedBy,
     required this.uploadDate,
     required this.tags,
@@ -28,6 +30,7 @@ class Resource {
       description: map['description'] ?? '',
       fileUrl: map['fileUrl'] ?? '',
       fileName: map['fileName'] ?? '',
+      uploadedByName: map['uploadedByName'] ?? '',
       uploadedBy: map['uploadedBy'] ?? '',
       uploadDate: (map['uploadDate'] as Timestamp).toDate(),
       tags: List<String>.from(map['tags'] ?? []),
@@ -41,6 +44,7 @@ class Resource {
       'fileUrl': fileUrl,
       'fileName': fileName,
       'uploadedBy': uploadedBy,
+      'uploadedByName': uploadedByName,
       'uploadDate': Timestamp.fromDate(uploadDate),
       'tags': tags,
     };
