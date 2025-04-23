@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
+import 'package:open_filex/open_filex.dart';
 
 class ResourceController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -141,42 +142,75 @@ class ResourceController {
     return null;
   }
 
-  // Download assignment file
-Future<void> downloadFile(Resource resource, context) async {
-  try {
-    // Get the directory to save the file
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = '${directory.path}/${resource.fileName}';
+  Future<void> downloadFile(Resource resource, BuildContext context) async {
+    try {
+      // Get the Downloads directory
+      final directory = Directory('/storage/emulated/0/Download');
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+      final filePath = '${directory.path}/${resource.fileName}';
 
-    // Use Dio to download the file
-    final dio = Dio();
-    final response = await dio.download(resource.fileUrl, filePath);
+      // Use Dio to download the file
+      final dio = Dio();
+      final response = await dio.download(resource.fileUrl, filePath);
 
-    if (response.statusCode == 200) {
-      print('File downloaded successfully to $filePath');
+      if (response.statusCode == 200) {
+        print('File downloaded successfully to $filePath');
+
+        // Show a dialog asking if the user wants to open the file
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Download Complete'),
+                content: Text(
+                  'File downloaded to $filePath. Do you want to open it?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed:
+                        () => Navigator.of(context).pop(), // Close the dialog
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Close the dialog
+                      _openFile(filePath); // Open the file
+                    },
+                    child: const Text('Open'),
+                  ),
+                ],
+              ),
+        );
+      } else {
+        print('Failed to download file. Status code: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to download file'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error downloading file: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('File downloaded to $filePath'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } else {
-      print('Failed to download file. Status code: ${response.statusCode}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to download file'),
+          content: Text('Error downloading file: $e'),
           backgroundColor: Colors.red,
         ),
       );
     }
+  }
+
+  // Helper function to open the file
+
+void _openFile(String filePath) async {
+  try {
+    final result = await OpenFilex.open(filePath);
+    print('OpenFilex result: ${result.message}');
   } catch (e) {
-    print('Error downloading file: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error downloading file: $e'),
-        backgroundColor: Colors.red,
-      ),
-    );
+    print('Error opening file: $e');
   }
 }
 
