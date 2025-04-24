@@ -76,12 +76,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
             favoriteRoutes.contains(route['id']) &&
             (searchQuery.isEmpty ? true : 
              route['name'].toString().toLowerCase().contains(searchQuery.toLowerCase()))).toList();
-      } else if (filter == 'Depart from UTAR') {
-        filteredRoutes = scheduleData['routes'].where((route) => 
-            route['stops'].first.toString().contains('UTAR') &&
-            (searchQuery.isEmpty ? true : 
-             route['name'].toString().toLowerCase().contains(searchQuery.toLowerCase()))).toList();
-      }
+      } 
     });
   }
 
@@ -136,6 +131,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('UTAR Bus Schedule'),
+         backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -209,9 +205,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                     children: [
                       _buildFilterChip('All'),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Favorites'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Depart from UTAR'),
+                      _buildFilterChip('Favorites')
                     ],
                   ),
                 ),
@@ -271,6 +265,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Route Name and Favorite Button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -299,21 +294,26 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                 ],
               ),
               const SizedBox(height: 8),
+  
+              // Stops (First to Last)
               if (route['stops'] != null && route['stops'].isNotEmpty)
                 Text(
                   '${route['stops'].first} to ${route['stops'].last}',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                children: route['trips'].take(3).map<Widget>((trip) {
-                  return Chip(
-                    label: Text('Trip ${trip['tripNumber']} - ${trip['departures'][0]['time']}'),
-                    backgroundColor: Colors.blue[100],
-                  );
-                }).toList(),
+  
+              // Total Trips
+              Text(
+                'Total Trips: ${route['trips'].length}',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
               ),
+  
+              // Notes (if available)
               if (route['notes'] != null && route['notes'].isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
