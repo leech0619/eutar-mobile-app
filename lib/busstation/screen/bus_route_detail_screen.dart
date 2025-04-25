@@ -545,7 +545,7 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
                 trailing: Text(time),
                 dense: true,
               );
-            }),
+            }).toList(),
           const SizedBox(height: 16),
 
           // Arrival Times Section
@@ -566,7 +566,7 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
                 trailing: Text(time),
                 dense: true,
               );
-            }),
+            }).toList(),
           const SizedBox(height: 16),
 
           // Special Note Section
@@ -597,7 +597,7 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
                     child: Text('• $note'),
                   ),
                 )
-                ,
+                .toList(),
           ],
         ],
       ),

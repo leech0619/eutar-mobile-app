@@ -6,7 +6,7 @@ import 'resource_detail_screen.dart';
 import 'edit_resource_screen.dart';
 
 class ResourceScreen extends StatefulWidget {
-  const ResourceScreen({super.key});
+  const ResourceScreen({Key? key}) : super(key: key);
 
   @override
   _ResourceScreenState createState() => _ResourceScreenState();
@@ -1053,9 +1053,8 @@ class _ResourceScreenState extends State<ResourceScreen> {
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
+    if (bytes < 1024 * 1024 * 1024)
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }
@@ -1064,7 +1063,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
 class DottedBorder extends StatelessWidget {
   final Widget child;
 
-  const DottedBorder({super.key, required this.child});
+  const DottedBorder({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

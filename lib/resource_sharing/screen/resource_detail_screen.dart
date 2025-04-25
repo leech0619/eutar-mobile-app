@@ -8,7 +8,7 @@ class ResourceDetailScreen extends StatelessWidget {
   final ResourceController _controller =
       ResourceController(); // Instantiate controller
 
-  ResourceDetailScreen({super.key, required this.resource});
+  ResourceDetailScreen({Key? key, required this.resource}) : super(key: key);
 
   // Helper function for date formatting
   String _formatDate(DateTime date) {

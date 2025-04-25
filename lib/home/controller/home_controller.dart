@@ -3,7 +3,6 @@ import 'package:eutar/resource_sharing/screen/resource_screen.dart';
 import 'package:flutter/material.dart';
 import '../screen/home_screen.dart';
 import '../../profile/screen/profile_screen.dart';
-import '../../advisor/advisor_page.dart';
 
 class HomeController extends ChangeNotifier {
   int currentIndex = 0;
@@ -14,7 +13,6 @@ class HomeController extends ChangeNotifier {
     const HomeScreen(),
     const BusScheduleListScreen(),
     const ProfileScreen(),
-    const AdvisorPage(),
   ];
 
   void updateIndex(int index) {
