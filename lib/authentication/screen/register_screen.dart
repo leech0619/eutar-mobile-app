@@ -27,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.blue,
         title: const Text(
           'Register',
-          style: TextStyle(color: Colors.white, fontSize: 24),
+          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -181,7 +181,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             overflow:
                                 TextOverflow
                                     .ellipsis, // Truncate text with ellipsis
-                            maxLines: 1, // Ensure the text stays on one line
+                            maxLines: 1,
                           );
                         }).toList();
                       },

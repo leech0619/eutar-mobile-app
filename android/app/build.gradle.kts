@@ -1,12 +1,16 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val dotenv = Properties()
+val envFile = rootProject.file(".env")
+if (envFile.exists()) {
+    FileInputStream(envFile).use { dotenv.load(it) }
+}
 plugins {
     id("com.android.application")
-    // Add the ID of the plugin
-    id("com.google.gms.google-services")
-
-    id("kotlin-android")
-    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
-    id("dev.flutter.flutter-gradle-plugin")
-
+    id("com.google.gms.google-services") // Google services plugin
+    id("kotlin-android") // Kotlin plugin
+    id("dev.flutter.flutter-gradle-plugin") // Flutter plugin
 }
 
 android {
@@ -24,21 +28,17 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.eutar"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["MAPS_API_KEY"] = dotenv["GOOGLE_MAPS_API_KEY"].toString() // Ensure it's a string
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("debug") // Adjust for production signing later
         }
     }
 }
@@ -48,15 +48,7 @@ flutter {
 }
 
 dependencies {
-  // Import the Firebase BoM
-  implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
-
-
-  // TODO: Add the dependencies for Firebase products you want to use
-  // When using the BoM, don't specify versions in Firebase dependencies
-  implementation("com.google.firebase:firebase-analytics")
-
-
-  // Add the dependencies for any other desired Firebase products
-  // https://firebase.google.com/docs/android/setup#available-libraries
+    implementation(platform("com.google.firebase:firebase-bom:33.11.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    // Add more dependencies as needed
 }
