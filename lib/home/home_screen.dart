@@ -2,7 +2,7 @@ import 'package:eutar/busstation/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import '../resource_sharing/screen/resource_screen.dart';
-import '../authentication/screen/profile_screen.dart';
+import '../profile/screen/profile_screen.dart';
 import '../busstation/bus_map_overview_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
