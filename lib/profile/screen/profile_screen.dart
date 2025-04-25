@@ -1,13 +1,18 @@
-import 'package:eutar/profile/screen/change_password.dart';
-import 'package:eutar/profile/screen/edit_profile.dart';
+import 'package:eutar/profile/screen/change_password_screen.dart';
+import 'package:eutar/profile/screen/edit_profile_screen.dart';
 import 'package:flutter/material.dart';
 import '../controller/profile_controller.dart';
 import '../model/profile_model.dart';
 import '../../authentication/screen/login_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final ProfileController controller = ProfileController();
@@ -31,52 +36,89 @@ class ProfileScreen extends StatelessWidget {
             onSelected: (value) async {
               if (value == 'Edit Profile') {
                 // Navigate to Edit Profile screen
-                final profile = await controller.fetchUserData(); // Fetch the user data
+                final profile =
+                    await controller.fetchUserData(); // Fetch the user data
                 if (profile != null) {
-                  Navigator.push(
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditProfileScreen(profile: profile), // Pass the ProfileModel
+                      builder:
+                          (context) => EditProfileScreen(
+                            profile: profile,
+                          ), // Pass the ProfileModel
                     ),
                   );
+
+                  // Refresh the profile data if changes were saved
+                  if (result == true) {
+                    // Call fetchUserData again to refresh the profile
+                    controller.fetchUserData();
+                    setState(() {});
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Failed to load profile data')),
+                    const SnackBar(
+                      content: Text('Failed to load profile data'),
+                    ),
                   );
                 }
               } else if (value == 'Change Password') {
-                // Navigate to Change Password screen
-                Navigator.push(
+                // Navigate to ChangePasswordScreen and wait for the result
+                final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const ChangePasswordScreen(),
                   ),
                 );
+
+                // Check the result and refresh the profile if needed
+                if (result == true) {
+                  // Show a success SnackBar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: const [
+                          Icon(Icons.check_circle, color: Colors.white),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Password changed successfully',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: Colors.green,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(16),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
               } else if (value == 'Logout') {
                 // Perform logout
                 await controller.logout();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'Edit Profile',
-                child: Text('Edit Profile'),
-              ),
-              const PopupMenuItem(
-                value: 'Change Password',
-                child: Text('Change Password'),
-              ),
-              const PopupMenuItem(
-                value: 'Logout',
-                child: Text('Logout'),
-              ),
-            ],
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'Edit Profile',
+                    child: Text('Edit Profile'),
+                  ),
+                  const PopupMenuItem(
+                    value: 'Change Password',
+                    child: Text('Change Password'),
+                  ),
+                  const PopupMenuItem(value: 'Logout', child: Text('Logout')),
+                ],
           ),
         ],
       ),
@@ -128,13 +170,6 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 5),
-                      Text(
-                        profile.email,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -149,6 +184,12 @@ class ProfileScreen extends StatelessWidget {
                         icon: Icons.school,
                         title: 'Faculty',
                         value: profile.faculty,
+                      ),
+                      const SizedBox(height: 10),
+                      _buildProfileDetailCard(
+                        icon: Icons.email,
+                        title: 'Email',
+                        value: profile.email,
                       ),
                       const SizedBox(height: 10),
                       _buildProfileDetailCard(

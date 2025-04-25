@@ -113,27 +113,40 @@ class ResourceDetailScreen extends StatelessWidget {
 
             // --- Download Button ---
             Center(
-              // Center the download button
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.download, color: Colors.white),
                 label: const Text('Download File'),
                 onPressed: () {
-                  // Add a confirmation or direct download
+                  // Show the SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text(
-                        'Initiating download for ${resource.fileName}...',
+                      content: Row(
+                        children: [
+                          const Icon(Icons.download, color: Colors.white),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Initiating download for ${resource.fileName}...',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
                       ),
+                      backgroundColor: Colors.blue,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(16),
+                      duration: const Duration(seconds: 3),
                     ),
                   );
-                  _controller.downloadFile(
-                    resource,
-                    context,
-                  ); // Call controller method
+
+                  // Call the download method
+                  _controller.downloadFile(resource, context);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colors.blue, // Use a distinct color for download
+                  backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 30,

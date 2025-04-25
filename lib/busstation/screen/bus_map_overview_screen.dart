@@ -84,6 +84,8 @@ class _BusMapOverviewScreenState extends State<BusMapOverviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        foregroundColor: Colors.white,
         title: const Text(
           'Bus Map Overview',
           style: TextStyle(
