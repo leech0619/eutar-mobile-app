@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import '../../resource_sharing/screen/resource_screen.dart';
 import '../../profile/screen/profile_screen.dart';
+import '../../advisor/advisor_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const ResourceScreen(),
-    const HomeScreen(),
+    const AdvisorPage(),
     const BusScheduleListScreen(),
     const ProfileScreen(),
   ];
@@ -246,18 +247,6 @@ class ResourcePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Resource')),
       body: const Center(child: Text('Resource Sharing Page')),
-    );
-  }
-}
-
-class AdvisorPage extends StatelessWidget {
-  const AdvisorPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Advisor')),
-      body: const Center(child: Text('Smart Academic Advisor Page')),
     );
   }
 }

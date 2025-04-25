@@ -7,6 +7,8 @@ import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../advisor/model/chat_message.dart';
+import '../profile/model/profile_model.dart';
+import '../profile/controller/profile_controller.dart';
 
 class PdfEmailService {
   // Structure for organizing extracted meeting data - improved version
@@ -110,7 +112,7 @@ class PdfEmailService {
     return meetingData;
   }
 
-  static Future<File> generatePdf(List<ChatMessage> messages, [Map<int, String>? responses]) async {
+  static Future<File> generatePdf(List<ChatMessage> messages, [Map<int, String>? responses, ProfileModel? userProfile]) async {
     final pdf = pw.Document();
     
     // Extract structured data from the conversation or use provided responses
@@ -149,6 +151,15 @@ class PdfEmailService {
       // Fallback to extracting from messages with improved logic
       meetingData = _extractMeetingDataImproved(messages);
     }
+    
+    // Calculate consultation duration
+    DateTime startTime = messages.isNotEmpty ? messages.first.timestamp : DateTime.now();
+    DateTime endTime = messages.isNotEmpty ? messages.last.timestamp : DateTime.now();
+    Duration duration = endTime.difference(startTime);
+    String durationText = '${duration.inMinutes} minutes';
+    
+    // Format date for display
+    String consultationDate = DateFormat('yyyy-MM-dd HH:mm').format(endTime);
 
     pdf.addPage(
       pw.MultiPage(
@@ -165,11 +176,37 @@ class PdfEmailService {
                 )
               )
             ),
-            pw.Paragraph(
-              text: 'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(DateTime.now())}',
-              style: const pw.TextStyle(fontSize: 12)
+            
+            // Consultation & Counseling Details section
+            pw.Container(
+              padding: const pw.EdgeInsets.all(10),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.blue50,
+                borderRadius: pw.BorderRadius.circular(8),
+                border: pw.Border.all(color: PdfColors.blue300),
+              ),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text(
+                    'CONSULTATION & COUNSELING DETAILS',
+                    style: pw.TextStyle(
+                      fontSize: 14, 
+                      fontWeight: pw.FontWeight.bold,
+                      color: PdfColors.blue900,
+                    ),
+                  ),
+                  pw.SizedBox(height: 8),
+                  _buildConsultationDetailRow('Student Name:', userProfile?.fullName ?? 'N/A'),
+                  _buildConsultationDetailRow('Faculty:', userProfile?.faculty ?? 'N/A'),
+                  _buildConsultationDetailRow('Consultation Date:', consultationDate),
+                  _buildConsultationDetailRow('Consultation Duration:', durationText),
+                  _buildConsultationDetailRow('Email:', userProfile?.email ?? 'N/A'),
+                ],
+              ),
             ),
-            pw.SizedBox(height: 10),
+            
+            pw.SizedBox(height: 15),
             
             // Introduction section
             pw.Container(
@@ -199,7 +236,7 @@ class PdfEmailService {
             
             pw.SizedBox(height: 20),
             
-            // Dynamically build sections from the extracted meeting data
+            // First page content - Discussion points
             _buildSummarySection('Academic Progress', 
               meetingData['Academic Progress'] ?? 'Not discussed during this session.'),
             
@@ -211,9 +248,36 @@ class PdfEmailService {
               
             _buildSummarySection('Goals', 
               meetingData['Goals'] ?? 'Not discussed during this session.'),
-              
-            _buildSummarySection('Personalized Recommendations', 
-              meetingData['Recommendations'] ?? 'No specific recommendations were provided.'),
+            
+            // Page break before recommendations
+            pw.NewPage(),
+            
+            // Second page - Personalized recommendations
+            pw.Header(
+              level: 1,
+              child: pw.Text('Personalized Recommendations', 
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue900,
+                )
+              )
+            ),
+            
+            pw.SizedBox(height: 10),
+            
+            pw.Container(
+              padding: const pw.EdgeInsets.all(12),
+              decoration: pw.BoxDecoration(
+                border: pw.Border.all(color: PdfColors.blue400, width: 1.5),
+                borderRadius: pw.BorderRadius.circular(8),
+                color: PdfColors.white,
+              ),
+              child: pw.Text(
+                meetingData['Recommendations'] ?? 'No specific recommendations were provided.',
+                style: const pw.TextStyle(fontSize: 11),
+              ),
+            ),
             
             pw.SizedBox(height: 20),
             
@@ -254,6 +318,30 @@ class PdfEmailService {
     final file = File('${output.path}/academic_consultation_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf');
     await file.writeAsBytes(await pdf.save());
     return file;
+  }
+  
+  static pw.Widget _buildConsultationDetailRow(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 2),
+      child: pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.SizedBox(
+            width: 130,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+            ),
+          ),
+          pw.Expanded(
+            child: pw.Text(
+              value,
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+          ),
+        ],
+      ),
+    );
   }
   
   static pw.Widget _buildSummarySection(String title, String content) {
@@ -324,10 +412,10 @@ class PdfEmailService {
   }
 
   // Combine PDF generation and email sending into a single method
-  Future<void> generatePdfAndSendEmail(List<ChatMessage> messages, [Map<int, String>? responses]) async {
+  Future<void> generatePdfAndSendEmail(List<ChatMessage> messages, [Map<int, String>? responses, ProfileModel? userProfile]) async {
     try {
       // First generate the PDF
-      final pdfFile = await PdfEmailService.generatePdf(messages, responses);
+      final pdfFile = await PdfEmailService.generatePdf(messages, responses, userProfile);
       
       // Then send the email
       await PdfEmailService.sendEmail(pdfFile, ''); // Empty email will use device's default email app

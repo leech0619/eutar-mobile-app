@@ -61,23 +61,23 @@ class GeminiService {
   
   Future<String> startAdvisoryMeeting() async {
     // Use a more natural, conversational introduction that clearly indicates this is about academic progress
-    return "Hi there! I'm your UTAR academic advisor. It's good to meet with you today. Let's have a structured meeting covering a few key areas. First, I'd like to discuss your academic progress at UTAR. How are your classes going this semester? Could you tell me about your current CGPA and which subjects you're finding most interesting or challenging?";
+    return "Hi there! Thanks for starting this academic advisory session. I'd like to learn a bit about your academic journey at UTAR so I can provide personalized guidance.\n\nLet's start with your academic progress. How are your classes going this semester? Could you also share your current CGPA and which subjects you're finding most interesting or challenging?";
   }
   
   Future<String> continueAdvisoryMeeting(String userResponse, int questionNumber, Map<int, String> responses) async {
     // Revised array of questions with clearer, unique identifiers for each topic
     final questions = [
       // First question about academic progress
-      "I'd like to know about your academic progress at UTAR. How are your classes going this semester? Could you tell me about your current CGPA and which subjects you're finding most interesting or challenging?",
+      "Let's start with your academic progress. How are your classes going this semester? Could you also share your current CGPA and which subjects you're finding most interesting or challenging?",
       
       // Second question about extracurricular activities
-      "Let's talk about your extracurricular activities at UTAR. What clubs, societies, sports, or volunteer work are you involved in? These co-curricular activities can really enhance your university experience.",
+      "Let's talk about your life outside of classes. What clubs, societies, sports, or volunteer activities are you involved in at UTAR? These extracurricular activities can really enhance your university experience.",
       
       // Third question about challenges
-      "University life can certainly have its challenges. Is there anything specific that's been difficult for you lately, either with your studies or otherwise that might be affecting your academic performance?",
+      "University life can sometimes be challenging. Is there anything specific that's been difficult for you lately, either with your studies or in other aspects of your life that might be affecting your academic performance?",
       
       // Fourth question about goals
-      "Looking ahead to your future goals, what are your plans for the upcoming semester? And how do you see your current studies at UTAR fitting into your longer-term career plans?"
+      "Looking ahead to your future, what are your plans for the upcoming semester? And how do you see your current studies at UTAR fitting into your longer-term career goals?"
     ];
     
     // Debug - print the question number to verify correct tracking
@@ -192,9 +192,9 @@ class GeminiService {
         contextPrompt = '''
         The student just answered your question about their academic goals and future plans: "${userResponse}"
         
-        Respond with a brief acknowledgment about their goals and plans. Then let them know you'll now provide a summary with personalized advice based on your conversation.
+        Respond with a brief acknowledgment about their goals and plans. Then let them know that based on the information they've shared, you'll be preparing a personalized summary with tailored recommendations that will be sent to their email shortly.
         
-        IMPORTANT: Indicate that all questions have been answered and you'll now provide a summary of the meeting.
+        IMPORTANT: Make it clear that the consultation is complete and that they will receive their personalized advice via email only, not in the chat.
         
         Keep your response natural and conversational. Don't use formatting like asterisks.
         ''';

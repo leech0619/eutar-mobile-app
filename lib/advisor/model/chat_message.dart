@@ -164,4 +164,222 @@ class AdvisoryMeetingState {
       'responses': responses.map((key, value) => MapEntry(key.toString(), value)),
     };
   }
+}
+
+// Add a class to represent a chat session
+class ChatSession {
+  String id;
+  String title;
+  DateTime createdAt;
+  DateTime lastUpdated;
+  List<ChatMessage> messages = [];
+  AdvisoryMeetingState meetingState = AdvisoryMeetingState();
+
+  ChatSession({
+    required this.id,
+    required this.title,
+    required this.createdAt,
+    required this.lastUpdated,
+    required this.messages,
+    required this.meetingState,
+  });
+
+  // Create a new empty chat session
+  factory ChatSession.create() {
+    final now = DateTime.now();
+    final id = now.millisecondsSinceEpoch.toString();
+    return ChatSession(
+      id: id,
+      title: 'New Chat - ${_formatDateTime(now)}',
+      createdAt: now,
+      lastUpdated: now,
+      messages: [],
+      meetingState: AdvisoryMeetingState(),
+    );
+  }
+
+  // Generate a title based on the content of messages
+  void generateTitle() {
+    if (messages.isEmpty) {
+      title = 'New Chat - ${_formatDateTime(createdAt)}';
+      return;
+    }
+
+    // Find the first user message and use it as the title
+    for (final message in messages) {
+      if (message.isUser) {
+        String text = message.text.trim();
+        
+        // Extract a meaningful title from the message
+        String extractedTitle = _extractTitleFromText(text);
+        title = extractedTitle;
+        return;
+      }
+    }
+
+    // Fallback title
+    title = 'Chat - ${_formatDateTime(lastUpdated)}';
+  }
+  
+  // Helper method to extract a meaningful title from text
+  String _extractTitleFromText(String text) {
+    // Remove common question phrases
+    final questionsToRemove = [
+      'i would like to ask about',
+      'can you tell me about',
+      'what is',
+      'how do i',
+      'how can i',
+      'tell me about',
+      'i want to know about',
+      'i want to know',
+      'i want to learn about',
+      'i want to learn',
+      'i need to know about',
+      'i need to know',
+      'i need information on',
+      'i need information about',
+      'i need help with',
+      'i need help',
+      'i have a question about',
+      'i have a question',
+      'please tell me about',
+      'please help me with',
+      'could you tell me about',
+      'would you tell me about',
+      'can you help me with',
+      'can you help me',
+      'can you explain',
+      'please explain',
+      'i would like to know about',
+      'i would like to know',
+      'i would like to',
+      'i would like',
+      'i would love to know about',
+      'i would love to know',
+      'i was wondering about',
+      'i was wondering',
+      'i am wondering about',
+      'i am wondering',
+      'please',
+      'thank you',
+      'thanks',
+      'hi',
+      'hello',
+    ];
+    
+    String cleanedText = text.toLowerCase();
+    
+    for (final phrase in questionsToRemove) {
+      if (cleanedText.startsWith(phrase)) {
+        cleanedText = cleanedText.substring(phrase.length).trim();
+      }
+    }
+    
+    // Remove punctuation at the end
+    if (cleanedText.endsWith('?') || 
+        cleanedText.endsWith('.') ||
+        cleanedText.endsWith('!')) {
+      cleanedText = cleanedText.substring(0, cleanedText.length - 1).trim();
+    }
+    
+    // Capitalize the first letter
+    if (cleanedText.isNotEmpty) {
+      cleanedText = cleanedText[0].toUpperCase() + 
+                    (cleanedText.length > 1 ? cleanedText.substring(1) : '');
+    }
+    
+    // Limit length
+    if (cleanedText.length > 30) {
+      cleanedText = '${cleanedText.substring(0, 27)}...';
+    } else if (cleanedText.isEmpty) {
+      // If nothing meaningful remains, use a generic title
+      final now = DateTime.now();
+      return 'Chat - ${_formatDateTime(now)}';
+    }
+    
+    return cleanedText;
+  }
+
+  // Create a session from JSON for storage
+  factory ChatSession.fromJson(Map<String, dynamic> json) {
+    List<ChatMessage> messages = [];
+    if (json['messages'] != null) {
+      messages = (json['messages'] as List)
+          .map((msg) => ChatMessage.fromJson(msg))
+          .toList();
+    }
+
+    AdvisoryMeetingState meetingState;
+    if (json['meetingState'] != null) {
+      meetingState = AdvisoryMeetingState.fromJson(json['meetingState']);
+    } else {
+      meetingState = AdvisoryMeetingState();
+    }
+
+    return ChatSession(
+      id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      title: json['title'] ?? 'Untitled Chat',
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : DateTime.now(),
+      lastUpdated: json['lastUpdated'] != null
+          ? DateTime.parse(json['lastUpdated'])
+          : DateTime.now(),
+      messages: messages,
+      meetingState: meetingState,
+    );
+  }
+
+  // Convert session to JSON for storage
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'createdAt': createdAt.toIso8601String(),
+      'lastUpdated': lastUpdated.toIso8601String(),
+      'messages': messages.map((msg) => msg.toJson()).toList(),
+      'meetingState': meetingState.toJson(),
+    };
+  }
+
+  // Update the lastUpdated timestamp
+  void updateTimestamp() {
+    lastUpdated = DateTime.now();
+  }
+
+  // Add a message to the session
+  void addMessage(ChatMessage message) {
+    messages.add(message);
+    updateTimestamp();
+    
+    // Only generate a title for the first user message if the title is still default
+    if (messages.length <= 3 && message.isUser && 
+        (title.startsWith('New Chat') || title.startsWith('Chat -'))) {
+      generateTitle();
+    }
+  }
+
+  // Get a preview of the chat content
+  String getPreview() {
+    if (messages.isEmpty) return 'No messages yet';
+    
+    // Find the last message that's not a system message
+    for (int i = messages.length - 1; i >= 0; i--) {
+      if (!messages[i].isSystem) {
+        String preview = messages[i].text;
+        if (preview.length > 40) {
+          preview = '${preview.substring(0, 40)}...';
+        }
+        return preview;
+      }
+    }
+    
+    return 'Empty chat';
+  }
+
+  // Helper method to format datetime
+  static String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.month}/${dateTime.day} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
 } 

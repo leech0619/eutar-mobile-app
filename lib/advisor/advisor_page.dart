@@ -1,12 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../utils/gemini_service.dart';
 import '../utils/pdf_email_service.dart';
 import '../utils/auth.dart';  // Import the auth service
 import 'model/chat_message.dart';
 import 'widgets/message_bubble.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class AdvisorPage extends StatefulWidget {
   const AdvisorPage({super.key});
@@ -22,17 +21,16 @@ class _AdvisorPageState extends State<AdvisorPage> {
   final GeminiService _geminiService = GeminiService();
   final AuthService _authService = AuthService();  // Add auth service
   final List<ChatMessage> _messages = [];
-  AdvisoryMeetingState _meetingState = AdvisoryMeetingState();
+  final AdvisoryMeetingState _meetingState = AdvisoryMeetingState();
   bool _isLoading = false;
   String _emailAddress = '';
   bool _showEmailDialog = false;
   File? _pdfFile;
-  bool _isSendingEmail = false;
 
   @override
   void initState() {
     super.initState();
-    _loadChatHistory();
+    _initializeChat();
     // Get the user's email address
     _getUserEmail();
   }
@@ -51,8 +49,8 @@ class _AdvisorPageState extends State<AdvisorPage> {
     });
 
     try {
-      // More natural, conversational initial message
-      final initialMessage = "Hello! I'm your UTAR academic advisor. How can I help you with your studies today? Feel free to ask me about courses, academic policies, or we can have a more structured advising session if you'd like.";
+      // Always use the same initial message for consistency
+      final initialMessage = "Hello! I'm your Academic Advisor Chatbot to guide you through your academic journey. I'm ready to assist you, just like your academic supervisor.";
       
       setState(() {
         _messages.add(ChatMessage(
@@ -65,7 +63,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
       // Add a fallback message so the screen isn't empty
       setState(() {
         _messages.add(ChatMessage(
-          text: "Hello! I'm your UTAR academic advisor. I'm having trouble connecting to my knowledge service at the moment. Please check your API configuration or try again later.",
+          text: "Hello! I'm your academic advisor. I'm having trouble connecting to my knowledge service at the moment. Please check your API configuration or try again later.",
           messageType: MessageType.advisor,
         ));
       });
@@ -106,16 +104,9 @@ class _AdvisorPageState extends State<AdvisorPage> {
     );
   }
 
-  // Send email automatically when the meeting is complete
-  void _sendEmailAutomatically() async {
-    // Check if the meeting is complete and all questions have been answered
-    if (!_meetingState.isMeetingComplete || !_meetingState.isAllQuestionsAnswered) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please complete all questions before sending an email summary.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+  // Send email at meeting completion instead of using the PDF download button
+  Future<void> _sendEmailAutomatically() async {
+    if (_messages.isEmpty) {
       return;
     }
 
@@ -123,37 +114,47 @@ class _AdvisorPageState extends State<AdvisorPage> {
       setState(() {
         _isLoading = true;
       });
+
+      final pdfFile = await PdfEmailService.generatePdf(_messages);
+
+      // Verify we have an email address
+      if (_emailAddress.isEmpty) {
+        // Try to get the email one more time
+        _getUserEmail();
+        // If still empty, show a dialog for manual entry
+        if (_emailAddress.isEmpty) {
+          setState(() {
+            _pdfFile = pdfFile;
+            _showEmailDialog = true;
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
+      // Send the email automatically
+      await PdfEmailService.sendEmail(pdfFile, _emailAddress);
       
-      // Generate the PDF and send email
-      await PdfEmailService().generatePdfAndSendEmail(_messages, _meetingState.responses);
-      
-      // Show success message
+      // Show success notification
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Your consultation summary has been prepared for email!'),
+          content: Text('Consultation summary sent to $_emailAddress'),
           backgroundColor: Colors.green,
+          duration: const Duration(seconds: 5),
         ),
       );
     } catch (e) {
-      print('Error sending email: $e');
-      
-      // Show a different message if no email client was found
       if (e.toString().contains('NoEmailClient')) {
+        // Handle the special case - email client not found
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('No email app found. You can share the PDF using other apps.'),
+            content: Text('No email app found. The PDF has been shared using other available apps.'),
             backgroundColor: Colors.orange,
             duration: const Duration(seconds: 5),
           ),
         );
       } else {
-        // Show general error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to send email: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        _showErrorSnackBar('Failed to send email: $e');
       }
     } finally {
       setState(() {
@@ -177,9 +178,6 @@ class _AdvisorPageState extends State<AdvisorPage> {
       _isLoading = true;
     });
     
-    // Save chat history after adding user message
-    await _saveChatHistory();
-    
     _scrollToBottom();
     
     try {
@@ -194,50 +192,36 @@ class _AdvisorPageState extends State<AdvisorPage> {
         // Add a visual divider to indicate meeting start
         setState(() {
           _messages.add(ChatMessage(
-            text: "Starting Academic Advisory Session",
+            text: "--- Beginning Formal Academic Advisory Meeting ---",
             messageType: MessageType.system,
           ));
         });
         
-        // Save chat history after adding system message
-        await _saveChatHistory();
-        
-        // The first question comes directly from the GeminiService.startAdvisoryMeeting()
-        // which asks about academic progress
         response = await _geminiService.startAdvisoryMeeting();
       } 
       // If we're in a meeting, continue with the sequential questions
       else if (_meetingState.isInMeeting) {
-        // Record the response to the current question
         _meetingState.recordResponse(messageText);
-        
-        // Get the next question or recommendation based on the current question number
         response = await _geminiService.continueAdvisoryMeeting(
           messageText, 
           _meetingState.currentQuestionNumber,
           _meetingState.getAllResponses()
         );
         
-        // Check if the meeting is complete - we've gone through all the questions
+        // Check if the meeting is complete
         if (_meetingState.isAllQuestionsAnswered) {
-          // Debug
-          print("All questions answered! currentQuestionNumber: ${_meetingState.currentQuestionNumber}");
-          
           _meetingState.endMeeting();
           
           // Add a visual divider to indicate meeting end
           setState(() {
             _messages.add(ChatMessage(
-              text: "Advisory Session Complete - Summary Available",
+              text: "--- End of Formal Academic Advisory Meeting ---",
               messageType: MessageType.system,
             ));
           });
           
-          // Save chat history after adding system message
-          await _saveChatHistory();
-          
-          // Automatically send the email instead of showing a snackbar
-          Future.delayed(const Duration(milliseconds: 1500), () {
+          // Send the consultation summary via email automatically
+          Future.delayed(const Duration(milliseconds: 1000), () {
             _sendEmailAutomatically();
           });
         }
@@ -256,9 +240,6 @@ class _AdvisorPageState extends State<AdvisorPage> {
           messageType: MessageType.advisor,
         ));
       });
-      
-      // Save chat history after adding advisor message
-      await _saveChatHistory();
     } catch (e) {
       _showErrorSnackBar('Failed to get response: $e');
     } finally {
@@ -323,7 +304,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
         return;
       }
 
-      final pdfFile = await PdfEmailService.generatePdf(_messages, _meetingState.responses);
+      final pdfFile = await PdfEmailService.generatePdf(_messages);
       setState(() {
         _pdfFile = pdfFile;
         _showEmailDialog = true;
@@ -432,7 +413,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
 
     try {
       setState(() {
-        _isSendingEmail = true;
+        _isLoading = true;
       });
 
       await PdfEmailService.sendEmail(_pdfFile!, _emailAddress);
@@ -466,190 +447,8 @@ class _AdvisorPageState extends State<AdvisorPage> {
       }
     } finally {
       setState(() {
-        _isSendingEmail = false;
-      });
-    }
-  }
-
-  void _sendPdfEmail() async {
-    // First check if all questions have been answered
-    if (_messages.length < 6) { // Assuming at least 6 messages would indicate a complete conversation
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please answer all questions before sending the consultation summary.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-    
-    setState(() {
-      _isSendingEmail = true;
-    });
-
-    try {
-      // Generate PDF
-      final File pdfFile = await PdfEmailService.generatePdf(_messages, _meetingState.responses);
-      
-      // Get email from TextField
-      final String email = _messageController.text.trim();
-      
-      // Validate email
-      if (email.isEmpty || !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
-        throw Exception('Please enter a valid email address');
-      }
-      
-      // Send email with PDF attachment
-      await PdfEmailService.sendEmail(pdfFile, email);
-      
-      setState(() {
-        _isSendingEmail = false;
-      });
-      
-      // Show success message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Consultation summary sent successfully!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      setState(() {
-        _isSendingEmail = false;
-      });
-      
-      // Check if it's our special NoEmailClient exception
-      if (e.toString().contains('NoEmailClient')) {
-        // This is already handled by sharePdf in the service
-      } else {
-        // Show error message
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  // Save chat history to SharedPreferences
-  Future<void> _saveChatHistory() async {
-    if (_messages.isEmpty) return; // Don't save if there are no messages
-    
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      
-      // Convert messages to JSON
-      List<Map<String, dynamic>> messagesJson = _messages.map((msg) => msg.toJson()).toList();
-      String messagesJsonString = jsonEncode(messagesJson);
-      
-      // Convert meeting state to JSON
-      String meetingStateJsonString = jsonEncode(_meetingState.toJson());
-      
-      // Save to SharedPreferences
-      await prefs.setString('advisor_chat_messages', messagesJsonString);
-      await prefs.setString('advisor_meeting_state', meetingStateJsonString);
-      
-      print('Chat history saved successfully');
-    } catch (e) {
-      print('Error saving chat history: $e');
-      // Don't show error to user as this happens in the background
-    }
-  }
-  
-  // Load chat history from SharedPreferences
-  Future<void> _loadChatHistory() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-      
-      final prefs = await SharedPreferences.getInstance();
-      
-      // Load messages
-      String? messagesJsonString = prefs.getString('advisor_chat_messages');
-      if (messagesJsonString != null && messagesJsonString.isNotEmpty) {
-        try {
-          List<dynamic> messagesJson = jsonDecode(messagesJsonString) as List<dynamic>;
-          List<ChatMessage> loadedMessages = messagesJson
-              .map((json) => ChatMessage.fromJson(json as Map<String, dynamic>))
-              .toList();
-          
-          if (loadedMessages.isNotEmpty) {
-            setState(() {
-              _messages.clear();
-              _messages.addAll(loadedMessages);
-            });
-          } else {
-            _initializeChat(); // If no saved messages, initialize with default
-          }
-        } catch (e) {
-          print('Error parsing saved messages: $e');
-          _initializeChat();
-        }
-      } else {
-        _initializeChat(); // If no saved messages, initialize with default
-      }
-      
-      // Load meeting state
-      String? meetingStateJsonString = prefs.getString('advisor_meeting_state');
-      if (meetingStateJsonString != null && meetingStateJsonString.isNotEmpty) {
-        try {
-          Map<String, dynamic> meetingStateJson = jsonDecode(meetingStateJsonString) as Map<String, dynamic>;
-          setState(() {
-            _meetingState = AdvisoryMeetingState.fromJson(meetingStateJson);
-          });
-        } catch (e) {
-          print('Error parsing saved meeting state: $e');
-          // Use default meeting state
-          setState(() {
-            _meetingState = AdvisoryMeetingState();
-          });
-        }
-      }
-    } catch (e) {
-      print('Error loading chat history: $e');
-      _initializeChat(); // Fallback to initialize chat
-    } finally {
-      setState(() {
         _isLoading = false;
       });
-    }
-  }
-  
-  // Clear chat history
-  Future<void> _clearChatHistory() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('advisor_chat_messages');
-      await prefs.remove('advisor_meeting_state');
-      
-      setState(() {
-        _messages.clear();
-        _meetingState = AdvisoryMeetingState();
-      });
-      
-      _initializeChat();
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Chat history cleared'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      print('Error clearing chat history: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error clearing chat history: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
 
@@ -658,52 +457,11 @@ class _AdvisorPageState extends State<AdvisorPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'UTAR Academic Advisor',
+          'Academic Advisor Chatbot',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blueAccent,
         actions: [
-          // Add menu with option to clear chat history
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'clear_history') {
-                // Show confirmation dialog before clearing
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Clear Chat History'),
-                    content: const Text('Are you sure you want to clear your chat history? This cannot be undone.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('CANCEL'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          _clearChatHistory();
-                        },
-                        child: const Text('CLEAR'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'clear_history',
-                child: Row(
-                  children: [
-                    Icon(Icons.delete_outline, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Clear Chat History'),
-                  ],
-                ),
-              ),
-            ],
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-          ),
           IconButton(
             icon: const Icon(Icons.help_outline, color: Colors.white),
             onPressed: () {
@@ -711,7 +469,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('UTAR Academic Advisory'),
+                    title: const Text('Academic Advisor Help'),
                     content: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -720,28 +478,28 @@ class _AdvisorPageState extends State<AdvisorPage> {
                           Text('You can:',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           SizedBox(height: 8),
-                          Text('• Ask questions about UTAR academics'),
-                          Text('• Get help with UTAR course selection'),
-                          Text('• Seek advice on career planning at UTAR'),
-                          Text('• Access UTAR study resources and tips'),
-                          Text('• Learn about UTAR policies and procedures'),
+                          Text('• Ask any questions about academics'),
+                          Text('• Get help with course selection'),
+                          Text('• Seek advice on career planning'),
+                          Text('• Get study resources and tips'),
+                          Text('• Learn about university policies'),
                           SizedBox(height: 16),
-                          Text('Formal UTAR Advisory Meeting:',
+                          Text('Formal Advisory Meeting:',
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('To start a formal UTAR academic advisory meeting, type:'),
+                          Text('To start a formal academic advisory meeting, type:'),
                           Text('"I would like to start an advisor meeting"', 
                               style: TextStyle(fontStyle: FontStyle.italic)),
                           SizedBox(height: 8),
                           Text('The meeting will cover:'),
                           Text('• Academic Performance (CGPA)'),
-                          Text('• UTAR Co-curricular Activities'),
-                          Text('• Professional Development at UTAR'),
-                          Text('• Problems & Challenges in UTAR'),
-                          Text('• Future Planning for UTAR Students'),
+                          Text('• Co-curricular Activities'),
+                          Text('• Professional Development'),
+                          Text('• Problems & Challenges'),
+                          Text('• Future Planning'),
                           SizedBox(height: 12),
                           Text('Meeting Summary:',
                               style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('After completing the meeting, a summary will be automatically sent to your UTAR email.'),
+                          Text('After completing a meeting, a summary will be automatically sent to your email.'),
                         ],
                       ),
                     ),
@@ -769,19 +527,10 @@ class _AdvisorPageState extends State<AdvisorPage> {
               child: IconButton(
                 icon: Icon(
                   Icons.email,
-                  color: _meetingState.isMeetingComplete ? Colors.white : Colors.white.withOpacity(0.5),
+                  color: Colors.white,
                   size: _meetingState.isMeetingComplete ? 28 : 24,
                 ),
-                onPressed: _meetingState.isMeetingComplete ? _sendEmailAutomatically : () {
-                  // If meeting is not complete, show a message explaining why
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('You need to complete a full advising session before sending a summary.'),
-                      backgroundColor: Colors.orange,
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                },
+                onPressed: _sendEmailAutomatically,
               ),
             ),
           ),
@@ -801,8 +550,8 @@ class _AdvisorPageState extends State<AdvisorPage> {
                     Expanded(
                       child: Text(
                         _meetingState.isInMeeting
-                            ? 'Advisory session in progress. Please respond to each question.'
-                            : 'Chat with your UTAR advisor or type "start advisor meeting" for a guided session.',
+                            ? 'Formal advisory meeting in progress. Please answer each question to continue.'
+                            : 'Ask any academic questions, or type "start advisor meeting" for a formal consultation.',
                         style: const TextStyle(fontSize: 12, color: Colors.black87),
                       ),
                     ),
