@@ -101,6 +101,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
               } else if (value == 'Logout') {
                 // Perform logout
                 await controller.logout();
+
+                // Show success SnackBar
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: const [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Logout successful',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    backgroundColor: Colors.green,
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    margin: const EdgeInsets.all(16),
+                    duration: const Duration(seconds: 3),
+                  ),
+                );
+
+                // Navigate to the LoginScreen
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -169,7 +196,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 5),
                     ],
                   ),
                 ),

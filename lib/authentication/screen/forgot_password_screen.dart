@@ -14,8 +14,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final ForgotPasswordController _controller = ForgotPasswordController();
 
   bool _isLoading = false;
-  String? _errorMessage; // Variable to hold the error message
-  String? _successMessage; // Variable to hold the success message
 
   Future<void> _sendPasswordResetEmail() async {
     if (!_formKey.currentState!.validate()) {
@@ -24,8 +22,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null; // Clear any previous error message
-      _successMessage = null; // Clear any previous success message
     });
 
     final result = await _controller.sendPasswordResetEmail(
@@ -34,12 +30,59 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() {
       _isLoading = false;
-      if (result == 'Password reset email sent. Please check your inbox.') {
-        _successMessage = result;
-      } else {
-        _errorMessage = result;
-      }
     });
+
+    if (result == 'Password reset email sent. Please check your inbox.') {
+      // Show success SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: const [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Password reset email sent. Please check your inbox.',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } else {
+      // Show error SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  result!,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   @override
@@ -88,71 +131,58 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 // Email Input Field
                 Container(
                   height: 81, // Text field height + error message height
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email Address',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          prefixIcon: const Icon(Icons.email),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your email.';
-                          }
-                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                            return 'Please enter a valid email address.';
-                          }
-                          return null;
-                        },
+                  child: TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Email Address',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      const SizedBox(height: 5),
-
-                      // Error Message Below Input Field
-                      if (_errorMessage != null)
-                        Text(
-                          _errorMessage!,
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                          ),
-                        ),
-                    ],
+                      prefixIcon: const Icon(Icons.email),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email.';
+                      }
+                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Please enter a valid email address.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(height: 5),
 
                 // Send Reset Email Button
-                SizedBox(
-                  width:
-                      double
-                          .infinity, // Ensures the button takes the full width
-                  child:
-                      _isLoading
-                          ? const Center(child: CircularProgressIndicator())
-                          : ElevatedButton(
-                            onPressed: _sendPasswordResetEmail,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                Container(
+                  height: 60,
+                  child: SizedBox(
+                    width:
+                        double
+                            .infinity, // Ensures the button takes the full width
+                    child:
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : ElevatedButton(
+                              onPressed: _sendPasswordResetEmail,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                padding: const EdgeInsets.symmetric(vertical: 15),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                'Send Reset Email',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            child: const Text(
-                              'Send Reset Email',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                  ),
                 ),
                 const SizedBox(height: 10),
 
@@ -171,24 +201,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-
-                // Success Message Below Back to Login Button
-                SizedBox(
-                  height: 30, // Reserve space for the success message
-                  child:
-                      _successMessage != null
-                          ? Text(
-                            _successMessage!,
-                            style: const TextStyle(
-                              color: Colors.green,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          )
-                          : const SizedBox.shrink(), // Empty widget when no success message
                 ),
               ],
             ),

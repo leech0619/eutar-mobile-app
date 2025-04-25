@@ -226,8 +226,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       value: faculty,
                       child: Text(
                         faculty,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
                         style: const TextStyle(fontSize: 16),
                       ),
                     );
