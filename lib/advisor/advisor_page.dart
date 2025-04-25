@@ -202,11 +202,16 @@ class _AdvisorPageState extends State<AdvisorPage> {
         // Save chat history after adding system message
         await _saveChatHistory();
         
+        // The first question comes directly from the GeminiService.startAdvisoryMeeting()
+        // which asks about academic progress
         response = await _geminiService.startAdvisoryMeeting();
       } 
       // If we're in a meeting, continue with the sequential questions
       else if (_meetingState.isInMeeting) {
+        // Record the response to the current question
         _meetingState.recordResponse(messageText);
+        
+        // Get the next question or recommendation based on the current question number
         response = await _geminiService.continueAdvisoryMeeting(
           messageText, 
           _meetingState.currentQuestionNumber,

@@ -41,20 +41,18 @@ class AdvisoryMeetingState {
   
   // Store questions and responses in key-value pairs for better tracking
   Map<String, String> questionResponses = {
-    "Academic Performance": "",
-    "Co-curricular Activities": "",
-    "Professional Development": "",
-    "Problems Encountered": "",
-    "Future Planning": ""
+    "Academic Progress": "",
+    "Extracurricular Activities": "",
+    "Challenges & Concerns": "",
+    "Goals": ""
   };
   
   // Categories associated with each question number
   final List<String> categories = [
-    "Academic Performance",
-    "Co-curricular Activities",
-    "Professional Development", 
-    "Problems Encountered",
-    "Future Planning"
+    "Academic Progress",
+    "Extracurricular Activities",
+    "Challenges & Concerns", 
+    "Goals"
   ];
   
   // Default constructor
@@ -84,25 +82,55 @@ class AdvisoryMeetingState {
     isMeetingComplete = false;
     currentQuestionNumber = 0;
     responses = {};
+    
+    // Reset all question responses
+    for (final category in categories) {
+      questionResponses[category] = "";
+    }
+    
+    print("Advisory meeting started. Questions will begin at index 0.");
   }
   
   void recordResponse(String response) {
-    responses[currentQuestionNumber] = response;
+    if (response.trim().isNotEmpty) {
+      // Store in both maps for consistency
+      responses[currentQuestionNumber] = response;
+      
+      // Also store in the category-based map if we have a matching category
+      if (currentQuestionNumber < categories.length) {
+        questionResponses[categories[currentQuestionNumber]] = response;
+      }
+      
+      print("Recorded response for question $currentQuestionNumber (${currentQuestionNumber < categories.length ? categories[currentQuestionNumber] : 'unknown category'})");
+    } else {
+      print("Warning: Empty response for question $currentQuestionNumber");
+    }
+    
+    // Move to next question
     currentQuestionNumber++;
   }
   
   void endMeeting() {
     isInMeeting = false;
     isMeetingComplete = true;
+    print("Meeting ended with $currentQuestionNumber questions answered");
+    
+    // Debug print all responses
+    responses.forEach((key, value) {
+      String category = key < categories.length ? categories[key] : "Question $key";
+      print("Response for $category: ${value.substring(0, value.length > 30 ? 30 : value.length)}...");
+    });
   }
   
   bool get isAllQuestionsAnswered {
-    // Check if we have responses for questions 0 through 4 (all 5 questions)
-    for (int i = 0; i < 5; i++) {
+    // Check if we have responses for questions 0 through categories.length-1
+    for (int i = 0; i < categories.length; i++) {
       if (!responses.containsKey(i) || responses[i]?.trim().isEmpty == true) {
+        print("Missing response for question $i (${i < categories.length ? categories[i] : 'unknown'})");
         return false;
       }
     }
+    print("All questions have been answered!");
     return true;
   }
   

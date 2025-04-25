@@ -60,8 +60,8 @@ class GeminiService {
   }
   
   Future<String> startAdvisoryMeeting() async {
-    // Use a more natural, conversational introduction
-    return "Hi there! I'm your UTAR academic advisor. It's good to meet with you today. Let's have a chat about how you're doing with your studies. To start, how are your classes going this semester? Could you tell me about your current CGPA and which subjects you're finding most interesting or challenging?";
+    // Use a more natural, conversational introduction that clearly indicates this is about academic progress
+    return "Hi there! I'm your UTAR academic advisor. It's good to meet with you today. Let's have a structured meeting covering a few key areas. First, I'd like to discuss your academic progress at UTAR. How are your classes going this semester? Could you tell me about your current CGPA and which subjects you're finding most interesting or challenging?";
   }
   
   Future<String> continueAdvisoryMeeting(String userResponse, int questionNumber, Map<int, String> responses) async {
