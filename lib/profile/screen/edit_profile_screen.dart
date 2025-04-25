@@ -157,7 +157,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 20),
               // Name Field
               Container(
-                height: 90,
+                height: 80,
                 child: TextFormField(
                   initialValue: widget.profile.fullName,
                   decoration: InputDecoration(
@@ -180,7 +180,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 10),
               // Gender Dropdown
               Container(
-                height: 90,
+                height: 80,
                 child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Gender',
@@ -211,7 +211,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 10),
               // Faculty Dropdown
               Container(
-                height: 90,
+                height: 80,
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
                   decoration: InputDecoration(

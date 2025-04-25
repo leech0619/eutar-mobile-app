@@ -42,10 +42,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (context) => EditProfileScreen(
-                            profile: profile,
-                          ), // Pass the ProfileModel
+                      builder: (context) => EditProfileScreen(
+                        profile: profile,
+                      ), // Pass the ProfileModel
                     ),
                   );
 
@@ -134,18 +133,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               }
             },
-            itemBuilder:
-                (context) => [
-                  const PopupMenuItem(
-                    value: 'Edit Profile',
-                    child: Text('Edit Profile'),
-                  ),
-                  const PopupMenuItem(
-                    value: 'Change Password',
-                    child: Text('Change Password'),
-                  ),
-                  const PopupMenuItem(value: 'Logout', child: Text('Logout')),
-                ],
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'Edit Profile',
+                child: Text(
+                  'Edit Profile',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'Change Password',
+                child: Text(
+                  'Change Password',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'Logout',
+                child: Text(
+                  'Logout',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ],
           ),
         ],
       ),
