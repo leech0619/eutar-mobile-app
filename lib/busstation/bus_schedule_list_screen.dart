@@ -111,7 +111,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                 ...generalNotes.map((note) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text('• $note'),
-                )).toList(),
+                )),
               ],
             ),
           ),

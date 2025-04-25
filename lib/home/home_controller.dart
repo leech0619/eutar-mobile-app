@@ -1,8 +1,8 @@
-import 'package:eutar/busstation/bus_map_overview_screen.dart';
 import 'package:eutar/busstation/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import '../authentication/screen/profile_screen.dart';
+import '../advisor/advisor_page.dart';
 
 class HomeController extends ChangeNotifier {
   int currentIndex = 0;

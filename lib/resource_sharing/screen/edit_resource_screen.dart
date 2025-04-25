@@ -5,7 +5,7 @@ import '../controller/resource_controller.dart';
 class EditResourceScreen extends StatefulWidget {
   final Resource resource;
 
-  const EditResourceScreen({Key? key, required this.resource}) : super(key: key);
+  const EditResourceScreen({super.key, required this.resource});
 
   @override
   _EditResourceScreenState createState() => _EditResourceScreenState();

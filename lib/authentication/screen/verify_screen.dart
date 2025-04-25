@@ -30,7 +30,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Container for the email verification image
-            Container(
+            SizedBox(
               height: 300, // Fixed height for the image
               child: Image.asset(
                 'assets/images/email_verification.jpg',
@@ -52,7 +52,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
             ),
             const SizedBox(height: 20),
             // Container for the Resend Email Button
-            Container(
+            SizedBox(
               height: 60, // Fixed height for the button
               child: SizedBox(
                 width: 200, // Set a fixed width for the button
@@ -94,7 +94,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
             ),
             const SizedBox(height: 20),
             // Container for the Navigate to Login button
-            Container(
+            SizedBox(
               height: 60, // Fixed height for the button
               child: SizedBox(
                 width: 200, // Set the same fixed width for the button
@@ -120,7 +120,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
             ),
             const SizedBox(height: 10),
             // Container for the error message
-            Container(
+            SizedBox(
               height: 20, // Fixed height for the error message
               child:
                   controller.errorMessage != null

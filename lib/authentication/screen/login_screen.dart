@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 30),
                 // Email field with reserved space for error message
-                Container(
+                SizedBox(
                   height: 90, // Text field height + error message height
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: 80, // Text field height + error message height
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

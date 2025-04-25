@@ -528,7 +528,7 @@ GoogleMap(
                 trailing: Text(time),
                 dense: true,
               );
-            }).toList(),
+            }),
           const SizedBox(height: 16),
 
           // Arrival Times Section
@@ -549,7 +549,7 @@ GoogleMap(
                 trailing: Text(time),
                 dense: true,
               );
-            }).toList(),
+            }),
           const SizedBox(height: 16),
 
           // Special Note Section
@@ -580,7 +580,7 @@ GoogleMap(
                     child: Text('• $note'),
                   ),
                 )
-                .toList(),
+                ,
           ],
         ],
       ),

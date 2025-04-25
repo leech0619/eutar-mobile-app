@@ -9,7 +9,16 @@ import 'home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  
+  // Add error handling for dotenv loading
+  try {
+    await dotenv.load(fileName: ".env");
+    print("Successfully loaded .env file with keys: ${dotenv.env.keys}");
+  } catch (e) {
+    print("Error loading .env file: $e");
+    // Continue execution even if .env fails to load
+  }
+  
   await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
