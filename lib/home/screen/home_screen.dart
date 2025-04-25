@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.white,
             color: Colors.black,
             activeColor: Colors.white,
-            tabBackgroundColor: Colors.blueAccent,
+            tabBackgroundColor: Colors.blue,
             padding: const EdgeInsets.all(16),
             tabs: const [
               GButton(icon: Icons.home, text: "Home"),
@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
       top: false,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Colors.blue,
           title: const Text(
             'Home',
             style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               height: 220,
               decoration: const BoxDecoration(
-                color: Colors.blueAccent,
+                color: Colors.blue,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(35),
                   bottomRight: Radius.circular(35),

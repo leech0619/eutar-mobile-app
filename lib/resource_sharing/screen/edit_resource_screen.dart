@@ -5,7 +5,8 @@ import '../controller/resource_controller.dart';
 class EditResourceScreen extends StatefulWidget {
   final Resource resource;
 
-  const EditResourceScreen({Key? key, required this.resource}) : super(key: key);
+  const EditResourceScreen({Key? key, required this.resource})
+    : super(key: key);
 
   @override
   _EditResourceScreenState createState() => _EditResourceScreenState();
@@ -42,11 +43,12 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
     });
 
     try {
-      final tags = _tagsController.text
-          .split(',')
-          .map((tag) => tag.trim())
-          .where((tag) => tag.isNotEmpty)
-          .toList();
+      final tags =
+          _tagsController.text
+              .split(',')
+              .map((tag) => tag.trim())
+              .where((tag) => tag.isNotEmpty)
+              .toList();
 
       final success = await ResourceController().updateResource(
         resourceId: widget.resource.id,
@@ -98,8 +100,17 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Resource'),
-        backgroundColor: Theme.of(context).primaryColor,
+        title: const Text(
+          'Edit Resource',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -154,17 +165,18 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _isUpdating ? null : _updateResource,
-                icon: _isUpdating
-                    ? Container(
-                        width: 24,
-                        height: 24,
-                        padding: const EdgeInsets.all(2.0),
-                        child: const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : const Icon(Icons.save, color:Colors.white),
+                icon:
+                    _isUpdating
+                        ? Container(
+                          width: 24,
+                          height: 24,
+                          padding: const EdgeInsets.all(2.0),
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                        : const Icon(Icons.save, color: Colors.white),
                 label: Text(_isUpdating ? 'Updating...' : 'Save Changes'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

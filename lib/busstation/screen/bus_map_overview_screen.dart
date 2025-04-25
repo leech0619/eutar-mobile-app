@@ -92,11 +92,12 @@ class _BusMapOverviewScreenState extends State<BusMapOverviewScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.blue,
 
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
+
         ),
       ),
       body: GoogleMap(

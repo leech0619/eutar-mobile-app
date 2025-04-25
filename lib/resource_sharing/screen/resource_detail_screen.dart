@@ -28,8 +28,9 @@ class ResourceDetailScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ), // Show resource title in AppBar
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.blue,
         foregroundColor: Colors.white, // Make title and back button white
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         // Allow scrolling if content is long

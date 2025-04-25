@@ -37,7 +37,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
             Container(
               height: 300, // Fixed height for the image
               child: Image.asset(
-                'assets/images/email_verification.jpg',
+                'assets/images/email_verification.png',
                 height: 300,
                 width: 300,
                 fit: BoxFit.cover,

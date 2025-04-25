@@ -1,3 +1,4 @@
+import 'package:eutar/authentication/screen/forgot_password_screen.dart';
 import 'package:flutter/material.dart';
 import '../controller/login_controller.dart';
 import 'register_screen.dart';
@@ -27,7 +28,11 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.blue,
         title: const Text(
           'Login',
-          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
       ),
@@ -42,9 +47,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 // App logo
                 Image.asset(
                   'assets/icon/login_icon.png', // Replace with your app logo path
-                  height: 200,
+                  height: 220,
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
                 // Email field with reserved space for error message
                 Container(
                   height: 90, // Text field height + error message height
@@ -119,7 +124,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => _controller.resetPassword(context),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
                       child: const Text(
                         'Forgot password?',
                         style: TextStyle(color: Colors.blue),

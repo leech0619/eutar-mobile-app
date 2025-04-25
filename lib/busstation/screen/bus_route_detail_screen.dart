@@ -366,15 +366,16 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
     // Now we know selectedTrip is a valid Map<String, dynamic>
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
-          'Bus Schedule',
+          'Bus Scheldule',
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ), // Use null check
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
       ),
       body: Column(

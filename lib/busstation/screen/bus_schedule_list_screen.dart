@@ -217,7 +217,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -227,7 +227,6 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
           IconButton(
             icon: const Icon(Icons.map),
             color: Colors.white,
-
             onPressed: () {
               Navigator.push(
                 context,

@@ -166,7 +166,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Colors.blue,
           title: const Text(
             'Resources',
             style: TextStyle(
