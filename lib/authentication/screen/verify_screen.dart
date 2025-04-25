@@ -18,10 +18,14 @@ class _VerifyScreenState extends State<VerifyScreen> {
         backgroundColor: Colors.blue,
         title: const Text(
           'Verify Your Email',
-          style: TextStyle(color: Colors.white, fontSize: 24),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        automaticallyImplyLeading: false,
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -33,7 +37,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
             SizedBox(
               height: 300, // Fixed height for the image
               child: Image.asset(
-                'assets/images/email_verification.jpg',
+                'assets/images/email_verification.png',
                 height: 300,
                 width: 300,
                 fit: BoxFit.cover,

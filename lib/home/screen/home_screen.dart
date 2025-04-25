@@ -1,9 +1,9 @@
-import 'package:eutar/busstation/bus_schedule_list_screen.dart';
+import '../../busstation/screen/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import '../resource_sharing/screen/resource_screen.dart';
-import '../authentication/screen/profile_screen.dart';
-import '../advisor/advisor_page.dart';
+import '../../resource_sharing/screen/resource_screen.dart';
+import '../../profile/screen/profile_screen.dart';
+import '../../advisor/advisor_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const ResourceScreen(),
-    const AdvisorPage(),
+    const HomeScreen(),
     const BusScheduleListScreen(),
     const ProfileScreen(),
   ];
@@ -46,9 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _currentIndex == 0
-          ? _buildHomePage(context)
-          : _pages[_currentIndex],
+      body:
+          _currentIndex == 0 ? _buildHomePage(context) : _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -69,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.white,
             color: Colors.black,
             activeColor: Colors.white,
-            tabBackgroundColor: Colors.blueAccent,
+            tabBackgroundColor: Colors.blue,
             padding: const EdgeInsets.all(16),
             tabs: const [
               GButton(icon: Icons.home, text: "Home"),
@@ -89,10 +88,14 @@ class _HomeScreenState extends State<HomeScreen> {
       top: false,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blueAccent,
+          backgroundColor: Colors.blue,
           title: const Text(
             'Home',
-            style: TextStyle(color: Colors.white, fontSize: 24),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: true,
         ),
@@ -103,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
               width: double.infinity,
               height: 220,
               decoration: const BoxDecoration(
-                color: Colors.blueAccent,
+                color: Colors.blue,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(35),
                   bottomRight: Radius.circular(35),
@@ -138,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 horizontal: 10,
                                 vertical: 5,
                               ),
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha :0.5),
                               child: const Text(
                                 'Welcome to eUTAR',
                                 style: TextStyle(
@@ -160,80 +163,73 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: AlignmentDirectional(-0.85, 0),
               child: Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(0, 30, 0, 0),
-                child: Text(
-                  'Features',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
+                child: Center(
+                  child: Text(
+                    'Features',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-            Expanded(
-              child: GridView.builder(
+            SingleChildScrollView(
+              child: Padding(
                 padding: const EdgeInsets.all(10),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                child: GridView.count(
                   crossAxisCount: 2,
-                  mainAxisSpacing: 5,
-                  crossAxisSpacing: 5,
-                ),
-                itemCount: featureNames.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      _onBottomNavigationBarItemTapped(index + 1);
-                    },
-                    child: Card(
-                      color: Colors.transparent,
-                      elevation: 0,
-                      child: Center(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueGrey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  shrinkWrap:
+                      true, // Ensures GridView takes only the required space
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Disable internal scrolling
+                  children: List.generate(featureNames.length, (index) {
+                    return GestureDetector(
+                      onTap: () {
+                        _onBottomNavigationBarItemTapped(index + 1);
+                      },
+                      child: Card(
+                      color: Colors.blue,
+                        elevation: 5,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.asset(
+                                featureIcons[index],
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            padding: const EdgeInsets.all(10),
-                            fixedSize: const Size(180, 180),
-                          ),
-                          onPressed: () {
-                            _onBottomNavigationBarItemTapped(index + 1);
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.asset(
-                                  featureIcons[index],
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
+                            const SizedBox(height: 10),
+                            Flexible(
+                              child: Text(
+                                featureNames[index],
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 10),
-                              Flexible(
-                                child: Text(
-                                  featureNames[index],
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  }),
+                ),
               ),
             ),
           ],

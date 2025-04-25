@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:math';
-import 'package:flutter/foundation.dart'; // Import for debugPrint
 
 class BusRouteDetailScreen extends StatefulWidget {
   final Map<String, dynamic> route;
@@ -27,16 +26,18 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
     // Data validation (optional but recommended)
     _validateRouteData();
   }
+
   Future<void> _initializeMap() async {
-  try {
-    // Your async initialization logic
-    debugPrint("Initializing map...");
-    await Future.delayed(const Duration(seconds: 1)); // Simulate delay
-    debugPrint("Map initialized.");
-  } catch (e) {
-    debugPrint("Error initializing map: $e");
+    try {
+      // Your async initialization logic
+      debugPrint("Initializing map...");
+      await Future.delayed(const Duration(seconds: 1)); // Simulate delay
+      debugPrint("Map initialized.");
+    } catch (e) {
+      debugPrint("Error initializing map: $e");
+    }
   }
-}
+
   // Helper to validate incoming data structure (optional but good practice)
   void _validateRouteData() {
     if (widget.route['trips'] is! List ||
@@ -346,7 +347,16 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
     // Handle case where selectedTrip couldn't be loaded
     if (selectedTrip == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Bus Schedule')),
+        appBar: AppBar(
+          title: const Text(
+            'Bus Schedule',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
         body: const Center(
           child: Text('Error loading trip details. Please check the data.'),
         ),
@@ -356,7 +366,17 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
     // Now we know selectedTrip is a valid Map<String, dynamic>
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bus Schedule'), // Use null check
+        centerTitle: true,
+        title: const Text(
+          'Bus Scheldule',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ), // Use null check
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [
@@ -364,34 +384,34 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
           Expanded(
             flex: 2,
             child: // Replace the GoogleMap widget in the build method with this updated version
-GoogleMap(
-  onMapCreated: (GoogleMapController controller) {
-    // Assign the controller
-    mapController = controller;
-    
-    // Delay to ensure the map is fully initialized before trying to show the route
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) {
-        setState(() {
-          // This will trigger a rebuild and ensure map is ready
-        });
-        _showRouteOnMap();
-      }
-    });
-  },
-  initialCameraPosition: const CameraPosition(
-    target: LatLng(4.3331, 101.1345), // UTAR Kampar center
-    zoom: 14.0,
-  ),
-  markers: _markers,
-  polylines: _polylines,
-  myLocationEnabled: true,
-  myLocationButtonEnabled: true,
-  // Add these parameters to fix the dark mode issues
-  mapType: MapType.normal,
-  compassEnabled: true,
-  zoomControlsEnabled: true,
-),
+                GoogleMap(
+              onMapCreated: (GoogleMapController controller) {
+                // Assign the controller
+                mapController = controller;
+
+                // Delay to ensure the map is fully initialized before trying to show the route
+                Future.delayed(const Duration(milliseconds: 500), () {
+                  if (mounted) {
+                    setState(() {
+                      // This will trigger a rebuild and ensure map is ready
+                    });
+                    _showRouteOnMap();
+                  }
+                });
+              },
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(4.3331, 101.1345), // UTAR Kampar center
+                zoom: 14.0,
+              ),
+              markers: _markers,
+              polylines: _polylines,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              // Add these parameters to fix the dark mode issues
+              mapType: MapType.normal,
+              compassEnabled: true,
+              zoomControlsEnabled: true,
+            ),
           ),
 
           // Route details section
@@ -430,7 +450,7 @@ GoogleMap(
     );
   }
 
- Widget _buildScheduleTab(Map<String, dynamic> selectedTrip) {
+  Widget _buildScheduleTab(Map<String, dynamic> selectedTrip) {
     // Safely access data within selectedTrip and widget.route
     final allTripsData = widget.route['trips'];
     final departuresData = selectedTrip['departures'];
@@ -465,13 +485,10 @@ GoogleMap(
           // Title Section
           Text(
             widget.route['name'] ?? 'Unknown Route',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          
+
           // Available Trips Section
           if (allTrips.isNotEmpty) ...[
             const Text(
@@ -673,7 +690,6 @@ GoogleMap(
       },
     );
   }
-  
 
   @override
   void dispose() {

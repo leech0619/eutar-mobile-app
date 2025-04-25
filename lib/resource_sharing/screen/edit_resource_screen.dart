@@ -5,7 +5,8 @@ import '../controller/resource_controller.dart';
 class EditResourceScreen extends StatefulWidget {
   final Resource resource;
 
-  const EditResourceScreen({super.key, required this.resource});
+  const EditResourceScreen({Key? key, required this.resource})
+    : super(key: key);
 
   @override
   _EditResourceScreenState createState() => _EditResourceScreenState();
@@ -56,32 +57,63 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
         oldFileUrl: widget.resource.fileUrl,
       );
 
-      if (success) {
-        if (mounted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(
+                  success ? Icons.check_circle : Icons.error,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    success
+                        ? 'Resource updated successfully'
+                        : 'Failed to update resource',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: success ? Colors.green : Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+
+        if (success) {
           Navigator.pop(context, true); // Return success to the previous screen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Resource updated successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to update resource'),
-              backgroundColor: Colors.red,
-            ),
-          );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Update error: $e'),
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Update error: $e',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 3),
           ),
         );
       }
@@ -98,8 +130,17 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Resource'),
-        backgroundColor: Theme.of(context).primaryColor,
+        title: const Text(
+          'Edit Resource',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -154,17 +195,18 @@ class _EditResourceScreenState extends State<EditResourceScreen> {
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _isUpdating ? null : _updateResource,
-                icon: _isUpdating
-                    ? Container(
-                        width: 24,
-                        height: 24,
-                        padding: const EdgeInsets.all(2.0),
-                        child: const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 3,
-                        ),
-                      )
-                    : const Icon(Icons.save, color:Colors.white),
+                icon:
+                    _isUpdating
+                        ? Container(
+                          width: 24,
+                          height: 24,
+                          padding: const EdgeInsets.all(2.0),
+                          child: const CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
+                        )
+                        : const Icon(Icons.save, color: Colors.white),
                 label: Text(_isUpdating ? 'Updating...' : 'Save Changes'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

@@ -5,7 +5,8 @@ import '../controller/resource_controller.dart'; // To call download
 
 class ResourceDetailScreen extends StatelessWidget {
   final Resource resource;
-  final ResourceController _controller = ResourceController(); // Instantiate controller
+  final ResourceController _controller =
+      ResourceController(); // Instantiate controller
 
   ResourceDetailScreen({super.key, required this.resource});
 
@@ -19,11 +20,20 @@ class ResourceDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(resource.title), // Show resource title in AppBar
-        backgroundColor: Colors.blueAccent,
-         foregroundColor: Colors.white, // Make title and back button white
+        title: Text(
+          resource.title,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ), // Show resource title in AppBar
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white, // Make title and back button white
+        centerTitle: true,
       ),
-      body: SingleChildScrollView( // Allow scrolling if content is long
+      body: SingleChildScrollView(
+        // Allow scrolling if content is long
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,14 +41,18 @@ class ResourceDetailScreen extends StatelessWidget {
             // --- Title ---
             Text(
               resource.title,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
 
             // --- Description ---
             Text(
               'Description:',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Text(
@@ -47,21 +61,28 @@ class ResourceDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-             // --- Tags ---
+            // --- Tags ---
             if (resource.tags.isNotEmpty) ...[
               Text(
                 'Tags:',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8.0,
                 runSpacing: 4.0,
-                children: resource.tags.map((tag) => Chip(
-                  label: Text(tag),
-                  backgroundColor: Colors.blue.shade50,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                )).toList(),
+                children:
+                    resource.tags
+                        .map(
+                          (tag) => Chip(
+                            label: Text(tag),
+                            backgroundColor: Colors.blue.shade50,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                        )
+                        .toList(),
               ),
               const SizedBox(height: 20),
             ],
@@ -69,30 +90,72 @@ class ResourceDetailScreen extends StatelessWidget {
             // --- Metadata ---
             Divider(height: 20, thickness: 1),
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.person_outline, 'Uploaded by:', resource.uploadedByName.isNotEmpty ? resource.uploadedByName : 'Unknown'), // Display uploaderId. Ideally fetch user name.
+            _buildInfoRow(
+              Icons.person_outline,
+              'Uploaded by:',
+              resource.uploadedByName.isNotEmpty
+                  ? resource.uploadedByName
+                  : 'Unknown',
+            ), // Display uploaderId. Ideally fetch user name.
             const SizedBox(height: 10),
-            _buildInfoRow(Icons.calendar_today_outlined, 'Uploaded on:', _formatDate(resource.uploadDate)),
-             const SizedBox(height: 10),
-             _buildInfoRow(Icons.file_present_outlined, 'File Name:', resource.fileName), // Display original file name
+            _buildInfoRow(
+              Icons.calendar_today_outlined,
+              'Uploaded on:',
+              _formatDate(resource.uploadDate),
+            ),
+            const SizedBox(height: 10),
+            _buildInfoRow(
+              Icons.file_present_outlined,
+              'File Name:',
+              resource.fileName,
+            ), // Display original file name
             const SizedBox(height: 30),
 
             // --- Download Button ---
-            Center( // Center the download button
+            Center(
               child: ElevatedButton.icon(
-                icon: const Icon(Icons.download, color: Colors.white,),
+                icon: const Icon(Icons.download, color: Colors.white),
                 label: const Text('Download File'),
                 onPressed: () {
-                  // Add a confirmation or direct download
+                  // Show the SnackBar
                   ScaffoldMessenger.of(context).showSnackBar(
-                     SnackBar(content: Text('Initiating download for ${resource.fileName}...'))
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(Icons.download, color: Colors.white),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Initiating download for ${resource.fileName}...',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: Colors.blue,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      margin: const EdgeInsets.all(16),
+                      duration: const Duration(seconds: 3),
+                    ),
                   );
-                  _controller.downloadFile(resource,context); // Call controller method
+
+                  // Call the download method
+                  _controller.downloadFile(resource, context);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Use a distinct color for download
+                  backgroundColor: Colors.blue,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -111,13 +174,18 @@ class ResourceDetailScreen extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           '$label ',
-          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.grey.shade800),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade800,
+          ),
         ),
-        Expanded( // Allow value text to wrap if long
+        Expanded(
+          // Allow value text to wrap if long
           child: Text(
             value,
             style: TextStyle(color: Colors.grey.shade900),
-            overflow: TextOverflow.ellipsis, // Show ellipsis if too long on one line
+            overflow:
+                TextOverflow.ellipsis, // Show ellipsis if too long on one line
           ),
         ),
       ],

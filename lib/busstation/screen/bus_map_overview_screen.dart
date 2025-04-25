@@ -73,7 +73,9 @@ class _BusMapOverviewScreenState extends State<BusMapOverviewScreen> {
       case 'Champs Elysees/The Trails':
         return const LatLng(4.319810902677306, 101.12434723845445);
       default:
-        debugPrint("Warning: Unknown stop name '$stopName', using default location.");
+        debugPrint(
+          "Warning: Unknown stop name '$stopName', using default location.",
+        );
         return const LatLng(4.3328, 101.1236); // Default location
     }
   }
@@ -82,10 +84,22 @@ class _BusMapOverviewScreenState extends State<BusMapOverviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bus Map Overview'),
+        centerTitle: true,
+        foregroundColor: Colors.white,
+        title: const Text(
+          'Bus Map Overview',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.blue,
+
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
+
         ),
       ),
       body: GoogleMap(

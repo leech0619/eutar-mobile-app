@@ -121,25 +121,51 @@ class _ResourceScreenState extends State<ResourceScreen> {
         setState(() => _isUploading = false);
 
         if (success) {
-          setState(() {
-            _selectedFile = null;
-            _titleController.clear();
-            _descriptionController.clear();
-            _tagsController.clear();
-          });
-
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Resource uploaded successfully'),
+            SnackBar(
+              content: Row(
+                children: const [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Resource uploaded successfully',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
               backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
             ),
           );
         } else {
-          setState(() => _uploadError = 'Upload failed. Please try again.');
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to upload resource'),
+            SnackBar(
+              content: Row(
+                children: const [
+                  Icon(Icons.error, color: Colors.white),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Failed to upload resource',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
               backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 3),
             ),
           );
         }
@@ -169,14 +195,18 @@ class _ResourceScreenState extends State<ResourceScreen> {
           backgroundColor: Colors.blue,
           title: const Text(
             'Resources',
-            style: TextStyle(color: Colors.white, fontSize: 20),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           bottom: const TabBar(
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: [
-              Tab(text: 'Browse Resources', icon: Icon(Icons.search)),
+              Tab(text: 'All Resources', icon: Icon(Icons.search)),
               Tab(text: 'Share Resource', icon: Icon(Icons.upload_file)),
               Tab(text: 'Your Resource', icon: Icon(Icons.folder)),
             ],
@@ -264,7 +294,6 @@ class _ResourceScreenState extends State<ResourceScreen> {
   }
 
   Widget _buildYourResourcesTab() {
-  
     List<Resource> filteredResources = [];
 
     return StatefulBuilder(
@@ -290,7 +319,9 @@ class _ResourceScreenState extends State<ResourceScreen> {
                     },
                   ),
                 ),
-                onChanged: (_) => _handleSearch(currentUserId: _controller.currentUserId),
+                onChanged:
+                    (_) =>
+                        _handleSearch(currentUserId: _controller.currentUserId),
               ),
             ),
             // Resources List
@@ -718,13 +749,6 @@ class _ResourceScreenState extends State<ResourceScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              'Share a Resource',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-
             // Upload File Card
             Card(
               elevation: 1,
