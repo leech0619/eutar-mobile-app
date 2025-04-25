@@ -35,6 +35,7 @@
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
                 android:value="AIzaSyBY8lwlXyUthbcPEqlYBC4vQpYVtTXQ96U"/>
+                <!--android:value="${MAPS_API_KEY}"/> -->
 
         <provider
             android:name="androidx.core.content.FileProvider"
