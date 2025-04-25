@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.blue,
         title: const Text(
           'Login',
-          style: TextStyle(color: Colors.white, fontSize: 24),
+          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

@@ -27,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.blue,
         title: const Text(
           'Register',
-          style: TextStyle(color: Colors.white, fontSize: 24),
+          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),

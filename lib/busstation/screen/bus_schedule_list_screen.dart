@@ -41,7 +41,9 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   }
 
   void _setupFavoritesListener() {
-    _favoritesSubscription = _favoriteService.getFavoriteRouteIds().listen((favorites) {
+    _favoritesSubscription = _favoriteService.getFavoriteRouteIds().listen((
+      favorites,
+    ) {
       if (mounted) {
         setState(() {
           favoriteRoutes = favorites;
@@ -55,7 +57,9 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
 
   Future<void> _loadBusSchedule() async {
     try {
-      final String response = await rootBundle.loadString('assets/json/bus_schedule.json');
+      final String response = await rootBundle.loadString(
+        'assets/json/bus_schedule.json',
+      );
       final data = json.decode(response);
       if (mounted) {
         setState(() {
@@ -78,18 +82,26 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   void _filterRoutes(String query) {
     setState(() {
       searchQuery = query;
-      
+
       if (scheduleData == null || scheduleData['routes'] == null) return;
-      
+
       if (query.isEmpty) {
         filteredRoutes = List.from(scheduleData['routes']);
       } else {
-        filteredRoutes = scheduleData['routes'].where((route) {
-          final nameMatch = route['name'].toString().toLowerCase().contains(query.toLowerCase());
-          final stopMatch = route['stops']?.any((stop) => 
-              stop.toString().toLowerCase().contains(query.toLowerCase())) ?? false;
-          return nameMatch || stopMatch;
-        }).toList();
+        filteredRoutes =
+            scheduleData['routes'].where((route) {
+              final nameMatch = route['name'].toString().toLowerCase().contains(
+                query.toLowerCase(),
+              );
+              final stopMatch =
+                  route['stops']?.any(
+                    (stop) => stop.toString().toLowerCase().contains(
+                      query.toLowerCase(),
+                    ),
+                  ) ??
+                  false;
+              return nameMatch || stopMatch;
+            }).toList();
       }
       _applyFilter(selectedFilter);
     });
@@ -98,21 +110,42 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   void _applyFilter(String filter) {
     setState(() {
       selectedFilter = filter;
-      
+
       if (scheduleData == null || scheduleData['routes'] == null) return;
-      
+
       if (filter == 'All') {
-        filteredRoutes = scheduleData['routes'].where((route) => 
-            searchQuery.isEmpty ? true : 
-            route['name'].toString().toLowerCase().contains(searchQuery.toLowerCase()) ||
-            route['stops']?.any((stop) => 
-                stop.toString().toLowerCase().contains(searchQuery.toLowerCase())) ?? false).toList();
+        filteredRoutes =
+            scheduleData['routes']
+                .where(
+                  (route) =>
+                      searchQuery.isEmpty
+                          ? true
+                          : route['name'].toString().toLowerCase().contains(
+                                    searchQuery.toLowerCase(),
+                                  ) ||
+                                  route['stops']?.any(
+                                    (stop) => stop
+                                        .toString()
+                                        .toLowerCase()
+                                        .contains(searchQuery.toLowerCase()),
+                                  ) ??
+                              false,
+                )
+                .toList();
       } else if (filter == 'Favorites') {
-        filteredRoutes = scheduleData['routes'].where((route) => 
-            favoriteRoutes.contains(route['id']) &&
-            (searchQuery.isEmpty ? true : 
-             route['name'].toString().toLowerCase().contains(searchQuery.toLowerCase()))).toList();
-      } 
+        filteredRoutes =
+            scheduleData['routes']
+                .where(
+                  (route) =>
+                      favoriteRoutes.contains(route['id']) &&
+                      (searchQuery.isEmpty
+                          ? true
+                          : route['name'].toString().toLowerCase().contains(
+                            searchQuery.toLowerCase(),
+                          )),
+                )
+                .toList();
+      }
     });
   }
 
@@ -120,19 +153,19 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
     try {
       final isFavorite = favoriteRoutes.contains(routeId);
       await _favoriteService.toggleFavorite(routeId, isFavorite);
-      
+
       // No need to update state here as we have a stream listener
       // that will automatically update the UI when Firestore changes
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating favorites: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating favorites: $e')));
     }
   }
 
   void _showGeneralNotes() {
     if (scheduleData == null) return;
-    
+
     showDialog(
       context: context,
       builder: (context) {
@@ -144,13 +177,19 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text('Last Updated: ${scheduleData['lastUpdated'] ?? 'N/A'}'),
-                Text('Effective Date: ${scheduleData['effectiveDate'] ?? 'N/A'}'),
+                Text(
+                  'Effective Date: ${scheduleData['effectiveDate'] ?? 'N/A'}',
+                ),
                 Text('Trimester: ${scheduleData['trimester'] ?? 'N/A'}'),
                 const SizedBox(height: 16),
-                ...generalNotes.map((note) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text('• $note'),
-                )).toList(),
+                ...generalNotes
+                    .map(
+                      (note) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Text('• $note'),
+                      ),
+                    )
+                    .toList(),
               ],
             ),
           ),
@@ -169,15 +208,26 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('UTAR Bus Schedule'),
-        backgroundColor: Colors.blue,
+        title: const Text(
+          'Bus Schedule',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
             onPressed: _showGeneralNotes,
+            color: Colors.white,
           ),
           IconButton(
             icon: const Icon(Icons.map),
+            color: Colors.white,
+
             onPressed: () {
               Navigator.push(
                 context,
@@ -189,83 +239,87 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
           ),
         ],
       ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Location header
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        scheduleData['campusName'] ?? 'Campus',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                children: [
+                  // Location header
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          scheduleData['campusName'] ?? 'Campus',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        scheduleData['trimester'] ?? 'Current Term',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
+                        const SizedBox(height: 4),
+                        Text(
+                          scheduleData['trimester'] ?? 'Current Term',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Search bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search bus routes or stops',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      ],
                     ),
-                    onChanged: _filterRoutes,
                   ),
-                ),
-                
-                const SizedBox(height: 8),
-                
-                // Filter chips
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      _buildFilterChip('All'),
-                      const SizedBox(width: 8),
-                      _buildFilterChip('Favorites')
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 8),
-                
-                // Route list
-                Expanded(
-                  child: filteredRoutes.isEmpty
-                      ? const Center(child: Text('No routes found'))
-                      : ListView.builder(
-                          padding: const EdgeInsets.only(top: 8),
-                          itemCount: filteredRoutes.length,
-                          itemBuilder: (context, index) {
-                            final route = filteredRoutes[index];
-                            return _buildRouteCard(route, context);
-                          },
+
+                  // Search bar
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search bus routes or stops',
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                ),
-              ],
-            ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
+                      ),
+                      onChanged: _filterRoutes,
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Filter chips
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        _buildFilterChip('All'),
+                        const SizedBox(width: 8),
+                        _buildFilterChip('Favorites'),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  // Route list
+                  Expanded(
+                    child:
+                        filteredRoutes.isEmpty
+                            ? const Center(child: Text('No routes found'))
+                            : ListView.builder(
+                              padding: const EdgeInsets.only(top: 8),
+                              itemCount: filteredRoutes.length,
+                              itemBuilder: (context, index) {
+                                final route = filteredRoutes[index];
+                                return _buildRouteCard(route, context);
+                              },
+                            ),
+                  ),
+                ],
+              ),
     );
   }
 
@@ -285,13 +339,11 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   Widget _buildRouteCard(Map<String, dynamic> route, BuildContext context) {
     final routeId = route['id']?.toString() ?? '';
     final isFavorite = favoriteRoutes.contains(routeId);
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
@@ -332,7 +384,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                 ],
               ),
               const SizedBox(height: 8),
-  
+
               // Stops (First to Last)
               if (route['stops'] != null && (route['stops'] as List).isNotEmpty)
                 Text(
@@ -340,7 +392,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                   style: TextStyle(color: Colors.grey[600]),
                 ),
               const SizedBox(height: 12),
-  
+
               // Total Trips
               Text(
                 'Total Trips: ${(route['trips'] as List?)?.length ?? 0}',
@@ -350,7 +402,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                   color: Colors.blue,
                 ),
               ),
-  
+
               // Notes (if available)
               if (route['notes'] != null && (route['notes'] as List).isNotEmpty)
                 Padding(

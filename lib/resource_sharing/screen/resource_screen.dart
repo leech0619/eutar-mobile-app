@@ -166,10 +166,14 @@ class _ResourceScreenState extends State<ResourceScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.blueAccent,
           title: const Text(
             'Resources',
-            style: TextStyle(color: Colors.white, fontSize: 20),
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           bottom: const TabBar(
             labelColor: Colors.white,
@@ -264,7 +268,6 @@ class _ResourceScreenState extends State<ResourceScreen> {
   }
 
   Widget _buildYourResourcesTab() {
-  
     List<Resource> filteredResources = [];
 
     return StatefulBuilder(
@@ -290,7 +293,9 @@ class _ResourceScreenState extends State<ResourceScreen> {
                     },
                   ),
                 ),
-                onChanged: (_) => _handleSearch(currentUserId: _controller.currentUserId),
+                onChanged:
+                    (_) =>
+                        _handleSearch(currentUserId: _controller.currentUserId),
               ),
             ),
             // Resources List

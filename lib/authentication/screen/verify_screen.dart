@@ -18,10 +18,14 @@ class _VerifyScreenState extends State<VerifyScreen> {
         backgroundColor: Colors.blue,
         title: const Text(
           'Verify Your Email',
-          style: TextStyle(color: Colors.white, fontSize: 24),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        automaticallyImplyLeading: false,
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
