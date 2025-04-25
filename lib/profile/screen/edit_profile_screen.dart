@@ -188,13 +188,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  value: _genders.contains(_selectedGender) ? _selectedGender : null,
-                  items: _genders.map((String gender) {
-                    return DropdownMenuItem<String>(
-                      value: gender,
-                      child: Text(gender),
-                    );
-                  }).toList(),
+                  value:
+                      _genders.contains(_selectedGender)
+                          ? _selectedGender
+                          : null,
+                  items:
+                      _genders.map((String gender) {
+                        return DropdownMenuItem<String>(
+                          value: gender,
+                          child: Text(gender),
+                        );
+                      }).toList(),
                   onChanged: (newValue) {
                     setState(() {
                       _selectedGender = newValue;
@@ -235,6 +239,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       _selectedFaculty = newValue;
                     });
                   },
+                  selectedItemBuilder: (BuildContext context) {
+                    return _faculties.map((String faculty) {
+                      return Text(
+                        faculty,
+                        overflow: TextOverflow.ellipsis, // Truncate text with ellipsis
+                        maxLines: 1,
+                        style: const TextStyle(fontSize: 16),
+                      );
+                    }).toList();
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select a faculty';
@@ -259,7 +273,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: DateTime.tryParse(widget.profile.birthday) ?? DateTime.now(),
+                      initialDate:
+                          DateTime.tryParse(widget.profile.birthday) ??
+                          DateTime.now(),
                       firstDate: DateTime(1900),
                       lastDate: DateTime.now(),
                     );

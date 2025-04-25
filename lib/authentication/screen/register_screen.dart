@@ -181,7 +181,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             overflow:
                                 TextOverflow
                                     .ellipsis, // Truncate text with ellipsis
-                            maxLines: 1, // Ensure the text stays on one line
+                            maxLines: 1,
                           );
                         }).toList();
                       },
