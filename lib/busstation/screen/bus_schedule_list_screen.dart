@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'bus_route_detail_screen.dart';
 import 'bus_map_overview_screen.dart';
+import '../Controller/favouriteRouteService.dart';
+import '../model/favouriteRoute.dart';
 
 class BusScheduleListScreen extends StatefulWidget {
   const BusScheduleListScreen({super.key});
@@ -20,41 +23,71 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   Set<String> favoriteRoutes = {};
   bool isLoading = true;
   List<String> generalNotes = [];
+  late FavoriteRouteService _favoriteService;
+  StreamSubscription<Set<String>>? _favoritesSubscription;
 
   @override
   void initState() {
     super.initState();
+    _favoriteService = FavoriteRouteService();
     _loadBusSchedule();
+    _setupFavoritesListener();
+  }
+
+  @override
+  void dispose() {
+    _favoritesSubscription?.cancel();
+    super.dispose();
+  }
+
+  void _setupFavoritesListener() {
+    _favoritesSubscription = _favoriteService.getFavoriteRouteIds().listen((favorites) {
+      if (mounted) {
+        setState(() {
+          favoriteRoutes = favorites;
+          if (selectedFilter == 'Favorites') {
+            _applyFilter('Favorites');
+          }
+        });
+      }
+    });
   }
 
   Future<void> _loadBusSchedule() async {
     try {
       final String response = await rootBundle.loadString('assets/json/bus_schedule.json');
       final data = json.decode(response);
-      setState(() {
-        scheduleData = data;
-        filteredRoutes = List.from(data['routes']);
-        generalNotes = List.from(data['generalNotes']);
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          scheduleData = data;
+          filteredRoutes = List.from(data['routes']);
+          generalNotes = List.from(data['generalNotes'] ?? []);
+          isLoading = false;
+        });
+      }
     } catch (e) {
       print('Error loading JSON file: $e');
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   void _filterRoutes(String query) {
     setState(() {
       searchQuery = query;
+      
+      if (scheduleData == null || scheduleData['routes'] == null) return;
+      
       if (query.isEmpty) {
         filteredRoutes = List.from(scheduleData['routes']);
       } else {
         filteredRoutes = scheduleData['routes'].where((route) {
           final nameMatch = route['name'].toString().toLowerCase().contains(query.toLowerCase());
-          final stopMatch = route['stops'].any((stop) => 
-              stop.toString().toLowerCase().contains(query.toLowerCase()));
+          final stopMatch = route['stops']?.any((stop) => 
+              stop.toString().toLowerCase().contains(query.toLowerCase())) ?? false;
           return nameMatch || stopMatch;
         }).toList();
       }
@@ -65,12 +98,15 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   void _applyFilter(String filter) {
     setState(() {
       selectedFilter = filter;
+      
+      if (scheduleData == null || scheduleData['routes'] == null) return;
+      
       if (filter == 'All') {
-        filteredRoutes = List.from(scheduleData['routes'].where((route) => 
+        filteredRoutes = scheduleData['routes'].where((route) => 
             searchQuery.isEmpty ? true : 
             route['name'].toString().toLowerCase().contains(searchQuery.toLowerCase()) ||
-            route['stops'].any((stop) => 
-                stop.toString().toLowerCase().contains(searchQuery.toLowerCase()))));
+            route['stops']?.any((stop) => 
+                stop.toString().toLowerCase().contains(searchQuery.toLowerCase())) ?? false).toList();
       } else if (filter == 'Favorites') {
         filteredRoutes = scheduleData['routes'].where((route) => 
             favoriteRoutes.contains(route['id']) &&
@@ -80,20 +116,23 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
     });
   }
 
-  void _toggleFavorite(String routeId) {
-    setState(() {
-      if (favoriteRoutes.contains(routeId)) {
-        favoriteRoutes.remove(routeId);
-      } else {
-        favoriteRoutes.add(routeId);
-      }
-      if (selectedFilter == 'Favorites') {
-        _applyFilter('Favorites');
-      }
-    });
+  Future<void> _toggleFavorite(String routeId) async {
+    try {
+      final isFavorite = favoriteRoutes.contains(routeId);
+      await _favoriteService.toggleFavorite(routeId, isFavorite);
+      
+      // No need to update state here as we have a stream listener
+      // that will automatically update the UI when Firestore changes
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating favorites: $e')),
+      );
+    }
   }
 
   void _showGeneralNotes() {
+    if (scheduleData == null) return;
+    
     showDialog(
       context: context,
       builder: (context) {
@@ -104,9 +143,9 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Last Updated: ${scheduleData['lastUpdated']}'),
-                Text('Effective Date: ${scheduleData['effectiveDate']}'),
-                Text('Trimester: ${scheduleData['trimester']}'),
+                Text('Last Updated: ${scheduleData['lastUpdated'] ?? 'N/A'}'),
+                Text('Effective Date: ${scheduleData['effectiveDate'] ?? 'N/A'}'),
+                Text('Trimester: ${scheduleData['trimester'] ?? 'N/A'}'),
                 const SizedBox(height: 16),
                 ...generalNotes.map((note) => Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -131,7 +170,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('UTAR Bus Schedule'),
-         backgroundColor: Colors.blue,
+        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -161,7 +200,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        scheduleData['campusName'],
+                        scheduleData['campusName'] ?? 'Campus',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -169,7 +208,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        scheduleData['trimester'],
+                        scheduleData['trimester'] ?? 'Current Term',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey[600],
@@ -244,6 +283,9 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   }
 
   Widget _buildRouteCard(Map<String, dynamic> route, BuildContext context) {
+    final routeId = route['id']?.toString() ?? '';
+    final isFavorite = favoriteRoutes.contains(routeId);
+    
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -271,7 +313,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      route['name'],
+                      route['name'] ?? 'Unknown Route',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -280,15 +322,11 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                   ),
                   IconButton(
                     icon: Icon(
-                      favoriteRoutes.contains(route['id'])
-                          ? Icons.favorite
-                          : Icons.favorite_border,
-                      color: favoriteRoutes.contains(route['id'])
-                          ? Colors.red
-                          : Colors.grey,
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.grey,
                     ),
                     onPressed: () {
-                      _toggleFavorite(route['id']);
+                      _toggleFavorite(routeId);
                     },
                   ),
                 ],
@@ -296,7 +334,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
               const SizedBox(height: 8),
   
               // Stops (First to Last)
-              if (route['stops'] != null && route['stops'].isNotEmpty)
+              if (route['stops'] != null && (route['stops'] as List).isNotEmpty)
                 Text(
                   '${route['stops'].first} to ${route['stops'].last}',
                   style: TextStyle(color: Colors.grey[600]),
@@ -305,7 +343,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   
               // Total Trips
               Text(
-                'Total Trips: ${route['trips'].length}',
+                'Total Trips: ${(route['trips'] as List?)?.length ?? 0}',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
@@ -314,7 +352,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
               ),
   
               // Notes (if available)
-              if (route['notes'] != null && route['notes'].isNotEmpty)
+              if (route['notes'] != null && (route['notes'] as List).isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
