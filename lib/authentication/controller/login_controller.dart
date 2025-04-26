@@ -14,13 +14,8 @@ class LoginController extends ChangeNotifier {
       TextEditingController();
   bool isLoading = false;
 
-<<<<<<< HEAD
   final AuthService _authService =
       AuthService(); // Instance of AuthService for authentication operations
-=======
-  final AuthService _authService = AuthService();
-  final ChatSessionService _chatSessionService = ChatSessionService(); // Keep for reference
->>>>>>> 0483a7a7175c3dd1a4d3be63ceaa1e8ff03711d7
 
   String? errorMessage; // Variable to store error messages
 

@@ -13,14 +13,12 @@ class BottomNavigationBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get screen width and height for responsive design
+    // Get screen width for responsive design
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    // Calculate padding and gap dynamically based on screen size
-    final double horizontalPadding = screenWidth * 0.04; // 4% of screen width
-    final double verticalPadding = screenHeight * 0.01; // 1% of screen height
+    // Calculate gap and padding dynamically based on screen size
     final double gap = screenWidth * 0.02; // 2% of screen width
+    final double padding = screenWidth * 0.04; // 4% of screen width
 
     return Container(
       decoration: const BoxDecoration(
@@ -39,22 +37,18 @@ class BottomNavigationBarWidget extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding, // Horizontal padding for the bar
-          vertical: verticalPadding, // Vertical padding for the bar
+          horizontal: padding, // Horizontal padding for the bar
+          vertical: 10, // Fixed vertical padding for the bar
         ),
         child: GNav(
           selectedIndex: currentIndex, // The currently selected tab index
           onTabChange: onTabChange, // Callback for tab change
           gap: gap, // Gap between icon and text in each tab
-          backgroundColor:
-              Colors.white, // Background color of the navigation bar
+          backgroundColor: Colors.white, // Background color of the navigation bar
           color: Colors.black, // Default icon color
           activeColor: Colors.white, // Icon color when active
-          tabBackgroundColor:
-              Colors.blueAccent, // Background color of active tab
-          padding: EdgeInsets.all(
-            screenWidth * 0.04,
-          ), // Padding inside each tab
+          tabBackgroundColor: Colors.blueAccent, // Background color of active tab
+          padding: EdgeInsets.all(12), // Padding inside each tab
           tabs: const [
             // Define the tabs with icons and labels
             GButton(icon: Icons.home, text: "Home"), // Home tab

@@ -61,7 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: screenHeight * 0.04), // 4% of screen height
               // Email field with reserved space for error message
               SizedBox(
-                height: screenHeight * 0.10,
+                height: screenHeight * 0.11,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               // Password field with reserved space for error message
               SizedBox(
-                height: screenHeight * 0.085,
+                height: screenHeight * 0.1,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

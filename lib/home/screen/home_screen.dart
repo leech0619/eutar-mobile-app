@@ -1,6 +1,7 @@
+import '../../widgets/bottom_navigation_bar.dart';
+
 import '../../busstation/screen/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import '../../resource_sharing/screen/resource_screen.dart';
 import '../../profile/screen/profile_screen.dart';
 import '../../advisor/advisor_page.dart';
@@ -58,40 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _currentIndex == 0
               ? _buildHomePage(context, screenWidth, screenHeight)
               : _pages[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(color: Colors.black38, spreadRadius: 0, blurRadius: 10),
-          ],
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.04, // Responsive horizontal padding
-            vertical: screenHeight * 0.01, // Responsive vertical padding
-          ),
-          child: GNav(
-            selectedIndex: _currentIndex,
-            onTabChange: _onBottomNavigationBarItemTapped,
-            gap: screenWidth * 0.02, // Gap between icon and text
-            backgroundColor: Colors.white,
-            color: Colors.black,
-            activeColor: Colors.white,
-            tabBackgroundColor: Colors.blue,
-            padding: EdgeInsets.all(screenWidth * 0.04), // Button padding
-            tabs: const [
-              GButton(icon: Icons.home, text: "Home"),
-              GButton(icon: Icons.book, text: "Resource"),
-              GButton(icon: Icons.school, text: "Advisor"),
-              GButton(icon: Icons.directions_bus, text: "Bus"),
-              GButton(icon: Icons.person, text: "Profile"),
-            ],
-          ),
-        ),
+      bottomNavigationBar: BottomNavigationBarWidget(
+        currentIndex: _currentIndex, // Pass the current index
+        onTabChange: _onBottomNavigationBarItemTapped, // Handle tab changes
       ),
     );
   }
@@ -183,16 +153,16 @@ class _HomeScreenState extends State<HomeScreen> {
             Align(
               alignment: Alignment.center,
               child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
-              child: Text(
-                'Features',
-                style: TextStyle(
-                color: Colors.black,
-                fontSize: screenWidth * 0.065, // Responsive font size
-                fontWeight: FontWeight.bold,
+                padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
+                child: Text(
+                  'Features',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: screenWidth * 0.065, // Responsive font size
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
               ),
             ),
 

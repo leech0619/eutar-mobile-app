@@ -197,6 +197,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        resizeToAvoidBottomInset: true, // Add this line
         appBar: AppBar(
           backgroundColor: Colors.blue,
           title: const Text(
@@ -219,12 +220,14 @@ class _ResourceScreenState extends State<ResourceScreen> {
           ),
           centerTitle: true,
         ),
-        body: TabBarView(
-          children: [
-            _buildBrowseTab(),
-            _buildShareTab(),
-            _buildYourResourcesTab(),
-          ],
+        body: SafeArea(
+          child: TabBarView(
+            children: [
+              _buildBrowseTab(),
+              _buildShareTab(),
+              _buildYourResourcesTab(),
+            ],
+          ),
         ),
       ),
     );
@@ -749,7 +752,12 @@ class _ResourceScreenState extends State<ResourceScreen> {
 
   Widget _buildShareTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.fromLTRB(
+        20.0,
+        20.0,
+        20.0,
+        100.0,
+      ), // Add more bottom padding
       child: Form(
         key: _formKey,
         child: Column(

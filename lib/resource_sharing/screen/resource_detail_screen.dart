@@ -21,7 +21,7 @@ class ResourceDetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          resource.title,
+          "Resource Details",
           style: TextStyle(
             color: Colors.white,
             fontSize: 24,
