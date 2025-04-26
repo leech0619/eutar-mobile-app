@@ -116,7 +116,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             children: [
               const SizedBox(height: 20),
               // Current Password Field
-              Container(
+              SizedBox(
                 height: 90,
                 child: TextFormField(
                   controller: _currentPasswordController,
@@ -137,7 +137,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
 
               // New Password Field
-              Container(
+              SizedBox(
                 height: 90,
                 child: TextFormField(
                   controller: _newPasswordController,
@@ -161,7 +161,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
 
               // Confirm Password Field
-              Container(
+              SizedBox(
                 height: 90,
                 child: TextFormField(
                   controller: _confirmPasswordController,

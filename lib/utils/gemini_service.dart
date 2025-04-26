@@ -29,7 +29,7 @@ class GeminiService {
   Future<String> getAdvisorResponse(String prompt) async {
     try {
       // Add instruction to avoid markdown formatting
-      final enhancedPrompt = prompt + "\n\nIMPORTANT: Please do not use markdown formatting like asterisks (**) in your response.";
+      final enhancedPrompt = "$prompt\n\nIMPORTANT: Please do not use markdown formatting like asterisks (**) in your response.";
       
       final content = [Content.text(enhancedPrompt)];
       final response = await _model.generateContent(content);
@@ -81,10 +81,11 @@ class GeminiService {
     ];
     
     // Debug - print the question number to verify correct tracking
-    print("Processing question number: $questionNumber with response: ${userResponse.substring(0, userResponse.length > 30 ? 30 : userResponse.length)}...");
+    print("Processing question number: $questionNumber with response: "+
+        userResponse.substring(0, userResponse.length > 30 ? 30 : userResponse.length)+"...");
     
-    // Determine which question to ask next (0-based index)
-    int nextQuestionIndex = questionNumber;
+    // Fix: nextQuestionIndex should be the next question to ask
+    int nextQuestionIndex = questionNumber + 1;
     
     if (nextQuestionIndex >= questions.length) {
       // For the final summary - pass all student responses with clear categorization
@@ -145,11 +146,11 @@ class GeminiService {
       case 0:
         // First response is about academic progress
         contextPrompt = '''
-        The student just answered your question about their academic progress and CGPA: "${userResponse}"
+        The student just answered your question about their academic progress and CGPA: "$userResponse"
         
         Respond with a brief acknowledgment about their academic performance, mentioning their CGPA or any specific academic points they shared. Then ask this next question about extracurricular activities: 
         
-        "${nextQuestion}"
+        "$nextQuestion"
         
         IMPORTANT: Make sure your response acknowledges their academic performance since that's what they just talked about.
         
@@ -160,11 +161,11 @@ class GeminiService {
       case 1:
         // Second response is about extracurricular activities
         contextPrompt = '''
-        The student just answered your question about their extracurricular activities at UTAR: "${userResponse}"
+        The student just answered your question about their extracurricular activities at UTAR: "$userResponse"
         
         Respond with a brief acknowledgment about their involvement in extracurricular activities (mention any specific clubs or activities they shared). Then ask this next question about challenges: 
         
-        "${nextQuestion}"
+        "$nextQuestion"
         
         IMPORTANT: Make sure you clearly transition from extracurricular activities to challenges.
         
@@ -175,11 +176,11 @@ class GeminiService {
       case 2:
         // Third response is about challenges
         contextPrompt = '''
-        The student just answered your question about challenges they're facing: "${userResponse}"
+        The student just answered your question about challenges they're facing: "$userResponse"
         
         Respond with an empathetic acknowledgment about the challenges they mentioned. Then ask this next question about their goals for the future: 
         
-        "${nextQuestion}"
+        "$nextQuestion"
         
         IMPORTANT: Make sure you clearly transition from challenges to future goals.
         
@@ -190,11 +191,13 @@ class GeminiService {
       case 3:
         // Fourth response is about goals
         contextPrompt = '''
-        The student just answered your question about their academic goals and future plans: "${userResponse}"
+        The student just answered your question about their academic goals and future plans: "$userResponse"
         
-        Respond with a brief acknowledgment about their goals and plans. Then let them know that based on the information they've shared, you'll be preparing a personalized summary with tailored recommendations that will be sent to their email shortly.
+        Respond with a brief acknowledgment about their goals and plans. Then let them know that the advisory session is wrapping up and a personalized summary with tailored recommendations will be sent to their email. 
         
-        IMPORTANT: Make it clear that the consultation is complete and that they will receive their personalized advice via email only, not in the chat.
+        IMPORTANT: After this, ask the student: "Do you have any other questions or concerns you'd like to discuss? If not, just let me know and I'll send your summary to your email." 
+        
+        DO NOT provide any specific recommendations or advice in this response. Do NOT show the summary or advice in the chat. Only mention that the summary will be sent via email.
         
         Keep your response natural and conversational. Don't use formatting like asterisks.
         ''';
@@ -208,4 +211,4 @@ class GeminiService {
     // Use AI to generate a contextual response
     return await getAdvisorResponse(contextPrompt);
   }
-} 
+}

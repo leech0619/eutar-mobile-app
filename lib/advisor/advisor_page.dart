@@ -1,11 +1,17 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../utils/gemini_service.dart';
 import '../utils/pdf_email_service.dart';
 import '../utils/auth.dart';  // Import the auth service
 import 'model/chat_message.dart';
 import 'widgets/message_bubble.dart';
+import 'widgets/chat_history_drawer.dart'; // Import the new drawer widget
+import 'services/chat_session_service.dart'; // Import the chat session service
+import 'package:shared_preferences/shared_preferences.dart';
+import '../profile/controller/profile_controller.dart'; // Import ProfileController
+import '../profile/model/profile_model.dart'; // Import ProfileModel
+import 'package:intl/intl.dart';
 
 class AdvisorPage extends StatefulWidget {
   const AdvisorPage({super.key});
@@ -20,26 +26,120 @@ class _AdvisorPageState extends State<AdvisorPage> {
   final FocusNode _focusNode = FocusNode();
   final GeminiService _geminiService = GeminiService();
   final AuthService _authService = AuthService();  // Add auth service
-  final List<ChatMessage> _messages = [];
-  final AdvisoryMeetingState _meetingState = AdvisoryMeetingState();
+  final ProfileController _profileController = ProfileController(); // Add profile controller
+  final ChatSessionService _sessionService = ChatSessionService(); // Add session service
+  
+  late ChatSession _currentSession;
+  
   bool _isLoading = false;
   String _emailAddress = '';
   bool _showEmailDialog = false;
   File? _pdfFile;
+  final bool _isSendingEmail = false;
+  ProfileModel? _userProfile; // Store user profile data
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<ChatSession> _chatSessions = [];
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeChat();
-    // Get the user's email address
-    _getUserEmail();
+    _initialize();
   }
 
+  Future<void> _initialize() async {
+    await _initializeSession();
+    await _getUserEmail();
+    await _loadUserProfile();
+    await _loadSessions();
+    
+    setState(() {
+      _isInitialized = true;
+    });
+  }
+
+  // Initialize the current session
+  Future<void> _initializeSession() async {
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      // Try to load the last session
+      await _loadSessions();
+      if (_chatSessions.isNotEmpty) {
+        setState(() {
+          _currentSession = _chatSessions.first;
+        });
+      } else {
+        // Create a new session if none exists
+        await _createNewSession();
+      }
+    } catch (e) {
+      print('Error initializing session: $e');
+      await _createNewSession();
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+      
+      // Initialize chat if the current session has no messages
+      if (_currentSession.messages.isEmpty) {
+        await _initializeChat();
+      }
+    }
+  }
+  
+  // Create a new session
+  Future<void> _createNewSession() async {
+    try {
+      // Create a new session
+      _currentSession = await _sessionService.createNewSession();
+      
+      // Add welcome message to the new session
+      setState(() {
+        _currentSession.addMessage(ChatMessage(
+          text: "Hello! I'm your UTAR Academic Advisor chatbot. How can I help you today? You can ask me about courses, study tips, academic resources, or start a formal Academic Advisor Meeting for more personalized guidance.",
+          messageType: MessageType.advisor,
+        ));
+      });
+      
+      // Save the session and reload all sessions
+      await _sessionService.saveSession(_currentSession);
+      await _loadSessions();
+      
+      // Close the drawer if it's open
+      if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error creating new session: $e');
+    }
+  }
+  
   // Method to get the current user's email
-  void _getUserEmail() {
-    final user = _authService.getCurrentUser();
-    if (user != null && user.email != null && user.email!.isNotEmpty) {
-      _emailAddress = user.email!;
+  Future<void> _getUserEmail() async {
+    try {
+      final user = _authService.getCurrentUser();
+      if (user != null && user.email != null) {
+        setState(() {
+          _emailAddress = user.email!;
+        });
+      }
+    } catch (e) {
+      print('Error getting user email: $e');
+    }
+  }
+  
+  // Method to load user profile data
+  Future<void> _loadUserProfile() async {
+    try {
+      final profileData = await _profileController.fetchUserData();
+      setState(() {
+        _userProfile = profileData;
+      });
+    } catch (e) {
+      print('Error loading user profile: $e');
     }
   }
 
@@ -49,24 +149,30 @@ class _AdvisorPageState extends State<AdvisorPage> {
     });
 
     try {
-      // Always use the same initial message for consistency
-      final initialMessage = "Hello! I'm your Academic Advisor Chatbot to guide you through your academic journey. I'm ready to assist you, just like your academic supervisor.";
+      // More natural, conversational initial message
+      final initialMessage = "Hello! I'm your UTAR academic advisor. How can I help you with your studies today? Feel free to ask me about courses, academic policies, or we can have a more structured advising session if you'd like.";
       
       setState(() {
-        _messages.add(ChatMessage(
+        _currentSession.addMessage(ChatMessage(
           text: initialMessage,
           messageType: MessageType.advisor,
         ));
       });
+      
+      // Save the updated session
+      await _sessionService.saveSession(_currentSession);
     } catch (e) {
       _showErrorSnackBar('Failed to initialize chat: $e');
       // Add a fallback message so the screen isn't empty
       setState(() {
-        _messages.add(ChatMessage(
-          text: "Hello! I'm your academic advisor. I'm having trouble connecting to my knowledge service at the moment. Please check your API configuration or try again later.",
+        _currentSession.addMessage(ChatMessage(
+          text: "Hello! I'm your UTAR academic advisor. I'm having trouble connecting to my knowledge service at the moment. Please check your API configuration or try again later.",
           messageType: MessageType.advisor,
         ));
       });
+      
+      // Save the updated session
+      await _sessionService.saveSession(_currentSession);
     } finally {
       setState(() {
         _isLoading = false;
@@ -74,194 +180,17 @@ class _AdvisorPageState extends State<AdvisorPage> {
     }
   }
 
-  // Show email notification instead of PDF instructions
-  void _showEmailNotification() {
+  // Show error messages
+  void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.email, color: Colors.white),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                _emailAddress.isNotEmpty 
-                  ? 'Your consultation summary will be sent to $_emailAddress' 
-                  : 'A consultation summary will be sent to your email'
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: Colors.white,
-          onPressed: () {
-            // Dismiss the snackbar
-          },
-        ),
+        content: Text(message),
+        backgroundColor: Colors.red,
       ),
     );
   }
 
-  // Send email at meeting completion instead of using the PDF download button
-  Future<void> _sendEmailAutomatically() async {
-    if (_messages.isEmpty) {
-      return;
-    }
-
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      final pdfFile = await PdfEmailService.generatePdf(_messages);
-
-      // Verify we have an email address
-      if (_emailAddress.isEmpty) {
-        // Try to get the email one more time
-        _getUserEmail();
-        // If still empty, show a dialog for manual entry
-        if (_emailAddress.isEmpty) {
-          setState(() {
-            _pdfFile = pdfFile;
-            _showEmailDialog = true;
-            _isLoading = false;
-          });
-          return;
-        }
-      }
-
-      // Send the email automatically
-      await PdfEmailService.sendEmail(pdfFile, _emailAddress);
-      
-      // Show success notification
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Consultation summary sent to $_emailAddress'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-        ),
-      );
-    } catch (e) {
-      if (e.toString().contains('NoEmailClient')) {
-        // Handle the special case - email client not found
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('No email app found. The PDF has been shared using other available apps.'),
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 5),
-          ),
-        );
-      } else {
-        _showErrorSnackBar('Failed to send email: $e');
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _sendMessage() async {
-    final messageText = _messageController.text.trim();
-    
-    if (messageText.isEmpty) return;
-    
-    _messageController.clear();
-    
-    setState(() {
-      _messages.add(ChatMessage(
-        text: messageText,
-        messageType: MessageType.user,
-      ));
-      _isLoading = true;
-    });
-    
-    _scrollToBottom();
-    
-    try {
-      String response;
-      
-      // Check if the user is requesting to start an advisory meeting
-      if (!_meetingState.isInMeeting && 
-          _containsAdvisoryMeetingRequest(messageText)) {
-        // Start the formal advisory meeting process
-        _meetingState.startMeeting();
-        
-        // Add a visual divider to indicate meeting start
-        setState(() {
-          _messages.add(ChatMessage(
-            text: "--- Beginning Formal Academic Advisory Meeting ---",
-            messageType: MessageType.system,
-          ));
-        });
-        
-        response = await _geminiService.startAdvisoryMeeting();
-      } 
-      // If we're in a meeting, continue with the sequential questions
-      else if (_meetingState.isInMeeting) {
-        _meetingState.recordResponse(messageText);
-        response = await _geminiService.continueAdvisoryMeeting(
-          messageText, 
-          _meetingState.currentQuestionNumber,
-          _meetingState.getAllResponses()
-        );
-        
-        // Check if the meeting is complete
-        if (_meetingState.isAllQuestionsAnswered) {
-          _meetingState.endMeeting();
-          
-          // Add a visual divider to indicate meeting end
-          setState(() {
-            _messages.add(ChatMessage(
-              text: "--- End of Formal Academic Advisory Meeting ---",
-              messageType: MessageType.system,
-            ));
-          });
-          
-          // Send the consultation summary via email automatically
-          Future.delayed(const Duration(milliseconds: 1000), () {
-            _sendEmailAutomatically();
-          });
-        }
-      } 
-      // Otherwise, handle as a regular conversation
-      else {
-        // Regular conversation mode
-        response = await _geminiService.getAdvisorResponse(
-          "You are an academic advisor chatbot. The student asks: $messageText"
-        );
-      }
-      
-      setState(() {
-        _messages.add(ChatMessage(
-          text: response,
-          messageType: MessageType.advisor,
-        ));
-      });
-    } catch (e) {
-      _showErrorSnackBar('Failed to get response: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-      _scrollToBottom();
-    }
-  }
-  
-  bool _containsAdvisoryMeetingRequest(String message) {
-    final messageLower = message.toLowerCase();
-    return messageLower.contains('academic advisor meeting') || 
-           messageLower.contains('aa meeting') ||
-           messageLower.contains('advisor meeting') ||
-           messageLower.contains('formal meeting') ||
-           messageLower.contains('consultation session') ||
-           messageLower.contains('advising session') ||
-           messageLower.contains('start meeting') ||
-           messageLower.contains('begin consultation');
-  }
-  
+  // Scroll to the bottom of the chat
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -274,454 +203,525 @@ class _AdvisorPageState extends State<AdvisorPage> {
     });
   }
 
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
-
-  Future<void> _generateAndSavePdf() async {
-    if (_messages.isEmpty) {
-      _showErrorSnackBar('No messages to export');
-      return;
-    }
-
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Request storage permission more carefully
-      final hasPermission = await _requestStoragePermissionWithRetry();
-      if (!hasPermission) {
-        _showPermissionDeniedDialog();
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final pdfFile = await PdfEmailService.generatePdf(_messages);
-      setState(() {
-        _pdfFile = pdfFile;
-        _showEmailDialog = true;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('PDF generated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      _showErrorSnackBar('Failed to generate PDF: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-  
-  // Improved permission handling with retry
-  Future<bool> _requestStoragePermissionWithRetry() async {
-    var status = await PdfEmailService.requestStoragePermission();
-    
-    // If permission is denied but we can request it again
-    if (!status) {
-      // Show a dialog explaining why we need the permission
-      final shouldRetry = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Storage Permission Needed'),
-          content: const Text(
-            'To save your consultation summary as a PDF, the app needs permission to access storage. Please grant this permission in the next dialog.'
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('CANCEL'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: const Text('CONTINUE'),
-            ),
-          ],
-        ),
-      ) ?? false;
+  // Send email automatically when the meeting is complete
+  Future<void> _sendEmailAutomatically() async {
+    if (_currentSession.meetingState.isMeetingComplete) {
+      await Future.delayed(const Duration(milliseconds: 1500));
       
-      if (shouldRetry) {
-        // Try requesting permission again
-        status = await PdfEmailService.requestStoragePermission(forceRequest: true);
-      }
-    }
-    
-    return status;
-  }
-  
-  // Show dialog when permission is permanently denied
-  void _showPermissionDeniedDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Permission Denied'),
-        content: const Text(
-          'Storage permission is required to save PDF files. Please enable it in your device settings:\n\n'
-          'Settings > Apps > eUTAR > Permissions > Storage'
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _sharePdf() async {
-    if (_pdfFile == null) {
-      _showErrorSnackBar('No PDF file to share');
-      return;
-    }
-
-    try {
-      await PdfEmailService.sharePdf(_pdfFile!);
-    } catch (e) {
-      _showErrorSnackBar('Failed to share PDF: $e');
-    }
-  }
-
-  Future<void> _sendEmailWithPdf() async {
-    if (_pdfFile == null) {
-      _showErrorSnackBar('No PDF file to send');
-      return;
-    }
-
-    if (_emailAddress.isEmpty) {
-      _showErrorSnackBar('Email address is required');
-      return;
-    }
-
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(_emailAddress)) {
-      _showErrorSnackBar('Invalid email address');
-      return;
-    }
-
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      await PdfEmailService.sendEmail(_pdfFile!, _emailAddress);
-      
-      setState(() {
-        _showEmailDialog = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Email sent successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      if (e.toString().contains('NoEmailClient')) {
-        // Handle the special case - email client not found
+      try {
+        // Make sure we have the latest profile data
+        if (_userProfile == null) {
+          await _loadUserProfile();
+        }
+        
+        // Generate the PDF and send email with user profile data
+        await PdfEmailService().generatePdfAndSendEmail(
+          _currentSession.messages, 
+          _currentSession.meetingState.responses, 
+          _userProfile
+        );
+        
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('No email app found. The PDF has been shared using other available apps.'),
-            backgroundColor: Colors.orange,
-            duration: const Duration(seconds: 5),
+            content: Text('Your consultation summary has been prepared for email!'),
+            backgroundColor: Colors.green,
           ),
         );
-        // Close the email dialog since we've already shared via the fallback method
-        setState(() {
-          _showEmailDialog = false;
-        });
-      } else {
-        _showErrorSnackBar('Failed to send email: $e');
+      } catch (e) {
+        print('Error sending email: $e');
+        
+        // Show a different message if no email client was found
+        if (e.toString().contains('NoEmailClient')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('No email app found. You can share the PDF using other apps.'),
+              backgroundColor: Colors.orange,
+              duration: const Duration(seconds: 5),
+            ),
+          );
+        } else {
+          // Show general error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to send email: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
+    }
+  }
+
+  void _sendMessage() async {
+    final messageText = _messageController.text.trim();
+    
+    if (messageText.isEmpty) return;
+    
+    _messageController.clear();
+    
+    setState(() {
+      _currentSession.addMessage(ChatMessage(
+        text: messageText,
+        messageType: MessageType.user,
+      ));
+      _isLoading = true;
+    });
+    
+    // Update the title based on the user's message only if it's the first user message
+    // or if the title is still a default one
+    if (_currentSession.messages.where((m) => m.isUser).length == 1 || 
+        _currentSession.title.startsWith("New Chat") || 
+        _currentSession.title.startsWith("Chat -")) {
+      _currentSession.generateTitle();
+    }
+    
+    // Save the updated session
+    await _sessionService.saveSession(_currentSession);
+    
+    _scrollToBottom();
+    
+    try {
+      String response;
+      
+      if (_currentSession.meetingState.isInMeeting && messageText.toLowerCase().contains('stop')) {
+        _currentSession.meetingState.endMeeting();
+        response = 'Advisory meeting has been stopped. You can continue chatting with me or start a new meeting later.';
+      } else if (_currentSession.meetingState.isInMeeting) {
+        // Handle meeting response
+        _currentSession.meetingState.recordResponse(messageText);
+        
+        // Get the next question or recommendation based on the current question number
+        response = await _geminiService.continueAdvisoryMeeting(
+          messageText, 
+          _currentSession.meetingState.currentQuestionNumber - 1,
+          _currentSession.meetingState.getAllResponses()
+        );
+        
+        // Check if the meeting is complete - we've gone through all the questions
+        if (_currentSession.meetingState.isAllQuestionsAnswered) {
+          // Debug
+          print("All questions answered! currentQuestionNumber: ${_currentSession.meetingState.currentQuestionNumber}");
+          
+          _currentSession.meetingState.endMeeting();
+          
+          // Automatically send the email instead of showing a snackbar
+          Future.delayed(const Duration(milliseconds: 1500), () {
+            _sendEmailAutomatically();
+          });
+        }
+      } else if (_shouldStartMeeting(messageText)) {
+        // Start new meeting
+        _currentSession.meetingState.startMeeting();
+        response = _getMeetingIntroduction();
+      } else {
+        // Regular conversation mode
+        response = await _geminiService.getAdvisorResponse(
+          "You are an academic advisor chatbot. The student asks: $messageText"
+        );
+      }
+      
+      setState(() {
+        _currentSession.addMessage(ChatMessage(
+          text: response,
+          messageType: MessageType.advisor,
+        ));
+      });
+      
+      // Save the updated session
+      await _sessionService.saveSession(_currentSession);
+    } catch (e) {
+      _showErrorSnackBar('Failed to get response: $e');
     } finally {
       setState(() {
         _isLoading = false;
       });
+      _scrollToBottom();
+    }
+  }
+
+  bool _shouldStartMeeting(String message) {
+    if (_currentSession.meetingState.isInMeeting) return false;
+    
+    final List<String> meetingTriggers = [
+      'start meeting',
+      'begin consultation',
+      'formal advisory',
+      'academic consultation',
+      'start advisory',
+      'begin advisory',
+      'advisor meeting',
+      'start advisor meeting',
+      'start an advisor meeting',
+      'would like to start an advisor meeting'
+    ];
+    
+    return meetingTriggers.any((trigger) => 
+      message.toLowerCase().contains(trigger.toLowerCase()));
+  }
+
+  String _getMeetingIntroduction() {
+    return "Hi there! Thanks for starting this academic advisory session. I'd like to learn a bit about your academic journey at UTAR so I can provide personalized guidance.\n\nLet's start with your academic progress. How are your classes going this semester? Could you also share your current CGPA and which subjects you're finding most interesting or challenging?";
+  }
+
+  // Load all chat sessions
+  Future<void> _loadSessions() async {
+    final sessions = await _sessionService.getAllSessions();
+    setState(() {
+      _chatSessions = sessions;
+    });
+  }
+
+  // Load a specific session
+  Future<void> _loadSession(String sessionId) async {
+    try {
+      final session = await _sessionService.getSession(sessionId);
+      if (session != null) {
+        setState(() {
+          _currentSession = session;
+          _isLoading = false;
+        });
+        
+        // Close the drawer
+        if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+          Navigator.pop(context);
+        }
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error loading session: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Academic Advisor Chatbot',
-          style: TextStyle(color: Colors.white),
+    if (!_isInitialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
         ),
-        backgroundColor: Colors.blueAccent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: Colors.white),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: const Text(
+            'UTAR Academic Advisor',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.blue,
+          elevation: 4.0,
+          iconTheme: const IconThemeData(color: Colors.white),
+          leading: IconButton(
+            icon: const Icon(Icons.menu, color: Colors.white),
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Academic Advisor Help'),
-                    content: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: const [
-                          Text('You can:',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8),
-                          Text('• Ask any questions about academics'),
-                          Text('• Get help with course selection'),
-                          Text('• Seek advice on career planning'),
-                          Text('• Get study resources and tips'),
-                          Text('• Learn about university policies'),
-                          SizedBox(height: 16),
-                          Text('Formal Advisory Meeting:',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('To start a formal academic advisory meeting, type:'),
-                          Text('"I would like to start an advisor meeting"', 
-                              style: TextStyle(fontStyle: FontStyle.italic)),
-                          SizedBox(height: 8),
-                          Text('The meeting will cover:'),
-                          Text('• Academic Performance (CGPA)'),
-                          Text('• Co-curricular Activities'),
-                          Text('• Professional Development'),
-                          Text('• Problems & Challenges'),
-                          Text('• Future Planning'),
-                          SizedBox(height: 12),
-                          Text('Meeting Summary:',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('After completing a meeting, a summary will be automatically sent to your email.'),
-                        ],
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        child: const Text('Got it'),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  );
-                },
-              );
+              _scaffoldKey.currentState?.openDrawer();
             },
           ),
-          Container(
-            margin: const EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(
-              color: _meetingState.isMeetingComplete ? Colors.green : Colors.transparent,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Tooltip(
-              message: 'Send consultation summary to your email',
-              child: IconButton(
-                icon: Icon(
-                  Icons.email,
-                  color: Colors.white,
-                  size: _meetingState.isMeetingComplete ? 28 : 24,
-                ),
-                onPressed: _sendEmailAutomatically,
+          actions: [
+            // Only show the New Chat button if the user has sent at least one message
+            if (_currentSession.messages.any((message) => message.isUser))
+              IconButton(
+                icon: const Icon(Icons.add, color: Colors.white),
+                tooltip: 'New Chat',
+                onPressed: () {
+                  _createNewSession();
+                },
               ),
+            IconButton(
+              icon: const Icon(Icons.help_outline, color: Colors.white),
+              tooltip: 'Help',
+              onPressed: _showInfoDialog,
             ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                color: Colors.blue.shade50,
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _meetingState.isInMeeting
-                            ? 'Formal advisory meeting in progress. Please answer each question to continue.'
-                            : 'Ask any academic questions, or type "start advisor meeting" for a formal consultation.',
-                        style: const TextStyle(fontSize: 12, color: Colors.black87),
-                      ),
+          ],
+        ),
+        drawer: Drawer(
+          width: MediaQuery.of(context).size.width * 0.75,
+          child: SafeArea(
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Chat History',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
+                  ),
                 ),
-              ),
-              Expanded(
-                child: _messages.isEmpty
+                Divider(),
+                Expanded(
+                  child: _chatSessions.isEmpty || 
+                           !_chatSessions.any((session) => 
+                               session.id != _currentSession.id && 
+                               session.messages.any((message) => message.isUser))
                     ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/icon/advisor.png',
-                              width: 120,
-                              height: 120,
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Starting your advisor consultation...',
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                            const SizedBox(height: 24),
-                            if (_isLoading) const CircularProgressIndicator(),
-                          ],
-                        ),
+                        child: Text('No chat history'),
                       )
                     : ListView.builder(
-                        controller: _scrollController,
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _messages.length,
+                        // Filter out the current session and sessions without user messages
+                        itemCount: _chatSessions
+                            .where((session) => 
+                                session.id != _currentSession.id && 
+                                session.messages.any((message) => message.isUser))
+                            .length,
                         itemBuilder: (context, index) {
-                          final message = _messages[index];
-                          return MessageBubble(message: message);
+                          // Get only the non-current sessions that have user messages
+                          final filteredSessions = _chatSessions
+                              .where((session) => 
+                                  session.id != _currentSession.id && 
+                                  session.messages.any((message) => message.isUser))
+                              .toList();
+                          final session = filteredSessions[index];
+                          
+                          return GestureDetector(
+                            onLongPress: () {
+                              // Show delete option
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Delete Chat'),
+                                  content: Text('Are you sure you want to delete this chat?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text('CANCEL'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        _deleteSession(session.id);
+                                      },
+                                      child: Text('DELETE', style: TextStyle(color: Colors.red)),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                            child: ListTile(
+                              title: Text(
+                                session.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontWeight: session.id == _currentSession.id ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                              trailing: Text(
+                                DateFormat.MMMd().format(session.lastUpdated),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                              selected: session.id == _currentSession.id,
+                              selectedTileColor: Colors.blue.withOpacity(0.1),
+                              onTap: () => _loadSession(session.id),
+                            ),
+                          );
                         },
                       ),
-              ),
-              if (_isLoading && !_showEmailDialog)
-                const LinearProgressIndicator(),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, -1),
-                    ),
-                  ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        focusNode: _focusNode,
-                        decoration: InputDecoration(
-                          hintText: 'Ask your academic advisor...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[200],
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20.0,
-                            vertical: 10.0,
-                          ),
-                        ),
-                        textInputAction: TextInputAction.send,
-                        onSubmitted: (_) => _sendMessage(),
-                      ),
-                    ),
-                    const SizedBox(width: 8.0),
-                    FloatingActionButton(
-                      onPressed: _isLoading ? null : _sendMessage,
-                      backgroundColor: Colors.blueAccent,
-                      elevation: 0,
-                      child: const Icon(
-                        Icons.send,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          if (_showEmailDialog)
-            Container(
-              color: Colors.black54,
-              child: Center(
-                child: Card(
-                  margin: const EdgeInsets.all(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Share Consultation Summary',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+        ),
+        body: Stack(
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  color: Colors.blue.shade50,
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue.shade700, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _currentSession.meetingState.isInMeeting
+                              ? 'Advisory session in progress. Please respond to each question.'
+                              : 'Chat with your UTAR advisor or type "start advisor meeting" for a guided session.',
+                          style: const TextStyle(fontSize: 12, color: Colors.black87),
                         ),
-                        const SizedBox(height: 16),
-                        TextField(
+                      ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: _currentSession.messages.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/icon/advisor.png',
+                                width: 120,
+                                height: 120,
+                              ),
+                              const SizedBox(height: 16),
+                              const Text(
+                                'Starting your advisor consultation...',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                              const SizedBox(height: 24),
+                              if (_isLoading) const CircularProgressIndicator(),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(16),
+                          itemCount: _currentSession.messages.length,
+                          itemBuilder: (context, index) {
+                            final message = _currentSession.messages[index];
+                            return MessageBubble(message: message);
+                          },
+                        ),
+                ),
+                if (_isLoading && !_showEmailDialog)
+                  const LinearProgressIndicator(),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: const Offset(0, -1),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _messageController,
+                          focusNode: _focusNode,
+                          minLines: 1,
+                          maxLines: 3, // Allow text to expand up to 3 lines
+                          style: const TextStyle(fontSize: 14.0), // Smaller text size
                           decoration: InputDecoration(
-                            labelText: 'Your Email Address',
+                            hintText: 'Ask your academic advisor...',
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10.0),
+                              borderRadius: BorderRadius.circular(25.0),
+                              borderSide: BorderSide.none,
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[200],
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, // Slightly smaller padding
+                              vertical: 8.0,
+                            ),
+                            isDense: true, // Make the input more compact
+                          ),
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (_) => _sendMessage(),
+                        ),
+                      ),
+                      const SizedBox(width: 8.0),
+                      SizedBox(
+                        width: 40.0, // Fixed width
+                        height: 40.0, // Fixed height
+                        child: FloatingActionButton(
+                          onPressed: _isLoading ? null : _sendMessage,
+                          backgroundColor: Colors.blueAccent,
+                          elevation: 0,
+                          mini: true, // Make the button smaller
+                          child: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 20.0, // Smaller icon
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (_showEmailDialog)
+              Container(
+                color: Colors.black54,
+                child: Center(
+                  child: Card(
+                    margin: const EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Share Consultation Summary',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          onChanged: (value) => _emailAddress = value,
-                          keyboardType: TextInputType.emailAddress,
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _showEmailDialog = false;
-                                });
-                              },
-                              icon: const Icon(Icons.cancel),
-                              label: const Text('Cancel'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
+                          const SizedBox(height: 16),
+                          TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Your Email Address',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
                             ),
-                            ElevatedButton.icon(
-                              onPressed: _sendEmailWithPdf,
-                              icon: const Icon(Icons.email),
-                              label: const Text('Send Email'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                foregroundColor: Colors.white,
+                            onChanged: (value) => _emailAddress = value,
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  setState(() {
+                                    _showEmailDialog = false;
+                                  });
+                                },
+                                icon: const Icon(Icons.cancel),
+                                label: const Text('Cancel'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
                               ),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: _sharePdf,
-                              icon: const Icon(Icons.share),
-                              label: const Text('Share'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
+                              ElevatedButton.icon(
+                                onPressed: _sendEmailAutomatically,
+                                icon: const Icon(Icons.email),
+                                label: const Text('Send Email'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          if (_isLoading && _showEmailDialog)
-            Container(
-              color: Colors.black26,
-              child: const Center(
-                child: CircularProgressIndicator(),
+            if (_isLoading && _showEmailDialog)
+              Container(
+                color: Colors.black26,
+                child: const Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -732,5 +732,73 @@ class _AdvisorPageState extends State<AdvisorPage> {
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _showInfoDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('UTAR Academic Advisory'),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text('You can:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                Text('• Ask questions about UTAR academics'),
+                Text('• Get help with UTAR course selection'),
+                Text('• Seek advice on career planning at UTAR'),
+                Text('• Access UTAR study resources and tips'),
+                Text('• Learn about UTAR policies and procedures'),
+                SizedBox(height: 16),
+                Text('Formal UTAR Advisory Meeting:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('To start a formal UTAR academic advisory meeting, type:'),
+                Text('"I would like to start an advisor meeting"', 
+                    style: TextStyle(fontStyle: FontStyle.italic)),
+                SizedBox(height: 8),
+                Text('The meeting will cover:'),
+                Text('• Academic Performance (CGPA)'),
+                Text('• UTAR Co-curricular Activities'),
+                Text('• Professional Development at UTAR'),
+                Text('• Problems & Challenges in UTAR'),
+                Text('• Future Planning for UTAR Students'),
+                SizedBox(height: 12),
+                Text('Meeting Summary:',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('After completing the meeting, a summary will be automatically sent to your UTAR email.'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Got it'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteSession(String sessionId) async {
+    try {
+      await _sessionService.deleteSession(sessionId);
+      
+      // If the current session was deleted, create a new one
+      if (_currentSession.id == sessionId) {
+        await _createNewSession();
+      }
+      
+      // Reload sessions
+      await _loadSessions();
+    } catch (e) {
+      _showErrorSnackBar('Error deleting session: $e');
+    }
   }
 }
