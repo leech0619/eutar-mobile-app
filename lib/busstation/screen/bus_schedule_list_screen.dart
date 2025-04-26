@@ -83,7 +83,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
     setState(() {
       searchQuery = query;
 
-      if (scheduleData == null || scheduleData['routes'] == null) return;
+      if (scheduleData['routes'] == null) return;
 
       if (query.isEmpty) {
         filteredRoutes = List.from(scheduleData['routes']);
@@ -111,7 +111,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
     setState(() {
       selectedFilter = filter;
 
-      if (scheduleData == null || scheduleData['routes'] == null) return;
+      if (scheduleData['routes'] == null) return;
 
       if (filter == 'All') {
         filteredRoutes =
@@ -164,8 +164,6 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   }
 
   void _showGeneralNotes() {
-    if (scheduleData == null) return;
-
     showDialog(
       context: context,
       builder: (context) {
@@ -189,7 +187,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                         child: Text('• $note'),
                       ),
                     )
-                    .toList(),
+                    ,
               ],
             ),
           ),
