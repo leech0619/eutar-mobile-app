@@ -204,7 +204,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
             'Resource Sharing',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),

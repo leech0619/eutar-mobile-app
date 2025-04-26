@@ -488,6 +488,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
+              fontSize: 20,
             ),
           ),
           backgroundColor: Colors.blue,

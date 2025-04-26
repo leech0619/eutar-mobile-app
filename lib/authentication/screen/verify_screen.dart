@@ -23,7 +23,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
           'Verify Your Email',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),

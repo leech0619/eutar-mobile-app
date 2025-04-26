@@ -24,7 +24,7 @@ class ResourceDetailScreen extends StatelessWidget {
           "Resource Details",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ), // Show resource title in AppBar

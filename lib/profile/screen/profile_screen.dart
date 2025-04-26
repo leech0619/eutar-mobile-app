@@ -25,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'Profile',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -106,11 +106,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         // Profile picture (placeholder icon)
                         const CircleAvatar(
-                          radius: 45,
+                          radius: 40,
                           backgroundColor: Colors.white,
                           child: Icon(
                             Icons.person,
-                            size: 50,
+                            size: 40,
                             color: Colors.blue,
                           ),
                         ),
@@ -128,7 +128,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ],
                     ),
                   ),
-
                   // Profile Details Section
                   Expanded(
                     child: Padding(

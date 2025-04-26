@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'Home',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // Grid view for feature cards (fixed height, no scroll)
             Padding(
-              padding: EdgeInsets.all(screenWidth * 0.03), // Responsive padding
+              padding: EdgeInsets.all(screenWidth * 0.05), // Responsive padding
               child: SizedBox(
                 height:
                     screenHeight *
@@ -202,8 +202,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
                                 featureIcons[index],
-                                width: screenWidth * 0.18,
-                                height: screenWidth * 0.18,
+                                width: screenWidth * 0.16,
+                                height: screenWidth * 0.16,
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -218,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.black,
                                   fontSize:
                                       screenWidth *
-                                      0.04, // Responsive font size
+                                      0.036, // Responsive font size
                                   fontWeight: FontWeight.bold,
                                 ),
                                 textAlign: TextAlign.center,

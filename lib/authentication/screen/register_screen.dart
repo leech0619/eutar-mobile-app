@@ -35,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'Register',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
