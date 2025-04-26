@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // App logo
                 Image.asset(
-                  'assets/icon/login_icon.png', // Replace with your app logo path
+                  'assets/icon/eutar.png',
                   height: 220,
                 ),
                 const SizedBox(height: 40),
