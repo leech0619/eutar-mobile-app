@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../home/screen/home_screen.dart';
 import 'package:flutter/material.dart';
 import '../../utils/auth.dart';
+import '../../advisor/services/chat_session_service.dart'; // Import ChatSessionService
 
 /// Controller for handling login functionality.
 class LoginController extends ChangeNotifier {
@@ -13,8 +14,13 @@ class LoginController extends ChangeNotifier {
       TextEditingController();
   bool isLoading = false;
 
+<<<<<<< HEAD
   final AuthService _authService =
       AuthService(); // Instance of AuthService for authentication operations
+=======
+  final AuthService _authService = AuthService();
+  final ChatSessionService _chatSessionService = ChatSessionService(); // Keep for reference
+>>>>>>> 0483a7a7175c3dd1a4d3be63ceaa1e8ff03711d7
 
   String? errorMessage; // Variable to store error messages
 
