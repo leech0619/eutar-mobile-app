@@ -6,9 +6,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import '../advisor/model/chat_message.dart';
 import '../profile/model/profile_model.dart';
-import '../profile/controller/profile_controller.dart';
 
 class PdfEmailService {
   // Structure for organizing extracted meeting data - improved version
@@ -26,12 +26,29 @@ class PdfEmailService {
     String recommendationText = '';
     bool foundResponses = false;
     
-    // First pass - find all advisor responses that contain all responses
+    // First pass - search for AI response with recommendation tags
     for (int i = 0; i < messages.length; i++) {
       final message = messages[i];
       
+      // Look for the specially formatted recommendation summary
+      if (message.messageType == MessageType.advisor &&
+          message.text.contains('### RECOMMENDATIONS SUMMARY ###') &&
+          message.text.contains('### END RECOMMENDATIONS ###')) {
+        // Extract the content between the tags
+        int startIndex = message.text.indexOf('### RECOMMENDATIONS SUMMARY ###') + 
+                         '### RECOMMENDATIONS SUMMARY ###'.length;
+        int endIndex = message.text.indexOf('### END RECOMMENDATIONS ###');
+        
+        if (startIndex >= 0 && endIndex > startIndex) {
+          recommendationText = message.text.substring(startIndex, endIndex).trim();
+          print('Found tagged recommendation: ${recommendationText.substring(0, 
+              recommendationText.length > 50 ? 50 : recommendationText.length)}...');
+        }
+        break;
+      }
+      
       // If this is a long advisor message at the end, it's likely the recommendations
-      if (message.messageType == MessageType.advisor && message.text.length > 500) {
+      if (recommendationText.isEmpty && message.messageType == MessageType.advisor && message.text.length > 500) {
         recommendationText = message.text;
       }
       
@@ -73,7 +90,7 @@ class PdfEmailService {
     }
     
     // If we found specific user responses, add the recommendations
-    if (foundResponses && recommendationText.isNotEmpty) {
+    if ((foundResponses || recommendationText.isNotEmpty)) {
       meetingData['Recommendations'] = recommendationText;
     }
     
@@ -113,6 +130,7 @@ class PdfEmailService {
   }
 
   static Future<File> generatePdf(List<ChatMessage> messages, [Map<int, String>? responses, ProfileModel? userProfile]) async {
+    // Create PDF document with default fonts to avoid asset loading errors
     final pdf = pw.Document();
     
     // Extract structured data from the conversation or use provided responses
@@ -138,19 +156,67 @@ class PdfEmailService {
         }
       });
       
-      // Find the recommendation (long advisor message) in the chat
-      for (int i = messages.length - 1; i >= 0; i--) {
+      // First check for specially marked recommendation message
+      bool foundRecommendation = false;
+      for (int i = 0; i < messages.length; i++) {
         final message = messages[i];
-        if (message.messageType == MessageType.advisor && message.text.length > 500) {
-          meetingData['Recommendations'] = message.text;
-          print('Found recommendation text: ${message.text.substring(0, 50)}...');
-          break;
+        if (message.messageType == MessageType.advisor && 
+            message.text.contains('### RECOMMENDATIONS SUMMARY ###') &&
+            message.text.contains('### END RECOMMENDATIONS ###')) {
+          // Extract the content between the tags
+          int startIndex = message.text.indexOf('### RECOMMENDATIONS SUMMARY ###') + 
+                          '### RECOMMENDATIONS SUMMARY ###'.length;
+          int endIndex = message.text.indexOf('### END RECOMMENDATIONS ###');
+          
+          if (startIndex >= 0 && endIndex > startIndex) {
+            String recommendationText = message.text.substring(startIndex, endIndex).trim();
+            // Replace any problematic apostrophes with straight quotes
+            recommendationText = _sanitizeText(recommendationText);
+            // Remove any placeholder text like "[Student Name]" or "[Your Name]"
+            recommendationText = _cleanRecommendationText(recommendationText, userProfile?.fullName);
+            meetingData['Recommendations'] = recommendationText;
+            print('Found tagged recommendation for PDF: ${meetingData['Recommendations']!.substring(0, 
+                meetingData['Recommendations']!.length > 50 ? 50 : meetingData['Recommendations']!.length)}...');
+            foundRecommendation = true;
+            break;
+          }
+        }
+      }
+      
+      // If no specifically tagged recommendation was found, fall back to long advisor message
+      if (!foundRecommendation) {
+        for (int i = messages.length - 1; i >= 0; i--) {
+          final message = messages[i];
+          if (message.messageType == MessageType.advisor && message.text.length > 500) {
+            String recommendationText = message.text;
+            // Replace any problematic apostrophes with straight quotes
+            recommendationText = _sanitizeText(recommendationText);
+            // Remove any placeholder text like "[Student Name]" or "[Your Name]"
+            recommendationText = _cleanRecommendationText(recommendationText, userProfile?.fullName);
+            meetingData['Recommendations'] = recommendationText;
+            print('Found fallback recommendation text: ${recommendationText.substring(0, 50)}...');
+            break;
+          }
         }
       }
     } else {
       // Fallback to extracting from messages with improved logic
       meetingData = _extractMeetingDataImproved(messages);
+      // Clean recommendation text 
+      if (meetingData['Recommendations']!.isNotEmpty) {
+        // Replace any problematic apostrophes with straight quotes
+        meetingData['Recommendations'] = _sanitizeText(meetingData['Recommendations']!);
+        meetingData['Recommendations'] = _cleanRecommendationText(
+          meetingData['Recommendations']!, userProfile?.fullName);
+      }
     }
+    
+    // Sanitize all text fields to ensure no special characters cause rendering issues
+    meetingData.forEach((key, value) {
+      if (key != 'Recommendations') { // Already sanitized recommendations above
+        meetingData[key] = _sanitizeText(value);
+      }
+    });
     
     // Calculate consultation duration
     DateTime startTime = messages.isNotEmpty ? messages.first.timestamp : DateTime.now();
@@ -381,9 +447,13 @@ class PdfEmailService {
     );
   }
 
-  static Future<void> sendEmail(File pdfFile, String recipientEmail) async {
+  static Future<void> sendEmail(File pdfFile, String recipientEmail, [ProfileModel? userProfile]) async {
+    // Use a placeholder that users can edit themselves
+    String greeting = 'Hi [Recipient Name],';
+    
+    // Avoid using any apostrophes or special characters that could cause encoding issues
     final Email email = Email(
-      body: 'Hi there,\n\nAttached is a summary of our recent academic advising session. This document includes the key points we discussed about your studies at UTAR, along with personalized recommendations.\n\nIf you have any questions or need further assistance, feel free to schedule another meeting.\n\nBest regards,\nUTAR Academic Advisory Team',
+      body: '$greeting\n\nAttached is a summary of our recent academic advising session. This document includes the key points we discussed about your studies at UTAR, along with personalized recommendations.\n\nIf you have questions or need assistance, feel free to schedule another meeting.\n\nBest regards,\nUTAR Academic Advisory Team',
       subject: 'Your UTAR Academic Advising Session Summary',
       recipients: [recipientEmail],
       attachmentPaths: [pdfFile.path],
@@ -417,8 +487,8 @@ class PdfEmailService {
       // First generate the PDF
       final pdfFile = await PdfEmailService.generatePdf(messages, responses, userProfile);
       
-      // Then send the email
-      await PdfEmailService.sendEmail(pdfFile, ''); // Empty email will use device's default email app
+      // Then send the email with user profile data for personalized greeting
+      await PdfEmailService.sendEmail(pdfFile, '', userProfile);
     } catch (e) {
       print('Error generating PDF and sending email: $e');
       rethrow; // Rethrow to allow caller to handle it
@@ -477,18 +547,46 @@ class PdfEmailService {
     // Track which advisor messages match which category
     Map<int, String> advisorMessageCategories = {};
     
-    // First pass - identify advisor messages that contain each category's question
+    // First search for AI response with recommendation tags - this is the highest priority
+    for (int i = 0; i < messages.length; i++) {
+      final message = messages[i];
+      
+      // Look for the specially formatted recommendation summary
+      if (message.messageType == MessageType.advisor &&
+          message.text.contains('### RECOMMENDATIONS SUMMARY ###') &&
+          message.text.contains('### END RECOMMENDATIONS ###')) {
+        // Extract the content between the tags
+        int startIndex = message.text.indexOf('### RECOMMENDATIONS SUMMARY ###') + 
+                        '### RECOMMENDATIONS SUMMARY ###'.length;
+        int endIndex = message.text.indexOf('### END RECOMMENDATIONS ###');
+        
+        if (startIndex >= 0 && endIndex > startIndex) {
+          meetingData['Recommendations'] = message.text.substring(startIndex, endIndex).trim();
+          print('Found tagged recommendation in _extractMeetingDataImproved: ${meetingData['Recommendations']!.substring(0, 
+              meetingData['Recommendations']!.length > 50 ? 50 : meetingData['Recommendations']!.length)}...');
+        }
+        break;
+      }
+    }
+    
+    // If no tagged recommendations found, look for long messages that might be recommendations
+    if (meetingData['Recommendations']!.isEmpty) {
+      for (int i = messages.length - 1; i >= 0; i--) {
+        final message = messages[i];
+        if (message.messageType == MessageType.advisor && message.text.length > 500) {
+          meetingData['Recommendations'] = message.text;
+          print('Found fallback recommendation in _extractMeetingDataImproved: ${message.text.substring(0, 50)}...');
+          break;
+        }
+      }
+    }
+    
+    // Second pass - identify advisor messages that contain each category's question
     for (int i = 0; i < messages.length; i++) {
       final message = messages[i];
       
       if (message.messageType == MessageType.advisor) {
         String text = message.text.toLowerCase();
-        
-        // Check for recommendation/summary (end of meeting)
-        if (message.text.length > 500) {
-          meetingData['Recommendations'] = message.text;
-          continue;
-        }
         
         // Try to categorize the advisor message
         for (final category in categoryPatterns.keys) {
@@ -503,7 +601,7 @@ class PdfEmailService {
       }
     }
     
-    // Second pass - match user responses to advisor questions
+    // Third pass - match user responses to advisor questions
     for (int i = 0; i < messages.length; i++) {
       final message = messages[i];
       
@@ -523,4 +621,27 @@ class PdfEmailService {
     
     return meetingData;
   }
-} 
+
+  static String _cleanRecommendationText(String text, String? studentName) {
+    // Replace [Student Name] with "Hi StudentName" to add a greeting before their name
+    text = text.replaceAll('[Student Name]', 'Hi ${studentName ?? 'Student'}');
+    // Remove placeholder text for advisor name
+    text = text.replaceAll('[Your Name]', 'Advisor');
+    return text;
+  }
+
+  // Helper method to sanitize text by replacing problematic characters
+  static String _sanitizeText(String text) {
+    // Replace curved/smart quotes with straight quotes
+    text = text.replaceAll('’', '\'')
+               .replaceAll('‘', '\'')
+               .replaceAll('“', '"')
+               .replaceAll('”', '"')
+               .replaceAll('–', '-')
+               .replaceAll('—', '-');
+               
+    // You can add more replacements for other problematic characters here
+    
+    return text;
+  }
+}
