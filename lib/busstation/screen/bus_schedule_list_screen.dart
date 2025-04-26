@@ -14,6 +14,8 @@ class BusScheduleListScreen extends StatefulWidget {
 }
 
 class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
+  late TextEditingController
+  _searchController; // Persistent TextEditingController
   late Map<String, dynamic> scheduleData;
   List<dynamic> filteredRoutes = [];
   String searchQuery = '';
@@ -27,6 +29,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController(); // Initialize the controller
     _favoriteService = FavoriteRouteService();
     _loadBusSchedule();
     _setupFavoritesListener();
@@ -34,6 +37,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
 
   @override
   void dispose() {
+    _searchController.dispose(); // Dispose of the controller
     _favoritesSubscription?.cancel();
     super.dispose();
   }
@@ -178,14 +182,12 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                 ),
                 Text('Trimester: ${scheduleData['trimester'] ?? 'N/A'}'),
                 const SizedBox(height: 16),
-                ...generalNotes
-                    .map(
-                      (note) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text('• $note'),
-                      ),
-                    )
-                    ,
+                ...generalNotes.map(
+                  (note) => Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text('• $note'),
+                  ),
+                ),
               ],
             ),
           ),
@@ -268,9 +270,18 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: TextField(
+                      controller:
+                          _searchController, // Use the persistent controller
                       decoration: InputDecoration(
                         hintText: 'Search bus routes or stops',
                         prefixIcon: const Icon(Icons.search),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear(); // Clear the search query
+                            _filterRoutes(''); // Reset the filtered routes
+                          },
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -278,7 +289,8 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
                           vertical: 12,
                         ),
                       ),
-                      onChanged: _filterRoutes,
+                      onChanged:
+                          _filterRoutes, // Call the filtering function on text change
                     ),
                   ),
 
