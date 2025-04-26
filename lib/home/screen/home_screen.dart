@@ -32,7 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     const HomeScreen(),
     const ResourceScreen(),
-    const HomeScreen(),
+    const AdvisorPage(),
     const BusScheduleListScreen(),
     const ProfileScreen(),
   ];
