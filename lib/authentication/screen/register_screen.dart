@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../controller/register_controller.dart';
 
+// This screen allows users to register by filling out a form.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -15,115 +16,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+    // Listen to changes in the controller to update UI
     _controller.addListener(() {
-      setState(() {}); // Update the UI when the controller notifies listeners
+      setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: const Text(
           'Register',
-          style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context); // Go back to the previous screen
           },
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05,
+          vertical: screenHeight * 0.02,
+        ),
         child: Form(
           key: _controller.formKey,
-          child: ListView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Full Name Field
-              SizedBox(
-                height: 90, // Text field height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _controller.fullNameController,
-                      decoration: InputDecoration(
-                        labelText: 'Full Name (as per IC)',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: _controller.validateFullName,
-                    ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('full name'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
+              _buildTextFieldWithFixedHeight(
+                label: 'Full Name (as per IC)',
+                controller: _controller.fullNameController,
+                validator: _controller.validateFullName,
+                errorMessage: _controller.errorMessage,
+                screenWidth: screenWidth,
               ),
 
-              // Gender Dropdown
-              SizedBox(
-                height: 90, // Dropdown height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: 'Gender',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
+              // Gender and Birthday Fields in the same row
+              Row(
+                children: [
+                  // Gender Dropdown
+                  Expanded(
+                    child: _buildDropdownFieldWithFixedHeight(
+                      label: 'Gender',
                       value: _controller.selectedGender,
-                      items:
-                          _controller.genders.map((String gender) {
-                            return DropdownMenuItem<String>(
-                              value: gender,
-                              child: Text(gender),
-                            );
-                          }).toList(),
+                      items: _controller.genders,
                       onChanged: (newValue) {
                         setState(() {
                           _controller.selectedGender = newValue;
                         });
                       },
                       validator: _controller.validateGender,
-                      isExpanded: true,
+                      errorMessage: _controller.errorMessage,
+                      screenWidth: screenWidth,
                     ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('gender'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
-              ),
-
-              // Birthday Field
-              SizedBox(
-                height: 90, // Text field height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
+                  ),
+                  const SizedBox(width: 10),
+                  // Birthday Date Picker Field
+                  Expanded(
+                    child: _buildTextFieldWithFixedHeight(
+                      label: 'Birthday',
                       controller: _controller.birthdayController,
-                      decoration: InputDecoration(
-                        labelText: 'Birthday',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
+                      validator: _controller.validateBirthday,
+                      errorMessage: _controller.errorMessage,
+                      screenWidth: screenWidth,
                       readOnly: true,
                       onTap: () async {
+                        // Show a date picker dialog
                         DateTime? pickedDate = await showDatePicker(
                           context: context,
                           initialDate: DateTime.now(),
@@ -138,174 +111,80 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           });
                         }
                       },
-                      validator: _controller.validateBirthday,
                     ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('birthday'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              // Faculty Dropdown
-              SizedBox(
-                height: 90, // Dropdown height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      isExpanded:
-                          true, // Ensures the dropdown expands to fit the text
-                      decoration: InputDecoration(
-                        labelText: 'Faculty',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      value: _controller.selectedFaculty,
-                      items:
-                          _controller.faculties.map((String faculty) {
-                            return DropdownMenuItem<String>(
-                              value: faculty,
-                              child: Text(
-                                faculty, // Full text visible in the dropdown menu
-                              ),
-                            );
-                          }).toList(),
-                      selectedItemBuilder: (BuildContext context) {
-                        return _controller.faculties.map((String faculty) {
-                          return Text(
-                            faculty,
-                            overflow:
-                                TextOverflow
-                                    .ellipsis, // Truncate text with ellipsis
-                            maxLines: 1,
-                          );
-                        }).toList();
-                      },
-                      onChanged: (newValue) {
-                        setState(() {
-                          _controller.selectedFaculty = newValue;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select a faculty';
-                        }
-                        return null;
-                      },
-                    ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('faculty'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
+
+              // Faculty Dropdown Field
+              _buildDropdownFieldWithFixedHeight(
+                label: 'Faculty',
+                value: _controller.selectedFaculty,
+                items: _controller.faculties,
+                onChanged: (newValue) {
+                  setState(() {
+                    _controller.selectedFaculty = newValue;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a faculty';
+                  }
+                  return null;
+                },
+                errorMessage: _controller.errorMessage,
+                screenWidth: screenWidth,
               ),
+
               // Email Field
-              SizedBox(
-                height: 90, // Text field height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _controller.emailController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: _controller.validateEmail,
-                    ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('email'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
+              _buildTextFieldWithFixedHeight(
+                label: 'Email',
+                controller: _controller.emailController,
+                validator: (value) {
+                  String? result;
+                  _controller.validateEmail(value).then((validationResult) {
+                    result = validationResult;
+                  });
+                  return result;
+                },
+                errorMessage: _controller.errorMessage,
+                screenWidth: screenWidth,
               ),
 
               // Password Field
-              SizedBox(
-                height: 90, // Text field height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _controller.passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: _controller.validatePassword,
-                    ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('password'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
+              _buildTextFieldWithFixedHeight(
+                label: 'Password',
+                controller: _controller.passwordController,
+                validator: _controller.validatePassword,
+                errorMessage: _controller.errorMessage,
+                screenWidth: screenWidth,
+                obscureText: true,
               ),
 
               // Confirm Password Field
-              SizedBox(
-                height: 100, // Text field height + error message height
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _controller.confirmPasswordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Confirm Password',
-                        hintText: 'Confirm Password.',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      validator: _controller.validateConfirmPassword,
-                    ),
-                    if (_controller.errorMessage != null &&
-                        _controller.errorMessage!.contains('confirm password'))
-                      Text(
-                        _controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
-                      ),
-                  ],
-                ),
+              _buildTextFieldWithFixedHeight(
+                label: 'Confirm Password',
+                controller: _controller.confirmPasswordController,
+                validator: _controller.validateConfirmPassword,
+                errorMessage: _controller.errorMessage,
+                screenWidth: screenWidth,
+                obscureText: true,
               ),
 
               // Register Button
-              Container(
-                height:
-                    70, // Reserve space for the button and loading indicator
-                alignment: Alignment.center,
+              SizedBox(
+                width: double.infinity,
+                height: screenHeight * 0.07,
                 child:
                     _controller.isLoading
-                        ? const CircularProgressIndicator()
+                        ? const Center(
+                          child: CircularProgressIndicator(),
+                        ) // Show loading spinner while registering
                         : ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 50,
-                              vertical: 15,
                             ),
                           ),
                           onPressed: () => _controller.register(context),
@@ -320,16 +199,114 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
               ),
               const SizedBox(height: 20),
-              if (_controller.errorMessage !=
-                  null) // Display error message if it exists
-                Text(
-                  _controller.errorMessage!,
-                  style: const TextStyle(color: Colors.red, fontSize: 16),
-                  textAlign: TextAlign.center,
+
+              // Display error message if any
+              if (_controller.errorMessage != null)
+                Center(
+                  child: Text(
+                    _controller.errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Reusable text field widget with consistent height and error display
+  Widget _buildTextFieldWithFixedHeight({
+    required String label,
+    required TextEditingController controller,
+    required String? Function(String?) validator,
+    String? errorMessage,
+    required double screenWidth,
+    bool readOnly = false,
+    bool obscureText = false,
+    VoidCallback? onTap,
+  }) {
+    return Container(
+      height: 80,
+      margin: EdgeInsets.only(bottom: screenWidth * 0.03),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: controller,
+            readOnly: readOnly,
+            obscureText: obscureText,
+            onTap: onTap,
+            decoration: InputDecoration(
+              labelText: label,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            validator: validator,
+          ),
+          if (errorMessage != null)
+            Text(
+              errorMessage,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Reusable dropdown widget with consistent height and error display
+  Widget _buildDropdownFieldWithFixedHeight({
+    required String label,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    required String? Function(String?) validator,
+    String? errorMessage,
+    required double screenWidth,
+  }) {
+    return Container(
+      height: 80,
+      margin: EdgeInsets.only(bottom: screenWidth * 0.03),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField<String>(
+            isExpanded: true,
+            decoration: InputDecoration(
+              labelText: label,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            value: value,
+            items:
+                items.map((String item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(item),
+                  );
+                }).toList(),
+            onChanged: onChanged,
+            validator: validator,
+            selectedItemBuilder: (BuildContext context) {
+              return items.map((String item) {
+                return Text(
+                  item,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: const TextStyle(fontSize: 16),
+                );
+              }).toList();
+            },
+          ),
+          if (errorMessage != null)
+            Text(
+              errorMessage,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+        ],
       ),
     );
   }

@@ -208,7 +208,7 @@ class _BusScheduleListScreenState extends State<BusScheduleListScreen> {
           'Bus Schedule',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),

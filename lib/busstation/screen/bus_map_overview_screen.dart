@@ -90,7 +90,7 @@ class _BusMapOverviewScreenState extends State<BusMapOverviewScreen> {
           'Bus Map Overview',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),

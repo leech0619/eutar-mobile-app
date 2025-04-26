@@ -121,6 +121,12 @@ class _ResourceScreenState extends State<ResourceScreen> {
         setState(() => _isUploading = false);
 
         if (success) {
+          setState(() {
+            _selectedFile = null;
+            _titleController.clear();
+            _descriptionController.clear();
+            _tagsController.clear();
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
@@ -191,13 +197,14 @@ class _ResourceScreenState extends State<ResourceScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        resizeToAvoidBottomInset: true, // Add this line
         appBar: AppBar(
           backgroundColor: Colors.blue,
           title: const Text(
             'Resource Sharing',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -206,19 +213,21 @@ class _ResourceScreenState extends State<ResourceScreen> {
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: [
-              Tab(text: 'All Resources', icon: Icon(Icons.search)),
-              Tab(text: 'Share Resource', icon: Icon(Icons.upload_file)),
-              Tab(text: 'Your Resource', icon: Icon(Icons.folder)),
+              Tab(text: 'All', icon: Icon(Icons.search)),
+              Tab(text: 'Upload', icon: Icon(Icons.upload_file)),
+              Tab(text: 'My Resource', icon: Icon(Icons.folder)),
             ],
           ),
           centerTitle: true,
         ),
-        body: TabBarView(
-          children: [
-            _buildBrowseTab(),
-            _buildShareTab(),
-            _buildYourResourcesTab(),
-          ],
+        body: SafeArea(
+          child: TabBarView(
+            children: [
+              _buildBrowseTab(),
+              _buildShareTab(),
+              _buildYourResourcesTab(),
+            ],
+          ),
         ),
       ),
     );
@@ -743,7 +752,12 @@ class _ResourceScreenState extends State<ResourceScreen> {
 
   Widget _buildShareTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.fromLTRB(
+        20.0,
+        20.0,
+        20.0,
+        100.0,
+      ), // Add more bottom padding
       child: Form(
         key: _formKey,
         child: Column(

@@ -1,10 +1,12 @@
+import '../../widgets/bottom_navigation_bar.dart';
+
 import '../../busstation/screen/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
 import '../../resource_sharing/screen/resource_screen.dart';
 import '../../profile/screen/profile_screen.dart';
 import '../../advisor/advisor_page.dart';
 
+// Main HomeScreen widget that supports navigation
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -13,8 +15,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 0; // Track current selected tab index
 
+  // Feature names and icons for the home page grid
   final List<String> featureNames = [
     'Resource Sharing',
     'Smart Academic Advisor Chatbot',
@@ -29,14 +32,16 @@ class _HomeScreenState extends State<HomeScreen> {
     'assets/icon/profile.png',
   ];
 
+  // Pages for bottom navigation bar
   final List<Widget> _pages = [
-    const HomeScreen(),
-    const ResourceScreen(),
-    const AdvisorPage(),
-    const BusScheduleListScreen(),
-    const ProfileScreen(),
+    const HomeScreen(), // Index 0 (Home)
+    const ResourceScreen(), // Index 1
+    const AdvisorPage(), // Index 2
+    const BusScheduleListScreen(), // Index 3
+    const ProfileScreen(), // Index 4
   ];
 
+  // Handle bottom navigation item tap
   void _onBottomNavigationBarItemTapped(int index) {
     setState(() {
       _currentIndex = index;
@@ -45,45 +50,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      // Show home page layout only when index is 0, otherwise show selected page
       body:
-          _currentIndex == 0 ? _buildHomePage(context) : _pages[_currentIndex],
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30),
-            topRight: Radius.circular(30),
-          ),
-          boxShadow: [
-            BoxShadow(color: Colors.black38, spreadRadius: 0, blurRadius: 10),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
-          child: GNav(
-            selectedIndex: _currentIndex,
-            onTabChange: _onBottomNavigationBarItemTapped,
-            gap: 3,
-            backgroundColor: Colors.white,
-            color: Colors.black,
-            activeColor: Colors.white,
-            tabBackgroundColor: Colors.blue,
-            padding: const EdgeInsets.all(16),
-            tabs: const [
-              GButton(icon: Icons.home, text: "Home"),
-              GButton(icon: Icons.book, text: "Resource"),
-              GButton(icon: Icons.school, text: "Advisor"),
-              GButton(icon: Icons.directions_bus, text: "Bus"),
-              GButton(icon: Icons.person, text: "Profile"),
-            ],
-          ),
-        ),
+          _currentIndex == 0
+              ? _buildHomePage(context, screenWidth, screenHeight)
+              : _pages[_currentIndex],
+      bottomNavigationBar: BottomNavigationBarWidget(
+        currentIndex: _currentIndex, // Pass the current index
+        onTabChange: _onBottomNavigationBarItemTapped, // Handle tab changes
       ),
     );
   }
 
-  Widget _buildHomePage(BuildContext context) {
+  // Custom layout for the Home page (index 0)
+  Widget _buildHomePage(
+    BuildContext context,
+    double screenWidth,
+    double screenHeight,
+  ) {
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -93,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             'Home',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -102,9 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
         body: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
+            // Top banner with welcome message
             Container(
               width: double.infinity,
-              height: 220,
+              height: screenHeight * 0.22,
               decoration: const BoxDecoration(
                 color: Colors.blue,
                 borderRadius: BorderRadius.only(
@@ -117,11 +106,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(
                     child: Container(
                       width: constraints.maxWidth * 0.9,
-                      height: 220 * 0.85,
+                      height: constraints.maxHeight * 0.85,
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFFEFE),
                         borderRadius: BorderRadius.circular(30),
-                        shape: BoxShape.rectangle,
                         border: Border.all(
                           color: const Color.fromARGB(255, 112, 225, 167),
                           width: 5,
@@ -135,18 +123,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Stack(
                         children: [
+                          // Welcome text over background
                           Center(
                             child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.02,
+                                vertical: screenHeight * 0.005,
                               ),
-                              color: Colors.black.withValues(alpha :0.5),
-                              child: const Text(
+                              color: Colors.black.withOpacity(0.5),
+                              child: Text(
                                 'Welcome to eUTAR',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 28,
+                                  fontSize: screenWidth * 0.065,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -159,41 +148,49 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
               ),
             ),
-            const Align(
-              alignment: AlignmentDirectional(-0.85, 0),
+
+            // Section title for features
+            Align(
+              alignment: Alignment.center,
               child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0, 30, 0, 0),
-                child: Center(
-                  child: Text(
-                    'Features',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
+                padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 0),
+                child: Text(
+                  'Features',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: screenWidth * 0.065, // Responsive font size
+                    fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
-                  shrinkWrap:
-                      true, // Ensures GridView takes only the required space
+
+            // Grid view for feature cards (fixed height, no scroll)
+            Padding(
+              padding: EdgeInsets.all(screenWidth * 0.05), // Responsive padding
+              child: SizedBox(
+                height:
+                    screenHeight *
+                    0.45, // Fixed height for the grid (adjust if needed)
+                child: GridView.builder(
                   physics:
-                      const NeverScrollableScrollPhysics(), // Disable internal scrolling
-                  children: List.generate(featureNames.length, (index) {
+                      const NeverScrollableScrollPhysics(), // Disable scroll
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 cards per row
+                    mainAxisSpacing:
+                        screenHeight * 0.02, // Responsive vertical spacing
+                    crossAxisSpacing:
+                        screenWidth * 0.03, // Responsive horizontal spacing
+                    childAspectRatio: 1, // Make cards more square
+                  ),
+                  itemCount: featureNames.length,
+                  itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
                         _onBottomNavigationBarItemTapped(index + 1);
                       },
                       child: Card(
-                      color: Colors.blue,
                         elevation: 5,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
@@ -205,18 +202,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               borderRadius: BorderRadius.circular(15),
                               child: Image.asset(
                                 featureIcons[index],
-                                width: 100,
-                                height: 100,
+                                width: screenWidth * 0.16,
+                                height: screenWidth * 0.16,
                                 fit: BoxFit.cover,
                               ),
                             ),
                             const SizedBox(height: 10),
-                            Flexible(
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.02,
+                              ),
                               child: Text(
                                 featureNames[index],
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize:
+                                      screenWidth *
+                                      0.036, // Responsive font size
                                   fontWeight: FontWeight.bold,
                                 ),
                                 textAlign: TextAlign.center,
@@ -228,37 +230,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     );
-                  }),
+                  },
                 ),
               ),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class ResourcePage extends StatelessWidget {
-  const ResourcePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Resource')),
-      body: const Center(child: Text('Resource Sharing Page')),
-    );
-  }
-}
-
-class BusPage extends StatelessWidget {
-  const BusPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bus')),
-      body: const Center(child: Text('Bus Station Page')),
     );
   }
 }

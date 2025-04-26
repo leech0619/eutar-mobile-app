@@ -13,6 +13,9 @@ class _VerifyScreenState extends State<VerifyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -20,7 +23,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
           'Verify Your Email',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -28,22 +31,25 @@ class _VerifyScreenState extends State<VerifyScreen> {
         automaticallyImplyLeading: false,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05, // 5% of screen width
+          vertical: screenHeight * 0.02, // 2% of screen height
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Container for the email verification image
             SizedBox(
-              height: 300, // Fixed height for the image
+              height: screenHeight * 0.3, // 30% of screen height
               child: Image.asset(
                 'assets/images/email_verification.png',
-                height: 300,
-                width: 300,
+                height: screenHeight * 0.3, // 30% of screen height
+                width: screenWidth * 0.6, // 60% of screen width
                 fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: screenHeight * 0.03), // 3% of screen height
             // Informational message
             const Text(
               'Please check your email to verify your account.',
@@ -54,33 +60,32 @@ class _VerifyScreenState extends State<VerifyScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: screenHeight * 0.02), // 2% of screen height
             // Container for the Resend Email Button
             SizedBox(
-              height: 60, // Fixed height for the button
+              height: screenHeight * 0.08, // 8% of screen height
               child: SizedBox(
-                width: 200, // Set a fixed width for the button
+                width: screenWidth * 0.6, // 60% of screen width
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        controller.emailResent
-                            ? Colors
-                                .grey // Grey if email has been resent
-                            : (controller.canResendEmail
-                                ? Colors.blue
-                                : Colors.blueGrey),
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    backgroundColor: controller.emailResent
+                        ? Colors.grey // Grey if email has been resent
+                        : (controller.canResendEmail
+                            ? Colors.blue
+                            : Colors.blueGrey),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02, // 2% of screen height
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed:
-                      controller.canResendEmail && !controller.emailResent
-                          ? () async {
-                            await controller.resendEmailVerification(context);
-                            setState(() {}); // Trigger UI update
-                          }
-                          : null,
+                  onPressed: controller.canResendEmail && !controller.emailResent
+                      ? () async {
+                          await controller.resendEmailVerification(context);
+                          setState(() {}); // Trigger UI update
+                        }
+                      : null,
                   child: Text(
                     controller.emailResent
                         ? 'Resent Email' // Change text to "Resent Email"
@@ -96,16 +101,18 @@ class _VerifyScreenState extends State<VerifyScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: screenHeight * 0.02), // 2% of screen height
             // Container for the Navigate to Login button
             SizedBox(
-              height: 60, // Fixed height for the button
+              height: screenHeight * 0.08, // 8% of screen height
               child: SizedBox(
-                width: 200, // Set the same fixed width for the button
+                width: screenWidth * 0.6, // 60% of screen width
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02, // 2% of screen height
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -122,18 +129,17 @@ class _VerifyScreenState extends State<VerifyScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.01), // 1% of screen height
             // Container for the error message
             SizedBox(
-              height: 20, // Fixed height for the error message
-              child:
-                  controller.errorMessage != null
-                      ? Text(
-                        controller.errorMessage!,
-                        style: const TextStyle(color: Colors.red, fontSize: 14),
-                        textAlign: TextAlign.center,
-                      )
-                      : null,
+              height: screenHeight * 0.03, // 3% of screen height
+              child: controller.errorMessage != null
+                  ? Text(
+                      controller.errorMessage!,
+                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                      textAlign: TextAlign.center,
+                    )
+                  : null,
             ),
           ],
         ),

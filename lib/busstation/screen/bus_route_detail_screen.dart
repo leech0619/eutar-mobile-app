@@ -352,7 +352,7 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
             'Bus Schedule',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -371,7 +371,7 @@ class _BusRouteDetailScreenState extends State<BusRouteDetailScreen> {
           'Bus Scheldule',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ), // Use null check

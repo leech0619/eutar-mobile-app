@@ -3,16 +3,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _firebaseAuth =
+      FirebaseAuth.instance; // Firebase Authentication instance
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance; // Firestore instance
 
   // Register a new user with email and password
   Future<User?> registerWithEmailAndPassword(
     String email,
     String password,
-    Map<String, dynamic> userData, // Additional user data
+    Map<String, dynamic> userData, // Additional user data to store in Firestore
   ) async {
     try {
+      // Create a new user in Firebase Authentication
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
 
@@ -22,8 +25,9 @@ class AuthService {
           .doc(userCredential.user!.uid)
           .set(userData);
 
-      return userCredential.user;
+      return userCredential.user; // Return the created user
     } on FirebaseAuthException catch (e) {
+      // Handle specific Firebase Authentication errors
       switch (e.code) {
         case 'email-already-in-use':
           throw Exception(
@@ -49,20 +53,22 @@ class AuthService {
     }
   }
 
-  // Send email verification
+  // Send email verification to the current user
   Future<void> sendEmailVerification() async {
     try {
       User? user = _firebaseAuth.currentUser;
       if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
+        await user.sendEmailVerification(); // Send verification email
       }
     } catch (e) {
       throw Exception('Failed to send email verification: ${e.toString()}');
     }
   }
 
+  // Log in a user with email and password
   Future<User?> loginWithEmailAndPassword(String email, String password) async {
     try {
+      // Sign in the user
       UserCredential userCredential = await _firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
 
@@ -75,8 +81,9 @@ class AuthService {
         );
       }
 
-      return user;
+      return user; // Return the logged-in user
     } on FirebaseAuthException catch (e) {
+      // Handle specific Firebase Authentication errors
       switch (e.code) {
         case 'user-not-found':
           throw Exception('No user found with this email.');
@@ -116,14 +123,17 @@ class AuthService {
 
   // Get the currently logged-in user
   User? getCurrentUser() {
-    return _firebaseAuth.currentUser;
+    return _firebaseAuth.currentUser; // Return the current user
   }
 
   // Send a password reset email
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      await _firebaseAuth.sendPasswordResetEmail(
+        email: email,
+      ); // Send reset email
     } on FirebaseAuthException catch (e) {
+      // Handle specific Firebase Authentication errors
       switch (e.code) {
         case 'user-not-found':
           throw Exception('No user found with this email.');
@@ -137,10 +147,10 @@ class AuthService {
 
   // Listen for authentication state changes
   Stream<User?> authStateChanges() {
-    return _firebaseAuth.authStateChanges();
+    return _firebaseAuth.authStateChanges(); // Stream of auth state changes
   }
 
-  // Update user profile
+  // Update user profile (display name and photo URL)
   Future<void> updateUserProfile({
     String? displayName,
     String? photoURL,
@@ -148,28 +158,28 @@ class AuthService {
     try {
       User? user = _firebaseAuth.currentUser;
       if (user != null) {
-        await user.updateDisplayName(displayName);
-        await user.updatePhotoURL(photoURL);
-        await user.reload();
+        await user.updateDisplayName(displayName); // Update display name
+        await user.updatePhotoURL(photoURL); // Update photo URL
+        await user.reload(); // Reload user data
       }
     } catch (e) {
       throw Exception('Failed to update profile: ${e.toString()}');
     }
   }
 
-  // Delete user account
+  // Delete the current user account
   Future<void> deleteUser() async {
     try {
       User? user = _firebaseAuth.currentUser;
       if (user != null) {
-        await user.delete();
+        await user.delete(); // Delete the user account
       }
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message ?? 'Failed to delete user account.');
     }
   }
 
-  // Reauthenticate user
+  // Reauthenticate the user with email and password
   Future<void> reauthenticateUser(String email, String password) async {
     try {
       User? user = _firebaseAuth.currentUser;
@@ -178,19 +188,21 @@ class AuthService {
           email: email,
           password: password,
         );
-        await user.reauthenticateWithCredential(credential);
+        await user.reauthenticateWithCredential(
+          credential,
+        ); // Reauthenticate user
       }
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message ?? 'Reauthentication failed.');
     }
   }
 
-  // Change user password
+  // Change the user's password
   Future<void> changePassword(String newPassword) async {
     try {
       User? user = _firebaseAuth.currentUser;
       if (user != null) {
-        await user.updatePassword(newPassword);
+        await user.updatePassword(newPassword); // Update the password
       }
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message ?? 'Failed to change password.');
