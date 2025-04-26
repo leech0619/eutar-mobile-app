@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../model/chat_message.dart';
+import 'meeting_banner.dart';
+import 'end_meeting_banner.dart';
 
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
@@ -18,6 +20,16 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // If this is a banner message, show the meeting banner
+    if (message.messageType == MessageType.banner) {
+      return const MeetingBanner();
+    }
+    
+    // If this is an end banner message, show the end meeting banner
+    if (message.messageType == MessageType.endBanner) {
+      return const EndMeetingBanner();
+    }
+    
     // If this is a system message, use a special format
     if (message.isSystem) {
       return Container(
@@ -95,4 +107,4 @@ class MessageBubble extends StatelessWidget {
       ],
     );
   }
-} 
+}

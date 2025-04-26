@@ -1,4 +1,4 @@
-enum MessageType { user, advisor, system }
+enum MessageType { user, advisor, system, banner, endBanner }
 
 class ChatMessage {
   final String text;
@@ -382,4 +382,4 @@ class ChatSession {
   static String _formatDateTime(DateTime dateTime) {
     return '${dateTime.month}/${dateTime.day} ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
-} 
+}

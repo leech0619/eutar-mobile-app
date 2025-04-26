@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'bus_route_detail_screen.dart';
 import 'bus_map_overview_screen.dart';
 import '../Controller/favouriteRouteService.dart';
-import '../model/favouriteRoute.dart';
 
 class BusScheduleListScreen extends StatefulWidget {
   const BusScheduleListScreen({super.key});

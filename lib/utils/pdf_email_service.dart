@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/services.dart' show rootBundle;
 import '../advisor/model/chat_message.dart';
 import '../profile/model/profile_model.dart';
 

@@ -81,8 +81,7 @@ class GeminiService {
     ];
     
     // Debug - print the question number to verify correct tracking
-    print("Processing question number: $questionNumber with response: "+
-        userResponse.substring(0, userResponse.length > 30 ? 30 : userResponse.length)+"...");
+    print("Processing question number: $questionNumber with response: ${userResponse.substring(0, userResponse.length > 30 ? 30 : userResponse.length)}...");
     
     // Fix: nextQuestionIndex should be the next question to ask
     int nextQuestionIndex = questionNumber + 1;

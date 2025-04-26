@@ -245,7 +245,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
 
               Here's what the student shared during your conversation:
               
-              ${formattedResponses}
+              $formattedResponses
               
               Write a personalized summary that covers:
               
@@ -357,23 +357,54 @@ class _AdvisorPageState extends State<AdvisorPage> {
     try {
       String response;
       
-      if (_currentSession.meetingState.isInMeeting && messageText.trim().toLowerCase() == 'end') {
-        // User requested to end and send summary
-        _currentSession.meetingState.endMeeting();
-        await _sessionService.saveSession(_currentSession);
-        _sendEmailAutomatically();
-        setState(() {
-          _currentSession.addMessage(ChatMessage(
-            text: 'Thank you for your time! Your summary will be prepared shortly to send via email.',
-            messageType: MessageType.advisor,
-          ));
-        });
-        return;
+      // Check if we're in a meeting and user is trying to end it
+      if (_currentSession.meetingState.isInMeeting && 
+          _currentSession.meetingState.currentQuestionNumber >= _currentSession.meetingState.categories.length) {
+        
+        if (messageText.trim().toLowerCase() == 'end') {
+          // User correctly typed "end" to finish the session
+          _currentSession.meetingState.endMeeting();
+          await _sessionService.saveSession(_currentSession);
+          
+          setState(() {
+            _currentSession.addMessage(ChatMessage(
+              text: 'Thank you for your time! Your summary will be prepared shortly to send via email.',
+              messageType: MessageType.advisor,
+            ));
+          });
+          
+          // Generate and send the summary email first
+          await _sendEmailAutomatically();
+          
+          // Now add the end meeting banner after the summary
+          setState(() {
+            _currentSession.addMessage(ChatMessage(
+              text: "SESSION COMPLETED",
+              messageType: MessageType.endBanner,
+            ));
+          });
+          
+          return;
+        } else if (!messageText.toLowerCase().contains('stop')) {
+          // User entered something other than "end" or "stop"
+          setState(() {
+            _currentSession.addMessage(ChatMessage(
+              text: "Sorry, I didn't understand. Please type \"end\" to finish the session and receive your summary.",
+              messageType: MessageType.advisor,
+            ));
+            _isLoading = false;
+          });
+          
+          return;
+        }
       }
-      // ...existing code...
-      else if (_currentSession.meetingState.isInMeeting && messageText.toLowerCase().contains('stop')) {
+      
+      if (_currentSession.meetingState.isInMeeting && messageText.toLowerCase().contains('stop')) {
         _currentSession.meetingState.endMeeting();
+        
         response = 'Advisory meeting has been stopped. You can continue chatting with me or start a new meeting later.';
+        
+        // We'll add the end banner after the response message
       } else if (_currentSession.meetingState.isInMeeting) {
         // Handle meeting response
         _currentSession.meetingState.recordResponse(messageText);
@@ -385,10 +416,28 @@ class _AdvisorPageState extends State<AdvisorPage> {
           _currentSession.meetingState.getAllResponses()
         );
         
+        // Check if all questions have been answered and we need to prompt for "end"
+        // Only add the prompt if the AI response doesn't already mention typing "end"
+        if (_currentSession.meetingState.currentQuestionNumber >= _currentSession.meetingState.categories.length &&
+            !response.toLowerCase().contains('type "end"') && 
+            !response.toLowerCase().contains("type 'end'") &&
+            !response.toLowerCase().contains("type end")) {
+          response += "\n\nThanks for sharing all that information! To finish this advisory session and get your personalized summary, please type \"end\".";
+        }
+        
         // Do NOT auto-send summary here!
       } else if (_shouldStartMeeting(messageText)) {
         // Start new meeting
         _currentSession.meetingState.startMeeting();
+        
+        // Add a banner message to indicate the start of a formal advisory session
+        setState(() {
+          _currentSession.addMessage(ChatMessage(
+            text: "FORMAL ACADEMIC ADVISORY SESSION",
+            messageType: MessageType.banner,
+          ));
+        });
+        
         response = _getMeetingIntroduction();
       } else {
         // Regular conversation mode
@@ -401,7 +450,15 @@ class _AdvisorPageState extends State<AdvisorPage> {
         _currentSession.addMessage(ChatMessage(
           text: response,
           messageType: MessageType.advisor,
-        ));
+         ));
+        
+        // If we stopped the meeting, add the end banner after the response
+        if (_currentSession.meetingState.isMeetingComplete && messageText.toLowerCase().contains('stop')) {
+          _currentSession.addMessage(ChatMessage(
+            text: "SESSION COMPLETED",
+            messageType: MessageType.endBanner,
+          ));
+        }
       });
       
       // Save the updated session
@@ -535,23 +592,20 @@ class _AdvisorPageState extends State<AdvisorPage> {
                 Expanded(
                   child: _chatSessions.isEmpty || 
                            !_chatSessions.any((session) => 
-                               session.id != _currentSession.id && 
                                session.messages.any((message) => message.isUser))
                     ? Center(
                         child: Text('No chat history'),
                       )
                     : ListView.builder(
-                        // Filter out the current session and sessions without user messages
+                        // Show all sessions with user messages (including the current session)
                         itemCount: _chatSessions
                             .where((session) => 
-                                session.id != _currentSession.id && 
                                 session.messages.any((message) => message.isUser))
                             .length,
                         itemBuilder: (context, index) {
-                          // Get only the non-current sessions that have user messages
+                          // Get all sessions that have user messages
                           final filteredSessions = _chatSessions
                               .where((session) => 
-                                  session.id != _currentSession.id && 
                                   session.messages.any((message) => message.isUser))
                               .toList();
                           final session = filteredSessions[index];
