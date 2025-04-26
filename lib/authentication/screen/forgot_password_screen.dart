@@ -111,7 +111,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Container for the email verification image
-                Container(
+                SizedBox(
                   height: 300, // Fixed height for the image
                   child: Image.asset(
                     'assets/images/email_verification.png',
@@ -129,7 +129,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 15),
 
                 // Email Input Field
-                Container(
+                SizedBox(
                   height: 81, // Text field height + error message height
                   child: TextFormField(
                     controller: _emailController,
@@ -155,7 +155,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 const SizedBox(height: 5),
 
                 // Send Reset Email Button
-                Container(
+                SizedBox(
                   height: 60,
                   child: SizedBox(
                     width:

@@ -421,7 +421,7 @@ class PdfEmailService {
       await PdfEmailService.sendEmail(pdfFile, ''); // Empty email will use device's default email app
     } catch (e) {
       print('Error generating PDF and sending email: $e');
-      throw e; // Rethrow to allow caller to handle it
+      rethrow; // Rethrow to allow caller to handle it
     }
   }
 

@@ -44,7 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: ListView(
             children: [
               // Full Name Field
-              Container(
+              SizedBox(
                 height: 90, // Text field height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               // Gender Dropdown
-              Container(
+              SizedBox(
                 height: 90, // Dropdown height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               // Birthday Field
-              Container(
+              SizedBox(
                 height: 90, // Text field height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               // Faculty Dropdown
-              Container(
+              SizedBox(
                 height: 90, // Dropdown height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -207,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               // Email Field
-              Container(
+              SizedBox(
                 height: 90, // Text field height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -234,7 +234,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               // Password Field
-              Container(
+              SizedBox(
                 height: 90, // Text field height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
 
               // Confirm Password Field
-              Container(
+              SizedBox(
                 height: 100, // Text field height + error message height
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
