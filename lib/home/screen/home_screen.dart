@@ -1,9 +1,12 @@
 import '../../busstation/screen/bus_schedule_list_screen.dart';
+import '../busstation/screen/bus_schedule_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import '../../resource_sharing/screen/resource_screen.dart';
 import '../../profile/screen/profile_screen.dart';
 
+import '../resource_sharing/screen/resource_screen.dart';
+import '../profile/screen/profile_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -32,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const HomeScreen(),
     const ResourceScreen(),
     const HomeScreen(),
+    const AdvisorPage(),
     const BusScheduleListScreen(),
     const ProfileScreen(),
   ];
@@ -45,8 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          _currentIndex == 0 ? _buildHomePage(context) : _pages[_currentIndex],
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -68,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: Colors.black,
             activeColor: Colors.white,
             tabBackgroundColor: Colors.blue,
+            tabBackgroundColor: Colors.blueAccent,
             padding: const EdgeInsets.all(16),
             tabs: const [
               GButton(icon: Icons.home, text: "Home"),
@@ -88,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.blue,
+          backgroundColor: Colors.blueAccent,
           title: const Text(
             'Home',
             style: TextStyle(
@@ -95,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
+            style: TextStyle(color: Colors.white, fontSize: 24),
           ),
           centerTitle: true,
         ),
@@ -106,6 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
               height: 220,
               decoration: const BoxDecoration(
                 color: Colors.blue,
+                color: Colors.blueAccent,
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(35),
                   bottomRight: Radius.circular(35),
@@ -141,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 vertical: 5,
                               ),
                               color: Colors.black.withValues(alpha :0.5),
+                              color: Colors.black.withOpacity(0.5),
                               child: const Text(
                                 'Welcome to eUTAR',
                                 style: TextStyle(
@@ -171,14 +178,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.center,
+                child: Text(
+                  'Features',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
             SingleChildScrollView(
               child: Padding(
+            Expanded(
+              child: GridView.builder(
                 padding: const EdgeInsets.all(10),
                 child: GridView.count(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
@@ -208,6 +225,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 100,
                                 fit: BoxFit.cover,
                               ),
+                  mainAxisSpacing: 5,
+                  crossAxisSpacing: 5,
+                ),
+                itemCount: featureNames.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      _onBottomNavigationBarItemTapped(index + 1);
+                    },
+                    child: Card(
+                      color: Colors.transparent,
+                      elevation: 0,
+                      child: Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueGrey,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             const SizedBox(height: 10),
                             Flexible(
@@ -217,6 +252,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
+                            padding: const EdgeInsets.all(10),
+                            fixedSize: const Size(180, 180),
+                          ),
+                          onPressed: () {
+                            _onBottomNavigationBarItemTapped(index + 1);
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(15),
+                                child: Image.asset(
+                                  featureIcons[index],
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
                                 ),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
@@ -224,11 +275,30 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                           ],
+                              const SizedBox(height: 10),
+                              Flexible(
+                                child: Text(
+                                  featureNames[index],
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   }),
                 ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -272,4 +342,5 @@ class BusPage extends StatelessWidget {
       body: const Center(child: Text('Bus Station Page')),
     );
   }
+}
 }
