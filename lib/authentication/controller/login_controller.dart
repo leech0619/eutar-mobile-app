@@ -5,6 +5,7 @@ import '../../home/screen/home_screen.dart';
 
 import 'package:flutter/material.dart';
 import '../../utils/auth.dart';
+import '../../advisor/services/chat_session_service.dart'; // Import ChatSessionService
 
 class LoginController extends ChangeNotifier {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -13,6 +14,7 @@ class LoginController extends ChangeNotifier {
   bool isLoading = false;
 
   final AuthService _authService = AuthService();
+  final ChatSessionService _chatSessionService = ChatSessionService(); // Keep for reference
 
   String? errorMessage; // Variable to store error message
 
