@@ -2,32 +2,44 @@ import 'package:flutter/material.dart';
 import '../../utils/auth.dart';
 import '../screen/login_screen.dart';
 
+/// Controller for handling email verification functionality.
 class VerifyController extends ChangeNotifier {
-  final AuthService _authService = AuthService();
-  bool canResendEmail = true;
-  bool emailResent = false; // Tracks if the email has been resent
-  String? errorMessage; // Variable to store error messages
+  final AuthService _authService =
+      AuthService(); // Instance of AuthService for authentication operations
+  bool canResendEmail =
+      true;
+  bool emailResent = false;
+  String? errorMessage;
 
+  /// Resends the email verification to the user.
+  ///
+  /// [context] is the BuildContext used to show feedback or navigate.
   Future<void> resendEmailVerification(BuildContext context) async {
     if (canResendEmail && !emailResent) {
       try {
+        // Attempt to send the email verification
         await _authService.sendEmailVerification();
         canResendEmail = false;
-        emailResent = true; // Mark email as resent
-        errorMessage = null; // Clear previous error message
+        emailResent = true;
+        errorMessage = null;
         notifyListeners();
       } catch (e) {
-        errorMessage =
-            'Failed to send email: ${e.toString()}'; // Set error message
+        // Set error message if email sending fails
+        errorMessage = 'Failed to send email: ${e.toString()}';
         notifyListeners();
       }
     }
   }
 
+  /// Navigates the user to the login screen.
+  ///
+  /// [context] is the BuildContext used for navigation.
   void navigateToLogin(BuildContext context) {
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
+      MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ), // Navigate to LoginScreen
+      (route) => false, // Remove all previous routes
     );
   }
 }

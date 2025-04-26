@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controller/change_password_controller.dart';
 
+// Screen for changing the user's password
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -9,16 +10,19 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>(); // Form key for validation
   final TextEditingController _currentPasswordController =
-      TextEditingController();
-  final TextEditingController _newPasswordController = TextEditingController();
+      TextEditingController(); // Controller for current password field
+  final TextEditingController _newPasswordController =
+      TextEditingController(); // Controller for new password field
   final TextEditingController _confirmPasswordController =
-      TextEditingController();
+      TextEditingController(); // Controller for confirm password field
 
   String? _errorMessage; // To store error messages
-  final ChangePasswordController _controller = ChangePasswordController();
+  final ChangePasswordController _controller =
+      ChangePasswordController(); // Controller to handle password change logic
 
+  // Method to handle password change
   Future<void> _changePassword() async {
     if (!_formKey.currentState!.validate()) {
       setState(() {
@@ -28,12 +32,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     }
 
     try {
+      // Attempt to change password using the controller
       await _controller.changePassword(
         currentPassword: _currentPasswordController.text.trim(),
         newPassword: _newPasswordController.text.trim(),
       );
 
-      // Show success SnackBar
+      // Show success SnackBar on successful password change
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Row(
@@ -51,16 +56,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
           ),
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 3),
         ),
       );
 
-      // Navigate back to the profile screen with a success result
+      // Navigate back to previous screen, sending 'true' as success result
       Navigator.pop(context, true);
     } catch (e) {
+      // Handle errors if password change fails
       setState(() {
         _errorMessage = e.toString();
       });
@@ -94,7 +100,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true, // Prevent overflow when keyboard appears
       appBar: AppBar(
         centerTitle: true,
         foregroundColor: Colors.white,
@@ -108,16 +118,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         ),
         backgroundColor: Colors.blue,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05, // 5% of screen width
+          vertical: screenHeight * 0.02, // 2% of screen height
+        ),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.02),
               // Current Password Field
               SizedBox(
-                height: 90,
+                height: screenHeight * 0.11,
                 child: TextFormField(
                   controller: _currentPasswordController,
                   obscureText: true,
@@ -135,10 +148,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   },
                 ),
               ),
-
               // New Password Field
               SizedBox(
-                height: 90,
+                height: screenHeight * 0.11,
                 child: TextFormField(
                   controller: _newPasswordController,
                   obscureText: true,
@@ -159,10 +171,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   },
                 ),
               ),
-
               // Confirm Password Field
               SizedBox(
-                height: 90,
+                height: screenHeight * 0.12,
                 child: TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: true,
@@ -183,60 +194,57 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   },
                 ),
               ),
-
-              // Save and Cancel Buttons
-              Column(
-                children: [
-                  // Change Password Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      onPressed: _changePassword,
-                      child: const Text(
-                        'Change Password',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+              // Change Password Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  // Cancel Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context); // Navigate back without changes
-                      },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  onPressed: _changePassword,
+                  child: const Text(
+                    'Change Password',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: screenHeight * 0.02),
+              // Cancel Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context); // Go back without making changes
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

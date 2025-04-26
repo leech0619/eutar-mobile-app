@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
-  final int currentIndex;
-  final Function(int) onTabChange;
+  final int currentIndex; // The currently selected tab index
+  final Function(int) onTabChange; // Callback function to handle tab changes
 
   const BottomNavigationBarWidget({
     super.key,
@@ -13,34 +13,55 @@ class BottomNavigationBarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get screen width and height for responsive design
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate padding and gap dynamically based on screen size
+    final double horizontalPadding = screenWidth * 0.04; // 4% of screen width
+    final double verticalPadding = screenHeight * 0.01; // 1% of screen height
+    final double gap = screenWidth * 0.02; // 2% of screen width
+
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: Colors.white, // Background color of the navigation bar
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
+          topLeft: Radius.circular(30), // Rounded corners on the top left
+          topRight: Radius.circular(30), // Rounded corners on the top right
         ),
         boxShadow: [
-          BoxShadow(color: Colors.black38, spreadRadius: 0, blurRadius: 10),
+          BoxShadow(
+            color: Colors.black38, // Shadow color
+            spreadRadius: 0, // Spread radius of the shadow
+            blurRadius: 10, // Blur radius of the shadow
+          ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding, // Horizontal padding for the bar
+          vertical: verticalPadding, // Vertical padding for the bar
+        ),
         child: GNav(
-          selectedIndex: currentIndex,
-          onTabChange: onTabChange,
-          gap: 3,
-          backgroundColor: Colors.white,
-          color: Colors.black,
-          activeColor: Colors.white,
-          tabBackgroundColor: Colors.blueAccent,
-          padding: const EdgeInsets.all(16),
+          selectedIndex: currentIndex, // The currently selected tab index
+          onTabChange: onTabChange, // Callback for tab change
+          gap: gap, // Gap between icon and text in each tab
+          backgroundColor:
+              Colors.white, // Background color of the navigation bar
+          color: Colors.black, // Default icon color
+          activeColor: Colors.white, // Icon color when active
+          tabBackgroundColor:
+              Colors.blueAccent, // Background color of active tab
+          padding: EdgeInsets.all(
+            screenWidth * 0.04,
+          ), // Padding inside each tab
           tabs: const [
-            GButton(icon: Icons.home, text: "Home"),
-            GButton(icon: Icons.book, text: "Resource"),
-            GButton(icon: Icons.school, text: "Advisor"),
-            GButton(icon: Icons.directions_bus, text: "Bus"),
-            GButton(icon: Icons.person, text: "Profile"),
+            // Define the tabs with icons and labels
+            GButton(icon: Icons.home, text: "Home"), // Home tab
+            GButton(icon: Icons.book, text: "Resource"), // Resource tab
+            GButton(icon: Icons.school, text: "Advisor"), // Advisor tab
+            GButton(icon: Icons.directions_bus, text: "Bus"), // Bus tab
+            GButton(icon: Icons.person, text: "Profile"), // Profile tab
           ],
         ),
       ),

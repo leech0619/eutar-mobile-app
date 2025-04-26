@@ -23,6 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
@@ -37,105 +40,117 @@ class _LoginScreenState extends State<LoginScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16.0, 80.0, 16.0, 16.0),
-          child: Form(
-            key: _controller.formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // App logo
-                Image.asset(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.05, // 5% of screen width
+          vertical: screenHeight * 0.02, // 2% of screen height
+        ),
+        child: Form(
+          key: _controller.formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: screenHeight * 0.05),
+              // App logo
+              SizedBox(
+                height: screenHeight * 0.25, // 25% of screen height
+                child: Image.asset(
                   'assets/icon/eutar.png',
-                  height: 220,
+                  fit: BoxFit.contain,
                 ),
-                const SizedBox(height: 40),
-                // Email field with reserved space for error message
-                SizedBox(
-                  height: 90, // Text field height + error message height
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _controller.emailController,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        validator: _controller.validateEmail,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 80, // Text field height + error message height
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextFormField(
-                        controller: _controller.passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        validator: _controller.validatePassword,
-                      ),
-                    ],
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              ),
+              SizedBox(height: screenHeight * 0.04), // 4% of screen height
+              // Email field with reserved space for error message
+              SizedBox(
+                height: screenHeight * 0.10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const RegisterScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'First time user? Register',
-                        style: TextStyle(color: Colors.blue),
+                    TextFormField(
+                      controller: _controller.emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ForgotPasswordScreen(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        'Forgot password?',
-                        style: TextStyle(color: Colors.blue),
-                      ),
+                      validator: _controller.validateEmail,
                     ),
                   ],
                 ),
-                Container(
-                  height:
-                      70, // Reserve space for the button and loading indicator
-                  alignment: Alignment.center,
-                  child: _controller.isLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
+              ),
+              // Password field with reserved space for error message
+              SizedBox(
+                height: screenHeight * 0.085,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _controller.passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: _controller.validatePassword,
+                    ),
+                  ],
+                ),
+              ),
+              // Row for Register and Forgot Password buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Register here',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Forgot password?',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: screenHeight * 0.02), // 2% of screen height
+              // Login button with loading indicator
+              Container(
+                height: screenHeight * 0.08, // 8% of screen height
+                alignment: Alignment.center,
+                child:
+                    _controller.isLoading
+                        ? const CircularProgressIndicator()
+                        : ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 50,
-                              vertical: 15,
+                            padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  screenWidth * 0.2, // 20% of screen width
+                              vertical:
+                                  screenHeight * 0.02, // 2% of screen height
                             ),
                           ),
                           onPressed: () => _controller.login(context),
@@ -148,10 +163,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
+              ),
+              SizedBox(height: screenHeight * 0.02), // 2% of screen height
+            ],
           ),
         ),
       ),

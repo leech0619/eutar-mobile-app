@@ -18,7 +18,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedGender;
   String? _selectedFaculty;
 
+  // List of gender options
   final List<String> _genders = ['Male', 'Female', 'Other'];
+
+  // List of faculty options
   final List<String> _faculties = [
     'Faculty of Accountancy and Management (FAM)',
     'Faculty of Arts and Social Science (FAS)',
@@ -32,11 +35,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     'M. Kandiah Faculty of Medicine and Health Sciences (MK FMHS)',
   ];
 
+  // Controller to handle profile update logic
   final EditProfileController _controller = EditProfileController();
 
   @override
   void initState() {
     super.initState();
+    // Initialize gender, faculty, and birthday fields from passed profile
     _selectedGender = widget.profile.gender;
     _selectedFaculty = widget.profile.faculty;
     _birthdayController = TextEditingController(text: widget.profile.birthday);
@@ -48,11 +53,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  // Function to validate and save changes
   Future<void> _saveChanges() async {
     if (_formKey.currentState!.validate()) {
       final updatedProfile = ProfileModel(
         fullName: widget.profile.fullName,
-        email: widget.profile.email, // Email remains unchanged
+        email: widget.profile.email, // Email is not editable
         gender: _selectedGender ?? widget.profile.gender,
         birthday: _birthdayController.text,
         faculty: _selectedFaculty ?? widget.profile.faculty,
@@ -62,11 +68,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final success = await _controller.updateProfile(updatedProfile);
 
         if (success) {
-          // Show success message
+          // Show success snackbar
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Row(
-                children: const [
+                children: [
                   Icon(Icons.check_circle, color: Colors.white),
                   SizedBox(width: 10),
                   Text(
@@ -78,19 +84,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
             ),
           );
-
-          // Return to ProfileScreen with success result
           Navigator.pop(context, true);
         } else {
-          // Show error if no matching document is found
+          // Show error snackbar if no matching profile is found
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Row(
-                children: const [
+                children: [
                   Icon(Icons.error, color: Colors.white),
                   SizedBox(width: 10),
                   Text(
@@ -102,22 +106,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.all(Radius.circular(10)),
               ),
             ),
           );
         }
       } catch (error) {
-        // Show error message
+        // Show error snackbar if update fails
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
                 const Icon(Icons.error, color: Colors.white),
                 const SizedBox(width: 10),
-                Text(
-                  'Failed to update profile: $error',
-                  style: const TextStyle(color: Colors.white),
+                Expanded(
+                  child: Text(
+                    'Failed to update profile: $error',
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -134,7 +140,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text(
           'Edit Profile',
@@ -148,16 +158,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.06,
+          vertical: screenHeight * 0.02,
+        ),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
             children: [
-              const SizedBox(height: 20),
-              // Name Field
+              SizedBox(height: screenHeight * 0.02),
+
+              // Name Input Field
               SizedBox(
-                height: 80,
+                height: screenHeight * 0.11,
                 child: TextFormField(
                   initialValue: widget.profile.fullName,
                   decoration: InputDecoration(
@@ -177,10 +191,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 10),
-              // Gender Dropdown
+
+              // Gender Dropdown Field
               SizedBox(
-                height: 80,
+                height: screenHeight * 0.11,
                 child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Gender',
@@ -212,10 +226,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 10),
-              // Faculty Dropdown
+
+              // Faculty Dropdown Field
               SizedBox(
-                height: 80,
+                height: screenHeight * 0.11,
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
                   decoration: InputDecoration(
@@ -224,30 +238,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  value: _faculties.contains(_selectedFaculty) ? _selectedFaculty : null,
-                  items: _faculties.map((String faculty) {
-                    return DropdownMenuItem<String>(
-                      value: faculty,
-                      child: Text(
-                        faculty,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (newValue) {
-                    setState(() {
-                      _selectedFaculty = newValue;
-                    });
-                  },
-                  selectedItemBuilder: (BuildContext context) {
+                  value:
+                      _faculties.contains(_selectedFaculty)
+                          ? _selectedFaculty
+                          : null,
+                  items:
+                      _faculties.map((String faculty) {
+                        return DropdownMenuItem<String>(
+                          value: faculty,
+                          child: Text(
+                            faculty,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        );
+                      }).toList(),
+                  selectedItemBuilder: (context) {
+                    // Display selected faculty with ellipsis if too long
                     return _faculties.map((String faculty) {
                       return Text(
                         faculty,
-                        overflow: TextOverflow.ellipsis, // Truncate text with ellipsis
+                        overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: const TextStyle(fontSize: 16),
                       );
                     }).toList();
+                  },
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedFaculty = newValue;
+                    });
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -257,10 +276,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 10),
-              // Birthday Field
+
+              // Birthday Input Field
               SizedBox(
-                height: 90,
+                height: screenHeight * 0.12,
                 child: TextFormField(
                   controller: _birthdayController,
                   decoration: InputDecoration(
@@ -271,6 +290,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   readOnly: true,
                   onTap: () async {
+                    // Show date picker when birthday field is tapped
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
                       initialDate:
@@ -294,59 +314,58 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 20),
-              // Save and Cancel Buttons
-              Column(
-                children: [
-                  // Save Changes Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      onPressed: _saveChanges,
-                      child: const Text(
-                        'Save Changes',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+
+              // Save Changes Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  onPressed: _saveChanges,
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  // Cancel Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context, false);
-                      },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
+
+              SizedBox(height: screenHeight * 0.02),
+
+              // Cancel Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: screenHeight * 0.02),
             ],
           ),
         ),
