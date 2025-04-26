@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../utils/gemini_service.dart';
@@ -6,9 +5,7 @@ import '../utils/pdf_email_service.dart';
 import '../utils/auth.dart';  // Import the auth service
 import 'model/chat_message.dart';
 import 'widgets/message_bubble.dart';
-import 'widgets/chat_history_drawer.dart'; // Import the new drawer widget
 import 'services/chat_session_service.dart'; // Import the chat session service
-import 'package:shared_preferences/shared_preferences.dart';
 import '../profile/controller/profile_controller.dart'; // Import ProfileController
 import '../profile/model/profile_model.dart'; // Import ProfileModel
 import 'package:intl/intl.dart';
@@ -214,6 +211,82 @@ class _AdvisorPageState extends State<AdvisorPage> {
           await _loadUserProfile();
         }
         
+        // Before sending the email, make sure that we have recommendations generated
+        // If there are no messages with recommendation tags, generate them
+        bool hasRecommendations = false;
+        
+        // Check if we have a properly formatted recommendation
+        for (final message in _currentSession.messages) {
+          if (message.messageType == MessageType.advisor &&
+              message.text.contains('### RECOMMENDATIONS SUMMARY ###') &&
+              message.text.contains('### END RECOMMENDATIONS ###')) {
+            hasRecommendations = true;
+            print('Found existing recommendations for PDF');
+            break;
+          }
+        }
+        
+        // If no recommendations found, generate them now
+        if (!hasRecommendations && _currentSession.meetingState.isAllQuestionsAnswered) {
+          setState(() {
+            _isLoading = true;
+          });
+          
+          // Generate recommendations using all the responses
+          final responses = _currentSession.meetingState.getAllResponses();
+          final formattedResponses = _currentSession.meetingState.getFormattedResponses();
+          
+          if (responses.isNotEmpty) {
+            try {
+              print('Generating recommendations before sending email');
+              // Create a prompt specifically for the summary
+              String summaryPrompt = '''
+              You're a friendly UTAR academic advisor who just finished a conversation with a student named ${_userProfile?.fullName ?? 'the student'}. Create a natural, helpful summary of your discussion that feels like a real advisor wrote it.
+
+              Here's what the student shared during your conversation:
+              
+              ${formattedResponses}
+              
+              Write a personalized summary that covers:
+              
+              1. Academic Progress: Highlight how they're doing academically and acknowledge their strengths/challenges.
+              2. Extracurricular Activities: Note their participation in clubs, societies, sports or other activities at UTAR.
+              3. Challenges & Concerns: Address their concerns with empathy.
+              4. Goals: Mention their academic and career goals.
+              5. Recommendations: Offer 3-4 helpful, specific suggestions tailored to their situation.
+              
+              IMPORTANT: Begin your response with "### RECOMMENDATIONS SUMMARY ###" and end with "### END RECOMMENDATIONS ###" to make it easy to identify this as the final summary.
+              
+              Use a warm, supportive tone. Address them by their actual name (${_userProfile?.fullName ?? 'the student'}) instead of using "[Student Name]". Do NOT use placeholder text like [Student Name] or [Your Name] anywhere in your response. Sign the recommendations as "UTAR Academic Advisor" without any placeholder for advisor name.
+              
+              End by letting them know they can download this summary for their records.
+              
+              IMPORTANT: Please do not use markdown formatting like asterisks (**) in your response.
+              ''';
+              
+              final recommendationResponse = await _geminiService.getAdvisorResponse(summaryPrompt);
+              
+              // Add the response to the chat
+              setState(() {
+                _currentSession.addMessage(ChatMessage(
+                  text: recommendationResponse,
+                  messageType: MessageType.advisor,
+                ));
+                _isLoading = false;
+              });
+              
+              // Save the session with the new recommendation message
+              await _sessionService.saveSession(_currentSession);
+              
+            } catch (e) {
+              print('Error generating recommendations: $e');
+              setState(() {
+                _isLoading = false;
+              });
+            }
+          }
+        }
+        
         // Generate the PDF and send email with user profile data
         await PdfEmailService().generatePdfAndSendEmail(
           _currentSession.messages, 
@@ -224,7 +297,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Your consultation summary has been prepared for email!'),
+            content: Text('Your consultation summary has been sent through email!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -284,7 +357,21 @@ class _AdvisorPageState extends State<AdvisorPage> {
     try {
       String response;
       
-      if (_currentSession.meetingState.isInMeeting && messageText.toLowerCase().contains('stop')) {
+      if (_currentSession.meetingState.isInMeeting && messageText.trim().toLowerCase() == 'end') {
+        // User requested to end and send summary
+        _currentSession.meetingState.endMeeting();
+        await _sessionService.saveSession(_currentSession);
+        _sendEmailAutomatically();
+        setState(() {
+          _currentSession.addMessage(ChatMessage(
+            text: 'Thank you for your time! Your summary will be prepared shortly to send via email.',
+            messageType: MessageType.advisor,
+          ));
+        });
+        return;
+      }
+      // ...existing code...
+      else if (_currentSession.meetingState.isInMeeting && messageText.toLowerCase().contains('stop')) {
         _currentSession.meetingState.endMeeting();
         response = 'Advisory meeting has been stopped. You can continue chatting with me or start a new meeting later.';
       } else if (_currentSession.meetingState.isInMeeting) {
@@ -298,18 +385,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
           _currentSession.meetingState.getAllResponses()
         );
         
-        // Check if the meeting is complete - we've gone through all the questions
-        if (_currentSession.meetingState.isAllQuestionsAnswered) {
-          // Debug
-          print("All questions answered! currentQuestionNumber: ${_currentSession.meetingState.currentQuestionNumber}");
-          
-          _currentSession.meetingState.endMeeting();
-          
-          // Automatically send the email instead of showing a snackbar
-          Future.delayed(const Duration(milliseconds: 1500), () {
-            _sendEmailAutomatically();
-          });
-        }
+        // Do NOT auto-send summary here!
       } else if (_shouldStartMeeting(messageText)) {
         // Start new meeting
         _currentSession.meetingState.startMeeting();
@@ -408,7 +484,7 @@ class _AdvisorPageState extends State<AdvisorPage> {
         key: _scaffoldKey,
         appBar: AppBar(
           title: const Text(
-            'UTAR Academic Advisor',
+            'Academic Advisor',
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,

@@ -86,6 +86,18 @@ class GeminiService {
     
     // Fix: nextQuestionIndex should be the next question to ask
     int nextQuestionIndex = questionNumber + 1;
+
+    // After the last question (goals), respond to the user's goals, then wrap up and prompt for further questions or 'end'.
+    if (questionNumber == 3) {
+      // Use the AI to generate a short acknowledgment for the user's goals
+      final prompt = '''
+    The student just answered your question about their academic goals and future plans: "$userResponse"
+
+    Respond with a brief, natural, and supportive acknowledgment about their goals and plans (do NOT give advice or summary). Then add: "Please type 'end' to terminate the session and I will send your session summary to your email."
+    Keep your response conversational and do not use markdown formatting.
+    ''';
+      return await getAdvisorResponse(prompt);
+}
     
     if (nextQuestionIndex >= questions.length) {
       // For the final summary - pass all student responses with clear categorization
@@ -125,6 +137,8 @@ class GeminiService {
       4. Goals: Mention their academic and career goals.
       5. Recommendations: Offer 3-4 helpful, specific suggestions tailored to their situation.
       
+      IMPORTANT: Begin your response with "### RECOMMENDATIONS SUMMARY ###" and end with "### END RECOMMENDATIONS ###" to make it easy to identify this as the final summary.
+      
       Use a warm, supportive tone. Write as if directly speaking to the student. Make specific references to things they mentioned. Keep it natural and conversational.
       
       End by letting them know they can download this summary for their records.
@@ -148,11 +162,13 @@ class GeminiService {
         contextPrompt = '''
         The student just answered your question about their academic progress and CGPA: "$userResponse"
         
-        Respond with a brief acknowledgment about their academic performance, mentioning their CGPA or any specific academic points they shared. Then ask this next question about extracurricular activities: 
+        Respond with a brief acknowledgment about their academic performance, mentioning their CGPA or any specific academic points they shared. 
+        
+        Then ask this next question about extracurricular activities: 
         
         "$nextQuestion"
         
-        IMPORTANT: Make sure your response acknowledges their academic performance since that's what they just talked about.
+        IMPORTANT: Make sure your response acknowledges their academic performance since that's what they just talked about. Add a short space or pause before asking the next question, but do not include any special characters like "\n" in your response.
         
         Keep your response natural and conversational. Don't use formatting like asterisks.
         ''';
@@ -163,11 +179,13 @@ class GeminiService {
         contextPrompt = '''
         The student just answered your question about their extracurricular activities at UTAR: "$userResponse"
         
-        Respond with a brief acknowledgment about their involvement in extracurricular activities (mention any specific clubs or activities they shared). Then ask this next question about challenges: 
+        Respond with a brief acknowledgment about their involvement in extracurricular activities (mention any specific clubs or activities they shared). 
+        
+        Then ask this next question about challenges: 
         
         "$nextQuestion"
         
-        IMPORTANT: Make sure you clearly transition from extracurricular activities to challenges.
+        IMPORTANT: Make sure you clearly transition from extracurricular activities to challenges. Add a short space or pause before asking the next question, but do not include any special characters like "\n" in your response.
         
         Keep your response natural and conversational. Don't use formatting like asterisks.
         ''';
@@ -178,11 +196,13 @@ class GeminiService {
         contextPrompt = '''
         The student just answered your question about challenges they're facing: "$userResponse"
         
-        Respond with an empathetic acknowledgment about the challenges they mentioned. Then ask this next question about their goals for the future: 
+        Respond with an empathetic acknowledgment about the challenges they mentioned.
+        
+        Then ask this next question about their goals for the future: 
         
         "$nextQuestion"
         
-        IMPORTANT: Make sure you clearly transition from challenges to future goals.
+        IMPORTANT: Make sure you clearly transition from challenges to future goals. Add a short space or pause before asking the next question, but do not include any special characters like "\n" in your response.
         
         Keep your response natural and conversational. Don't use formatting like asterisks.
         ''';
@@ -193,9 +213,7 @@ class GeminiService {
         contextPrompt = '''
         The student just answered your question about their academic goals and future plans: "$userResponse"
         
-        Respond with a brief acknowledgment about their goals and plans. Then let them know that the advisory session is wrapping up and a personalized summary with tailored recommendations will be sent to their email. 
-        
-        IMPORTANT: After this, ask the student: "Do you have any other questions or concerns you'd like to discuss? If not, just let me know and I'll send your summary to your email." 
+        Respond with: "Let's wrap up our conversation. A summary of your session will be prepared and sent to your email. If you are done, just type 'end' and I'll prepare your summary and send via email."
         
         DO NOT provide any specific recommendations or advice in this response. Do NOT show the summary or advice in the chat. Only mention that the summary will be sent via email.
         

@@ -194,7 +194,7 @@ class _ResourceScreenState extends State<ResourceScreen> {
         appBar: AppBar(
           backgroundColor: Colors.blue,
           title: const Text(
-            'Resources',
+            'Resource Sharing',
             style: TextStyle(
               color: Colors.white,
               fontSize: 24,
