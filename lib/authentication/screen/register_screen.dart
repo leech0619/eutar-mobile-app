@@ -141,6 +141,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 label: 'Email',
                 controller: _controller.emailController,
                 validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
                   String? result;
                   _controller.validateEmail(value).then((validationResult) {
                     result = validationResult;
