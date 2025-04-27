@@ -188,24 +188,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           setState(() {}); // Refresh UI after editing
         }
       } else {
-        // Show error if profile data is unavailable
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to load profile data')),
         );
       }
     } else if (value == 'Change Password') {
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
-      );
-      if (result == true) {
-        // Show success message after changing password
-        ScaffoldMessenger.of(
+      // Ensure the SnackBar is shown only once
+      if (mounted) {
+        final result = await Navigator.push(
           context,
-        ).showSnackBar(_buildSuccessSnackBar('Password changed successfully'));
+          MaterialPageRoute(builder: (context) => const ChangePasswordScreen()),
+        );
+        if (result == true) {
+          ScaffoldMessenger.of(
+            context,
+          ).clearSnackBars(); // Clear any existing SnackBars
+          ScaffoldMessenger.of(context).showSnackBar(
+            _buildSuccessSnackBar('Password changed successfully'),
+          );
+        }
       }
     } else if (value == 'Logout') {
-      await controller.logout(); // Perform logout
+      await controller.logout();
+      ScaffoldMessenger.of(
+        context,
+      ).clearSnackBars(); // Clear any existing SnackBars
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(_buildSuccessSnackBar('Logout successful'));
