@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../controller/verify_controller.dart';
 
@@ -10,6 +11,38 @@ class VerifyScreen extends StatefulWidget {
 
 class _VerifyScreenState extends State<VerifyScreen> {
   final VerifyController controller = VerifyController();
+  int cooldownTime = 60; // Initial cooldown time in seconds
+  Timer? cooldownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    startCooldownTimer(); // Start the cooldown timer
+  }
+
+  @override
+  void dispose() {
+    cooldownTimer?.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  void startCooldownTimer() {
+    setState(() {
+      cooldownTime = 60; // Reset cooldown time
+      controller.canResendEmail = false; // Disable the button initially
+    });
+
+    cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (cooldownTime > 0) {
+          cooldownTime--;
+        } else {
+          timer.cancel();
+          controller.canResendEmail = true; // Enable the button after cooldown
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,18 +72,17 @@ class _VerifyScreenState extends State<VerifyScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Container for the email verification image
+            // Email verification image
             SizedBox(
               height: screenHeight * 0.3, // 30% of screen height
               child: Image.asset(
                 'assets/images/email_verification.png',
-                height: screenHeight * 0.3, // 30% of screen height
-                width: screenWidth * 0.6, // 60% of screen width
+                height: screenHeight * 0.3,
+                width: screenWidth * 0.6,
                 fit: BoxFit.cover,
               ),
             ),
             SizedBox(height: screenHeight * 0.03), // 3% of screen height
-            // Informational message
             const Text(
               'Please check your email to verify your account.',
               style: TextStyle(
@@ -61,18 +93,21 @@ class _VerifyScreenState extends State<VerifyScreen> {
               textAlign: TextAlign.center,
             ),
             SizedBox(height: screenHeight * 0.02), // 2% of screen height
-            // Container for the Resend Email Button
+            // Resend Email Button
             SizedBox(
               height: screenHeight * 0.08, // 8% of screen height
               child: SizedBox(
                 width: screenWidth * 0.6, // 60% of screen width
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: controller.emailResent
-                        ? Colors.grey // Grey if email has been resent
-                        : (controller.canResendEmail
-                            ? Colors.blue
-                            : Colors.blueGrey),
+                    backgroundColor:
+                        controller.emailResent
+                            ? Colors
+                                .grey // Grey if email has been resent
+                            : (controller.canResendEmail
+                                ? Colors.blue
+                                : Colors
+                                    .grey), // Disable button during cooldown
                     padding: EdgeInsets.symmetric(
                       vertical: screenHeight * 0.02, // 2% of screen height
                     ),
@@ -80,18 +115,22 @@ class _VerifyScreenState extends State<VerifyScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: controller.canResendEmail && !controller.emailResent
-                      ? () async {
-                          await controller.resendEmailVerification(context);
-                          setState(() {}); // Trigger UI update
-                        }
-                      : null,
+                  onPressed:
+                      controller.canResendEmail && !controller.emailResent
+                          ? () async {
+                            await controller.resendEmailVerification(context);
+                            setState(() {
+                              controller.emailResent =
+                                  true; // Mark email as resent
+                            });
+                          }
+                          : null,
                   child: Text(
                     controller.emailResent
-                        ? 'Resent Email' // Change text to "Resent Email"
+                        ? 'Resent Email' // Show "Resent Email" after success
                         : (controller.canResendEmail
                             ? 'Resend Email'
-                            : 'Wait 60s'),
+                            : 'Resend Email ${cooldownTime}s'), // Show countdown during cooldown
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -102,7 +141,7 @@ class _VerifyScreenState extends State<VerifyScreen> {
               ),
             ),
             SizedBox(height: screenHeight * 0.02), // 2% of screen height
-            // Container for the Navigate to Login button
+            // Navigate to Login Button
             SizedBox(
               height: screenHeight * 0.08, // 8% of screen height
               child: SizedBox(
@@ -130,16 +169,17 @@ class _VerifyScreenState extends State<VerifyScreen> {
               ),
             ),
             SizedBox(height: screenHeight * 0.01), // 1% of screen height
-            // Container for the error message
+            // Error message
             SizedBox(
               height: screenHeight * 0.03, // 3% of screen height
-              child: controller.errorMessage != null
-                  ? Text(
-                      controller.errorMessage!,
-                      style: const TextStyle(color: Colors.red, fontSize: 14),
-                      textAlign: TextAlign.center,
-                    )
-                  : null,
+              child:
+                  controller.errorMessage != null
+                      ? Text(
+                        controller.errorMessage!,
+                        style: const TextStyle(color: Colors.red, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      )
+                      : null,
             ),
           ],
         ),
